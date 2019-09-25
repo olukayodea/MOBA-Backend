@@ -1,0 +1,50 @@
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule api/(.*)$ webservice/homePage.php?request=$1 [QSA,NC,L]
+
+RewriteRule admin/banks/(.*)$ admin/banks.php?view=$1 [QSA,NC,L]
+RewriteRule admin/category/(.*)$ admin/category.php?view=$1 [QSA,NC,L]
+RewriteRule admin/country/(.*)$ admin/country.php?view=$1 [QSA,NC,L]
+RewriteRule admin/rating/(.*)$ admin/rating.php?view=$1 [QSA,NC,L]
+RewriteRule paymentCards/(.*)$ paymentCards.php?view=$1 [QSA,NC,L]
+RewriteRule bankAccounts/(.*)$ bankAccounts.php?view=$1 [QSA,NC,L]
+RewriteRule admin/users/(.*)$ admin/users.php?view=$1 [QSA,NC,L]
+RewriteRule inbox/(.*)$ inbox.php?view=$1 [QSA,NC,L]
+RewriteRule hire/(.*)$ hire.php?project_type=$1 [QSA,NC,L]
+RewriteRule ads(.*)$ postedAds.php?view=$1 [QSA,NC,L]
+RewriteRule admin/adverts(.*)$ admin/adverts.php?view=$1 [QSA,NC,L]
+RewriteRule payments/Authorization(.*)$ paymentAuthorization.php?ref=$1 [QSA,NC,L]
+RewriteRule confirmation/(.*)$ confirmation.php?ref=$1 [QSA,NC,L]
+RewriteRule search/keyword/(.*)$ find.php?type=keyword&s=$1 [QSA,NC,L]
+RewriteRule search/category/(.*)$ find.php?type=category&s=$1 [QSA,NC,L]
+RewriteRule search find.php?type=all [QSA,NC,L]
+RewriteRule edit/Image updateProfile.php?type=img [QSA,NC,L]
+RewriteRule edit/Profile updateProfile.php?type=profile [QSA,NC,L]
+RewriteRule edit/ScreenName updateProfile.php?type=screenname [QSA,NC,L]
+RewriteRule edit/Password updateProfile.php?type=Password [QSA,NC,L]
+RewriteRule edit/IDs updateProfile.php?type=IDs [QSA,NC,L]
+RewriteRule notifications/(.*)$ notifications.php?view=$1 [QSA,NC,L]
+RewriteRule wallet/(.*)$ wallet.php?view=$1 [QSA,NC,L]
+RewriteRule profile/(.*)$ publicProfile.php?view=$1 [QSA,NC,L]
+
+RewriteRule category/([a-zA-Z)([0-9]+)/(.*?)/$ jobs.php?id=$1 [QSA,NC,L]
+RewriteRule listings/([a-zA-Z)([0-9]+)/(.*?)/$ view.php?id=$1 [QSA,NC,L]
+RewriteRule task/([a-zA-Z)([0-9]+)/(.*?)/$ view_current.php?id=$1 [QSA,NC,L]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php
+
+IndexIgnore *
+</IfModule>
+
+SetEnvIf Authorization .+ HTTP_AUTHORIZATION=$0
+
+<IfModule mod_headers.c>
+Header set Access-Control-Allow-Origin "*"
+</IfModule>

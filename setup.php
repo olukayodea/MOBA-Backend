@@ -1,0 +1,76 @@
+<?php
+include_once("includes/functions.php");
+$payment_card = new payment_card;
+if(isset($_REQUEST['initiate'])) {
+    $users->initialize_table();
+    $usersCategory->initialize_table();
+    $usersTrack->initialize_table();
+    // $projects->initialize_table();
+    // $projects_negotiate->initialize_table();
+    // $projects_data->initialize_table();
+    // $project_save->initialize_table();
+    // $inbox->initialize_table();
+    // $messages->initialize_table();
+    // $notifications->initialize_table();
+    $category->initialize_table();
+    $identity->initialize_table();
+    $country->initialize_table();
+    $options->initialize_table();
+    // $media->initialize_table();
+    // $rating_question->initialize_table();
+    // $rating_comment->initialize_table();
+    // $rating->initialize_table();
+    // $transactions->initialize_table();
+    // $payments->initialize_table();
+    // $payment_card->initialize_table();
+    // $bank_account->initialize_table();
+    // $banks->initialize_table();
+    // $wallet->initialize_table();
+} else if(isset($_REQUEST['clear'])) {
+    $users->clear_table();
+    $usersCategory->clear_table();
+    $usersTrack->clear_table();
+    // $projects->clear_table();
+    // $projects_negotiate->clear_table();
+    // $projects_data->clear_table();
+    // $project_save->clear_table();
+    // $inbox->clear_table();
+    // $messages->clear_table();
+    // $notifications->clear_table();
+    // $category->clear_table();
+    // $country->clear_table();
+    // $options->clear_table();
+    // $media->clear_table();
+    // $rating_question->clear_table();
+    // $rating_comment->clear_table();
+    // $rating->clear_table();
+    // $transactions->clear_table();
+    // $payments->clear_table();
+    // $payment_card->clear_table();
+    // $bank_account->clear_table();
+    // $banks->clear_table();
+    // $wallet->clear_table();
+} else if(isset($_REQUEST['remove'])) {
+    $users->delete_table();
+    // $projects->delete_table();
+    // $projects_negotiate->delete_table();
+    // $projects_data->delete_table();
+    // $project_save->delete_table();
+    // $inbox->delete_table();
+    // $messages->delete_table();
+    // $notifications->delete_table();
+    // $category->delete_table();
+    // $country->delete_table();
+    // $options->delete_table();
+    // $media->delete_table();
+    // $rating_question->delete_table();
+    // $rating_comment->delete_table();
+    // $rating->delete_table();
+    // $transactions->delete_table();
+    // $payments->delete_table();
+    // $payment_card->delete_table();
+    // $bank_account->delete_table();
+    // $banks->delete_table();
+    // $wallet->delete_table();
+}
+?>

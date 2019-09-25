@@ -1,0 +1,113 @@
+@media only screen and (max-width: 600px) {
+    .card-img-top {
+        width: 100%;
+        height: 55vw;
+        object-fit: cover;
+    }
+}
+@media only screen and (min-width: 600px) {
+    .card-img-top {
+        width: 100%;
+        height: 35vw;
+        object-fit: cover;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .card-img-top {
+        width: 100%;
+        height: 23vw;
+        object-fit: cover;
+    }
+}
+
+.client {
+    color: darkgreen;
+}
+
+.vendor {
+    color: red;
+}
+
+.blackiconcolor {
+    color:black;
+}
+
+.bluecolor {
+    color:blue;
+}
+
+.time
+{
+    color:#bfbfbf;
+}
+
+.profile {
+    border-radius: 50%;
+  }
+
+.invalid {
+    padding-left:22px;
+    line-height:24px;
+    color:#ec3f41;
+}
+.valid {
+    padding-left:22px;
+    line-height:24px;
+    color:#3a7d34;
+}
+.rating {
+    float:left;
+}
+
+/* :not(:checked) is a filter, so that browsers that don’t support :checked don’t 
+   follow these rules. Every browser that supports :checked also supports :not(), so
+   it doesn’t make the test unnecessarily selective */
+.rating:not(:checked) > input {
+    position: absolute;
+    /* top: -9999px; */
+    clip: rect(0, 0, 0, 0);
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.rating:not(:checked) > label {
+    float:right;
+    width:1em;
+    padding:0 .1em;
+    overflow:hidden;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:200%;
+    line-height:1.2;
+    color:#ddd;
+}
+
+.rating:not(:checked) > label:before {
+    content: '★ ';
+}
+
+.rating > input:checked ~ label {
+    color: #f70;
+}
+
+.rating:not(:checked) > label:hover,
+.rating:not(:checked) > label:hover ~ label {
+    color: gold;
+}
+
+.rating > input:checked + label:hover,
+.rating > input:checked + label:hover ~ label,
+.rating > input:checked ~ label:hover,
+.rating > input:checked ~ label:hover ~ label,
+.rating > label:hover ~ input:checked ~ label {
+    color: #ea0;
+}
+
+.rating > label:active {
+    position:relative;
+    top:2px;
+    left:2px;
+}
