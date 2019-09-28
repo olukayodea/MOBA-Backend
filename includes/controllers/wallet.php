@@ -62,7 +62,7 @@
         }
 
         function getListTWallet($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
-            return $this->list("wallet", $start, $limit, $order, $dir, false, $type);
+            return $this->lists("wallet", $start, $limit, $order, $dir, false, $type);
         }
 
 		function getSingleWallet($name, $tag, $ref="ref") {

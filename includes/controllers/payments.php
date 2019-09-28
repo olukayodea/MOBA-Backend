@@ -7,7 +7,7 @@
         }
 
         function getList($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
-            return $this->list("payments", $start, $limit, $order, $dir, false, $type);
+            return $this->lists("payments", $start, $limit, $order, $dir, false, $type);
         }
 
 		function getSingle($name, $tag="user_profile_id", $ref="ref") {

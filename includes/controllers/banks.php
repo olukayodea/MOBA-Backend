@@ -37,7 +37,7 @@
         }
 
         function getList($start=false, $limit=false, $order="name", $dir="ASC", $type="list") {
-            return $this->list("banks", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+            return $this->lists("banks", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
         }
 
 		function getSingle($name, $tag="name", $ref="ref") {

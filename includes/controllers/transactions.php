@@ -38,7 +38,7 @@
         }
 
         function getListTrans($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
-            return $this->list("transactions", $start, $limit, $order, $dir, false, $type);
+            return $this->lists("transactions", $start, $limit, $order, $dir, false, $type);
         }
 
 		function getSingleTrans($name, $tag, $ref="ref") {

@@ -137,7 +137,7 @@
         }
 
         function getList($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
-            return $this->list("projects_data", $start, $limit, $order, $dir, false, $type);
+            return $this->lists("projects_data", $start, $limit, $order, $dir, false, $type);
         }
 
 		function getSingle($value, $tag="project_id", $ref="ref") {

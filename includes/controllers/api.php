@@ -44,6 +44,7 @@
                 } else if (($mode == "users") && ($action == "register")) {
                     //registeration 
                     $register = $users->create($returnedData);
+                    $userData = $users->apiGetList("getOne", $register);
                     if ($register) {
                         if ($register == "error") {
                             $return['status'] = "503";
@@ -55,11 +56,12 @@
                             $return['additional_message'] = "this account already exist, please login or reset your password to continue";
                         } else {
                             $token = $this->getToken();
-
+                            $userData = $users->apiGetList("getOne", $register);
                             $return['status'] = "200";
                             $return['message'] = "OK";
                             $return['additional_message'] = "account created successfully";
                             $return['token'] = $token;
+                            $return['data'] = $userData['data'];
                         }
                     } else {
                         $return['status'] = "500";
@@ -83,6 +85,7 @@
 
                     if ($login) {
                         $token = $this->getToken();
+                        $userData = $users->apiGetList("getOne", $_SESSION['users']['ref']);
 
                         if ($_SESSION['users']['status'] == "NEW") {
                             $return['status'] = "403";
@@ -97,6 +100,7 @@
                             $return['message'] = "OK";
                             $return['additional_message'] = "Login complete";
                             $return['token'] = $token;
+                            $return['data'] = $userData['data'];
                         }
                     } else {
                         $return['status'] = "404";

@@ -56,7 +56,7 @@
         }
 
         function getList($start=false, $limit=false, $order="last_name", $dir="ASC", $type="list") {
-            return $this->list("bank_account", $start, $limit, $order, $dir, false, $type);
+            return $this->lists("bank_account", $start, $limit, $order, $dir, false, $type);
         }
 
 		function getSingle($name, $tag="last_name", $ref="ref") {

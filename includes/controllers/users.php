@@ -3,7 +3,6 @@ class users extends database {
     /*  create users
     */
     public function create($array) {
-        $this->clear_table();
         if ($this->checkExixst("users", "email", $array['email']) < 1) {
             $data = $array;
             $categoryArray = array();
@@ -47,7 +46,7 @@ class users extends database {
                 global $alerts;
                 $alerts->sendEmail($mail);
 
-                return "done";
+                return $create;
             } else {
                 return "error";
             }
@@ -185,7 +184,7 @@ class users extends database {
     }
 
     function getList($start=false, $limit=false, $order="ref", $dir="ASC", $type="list") {
-        return $this->list("users", $start, $limit, $order, $dir, false, $type);
+        return $this->lists("users", $start, $limit, $order, $dir, false, $type);
     }
 
     function listOne($id, $tag="ref") {
@@ -408,6 +407,7 @@ class users extends database {
     private function clean($data) {
         unset($data['user_type']);
         unset($data['password']);
+        unset($data['account_type_token']);
         unset($data['token']);
         if ($data['badge'] == 1) {
             $data['verified'] = "true";

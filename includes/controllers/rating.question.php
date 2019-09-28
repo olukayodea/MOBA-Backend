@@ -33,7 +33,7 @@
         }
 
         function getList($start=false, $limit=false, $type="list") {
-            return $this->list("rating_question", $start, $limit, "question", "ASC", false, $type);
+            return $this->lists("rating_question", $start, $limit, "question", "ASC", false, $type);
         }
 
 		function getSingle($value, $ref="question", $tag="ref") {

@@ -60,7 +60,7 @@
         }
 
         function getList($start=false, $limit=false, $order="card_name", $dir="ASC", $type="list") {
-            return $this->list("payment_card", $start, $limit, $order, $dir, false, $type);
+            return $this->lists("payment_card", $start, $limit, $order, $dir, false, $type);
         }
 
 		function getSingle($name, $tag="card_name", $ref="ref") {

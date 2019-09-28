@@ -24,7 +24,7 @@
         }
 
         function getList($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
-            return $this->list("messages", $start, $limit, $order, $dir, $type);
+            return $this->lists("messages", $start, $limit, $order, $dir, $type);
         }
 
         function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {

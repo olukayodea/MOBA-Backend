@@ -314,7 +314,7 @@
         }
         
         function getList($start=false, $limit=false, $order="project_name", $dir="ASC", $where=false, $type="list") {
-            return $this->list("projects", $start, $limit, $order, $dir, $where, $type);
+            return $this->lists("projects", $start, $limit, $order, $dir, $where, $type);
         }
 
 		function getSingle($name, $tag="project_name", $ref="ref") {

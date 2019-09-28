@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    $u = "http://127.0.0.1/MOBA-Backend/";
-    $token = "111YT78DDRZPVGAEOHQ";
-    //$u = "https://dev.moba.com.ng/";
-    //$token = "111YKDHB4D7DS5JKLBT";
+    //$u = "http://127.0.0.1/MOBA-Backend/";
+    //token = "111YT78DDRZPVGAEOHQ";
+    $u = "https://dev.moba.com.ng/";
+    $token = "66XPM3PIIG0TAA0C";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -18,25 +18,25 @@
     //data
     $url = $u."api/data";
     echo get($header, $url);*/
-
+/*
     //login
     //type = "local", "social_media";
-    $array['email'] = "olukayode.adebiyi@hotmail.com";
+    $array['email'] = "olukayode.adebiyi@hotmail.co.uk";
     $array['password'] = "Password@1";
     $array['type'] = "local";
 
     $url = $u."api/users/login";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+    echo post($header, $url, $json_data);*/
 /*
     //register
     //type = "local", "social_media";
     //user_type = "0 for users", "1 for service provider", "2 for service admin";
     $array['user_type'] = 2;
-    $array['last_name'] = "Adeniran";
-    $array['other_names'] = "Olakunle";
-    $array['screen_name'] = "Kunzu";
-    $array['email'] = "olukayode.adebiyi@hotmail.com";
+    $array['last_name'] = "Doe";
+    $array['other_names'] = "John";
+    $array['screen_name'] = "demo";
+    $array['email'] = "olukayode.adebiyi@hotmail.co.uk";
     $array['password'] = "Password@1";
     $array['account_type'] = "local";
     $array['account_type_token'] = "";
@@ -52,14 +52,14 @@
     $array['id_number'] = "Kunzu";
     $array['photo_file'] = "Kunzu";
     $array['id_file'] = "Kunzu";
-
+print_r($array);
     $url = $u."api/users/register";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
-/*
+
     //recover
     $url = $u."api/users/recover/".urlencode("olukayode.adebiyi@hotmail.co.uk");
-    echo get($header, $url); */
+    echo get($header, $url); 
 /*
     //category::listparent
     $url = $u."api/category/listParent";

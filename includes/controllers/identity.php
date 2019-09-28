@@ -34,7 +34,7 @@ class identity extends database {
     }
 
     function getList($start=false, $limit=false, $type="list") {
-        return $this->list("identity", $start, $limit, "name", "ASC", false, $type);
+        return $this->lists("identity", $start, $limit, "name", "ASC", false, $type);
     }
 
     function getSingle($value, $ref="name", $tag="ref") {

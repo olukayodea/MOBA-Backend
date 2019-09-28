@@ -39,7 +39,7 @@
         }
 
         function getList($start=false, $limit=false, $order="category_title", $dir="ASC", $type="list") {
-            return $this->list("category", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+            return $this->lists("category", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
         }
 
 		function getSingle($name, $tag="category_title", $ref="ref") {

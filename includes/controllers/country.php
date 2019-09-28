@@ -55,7 +55,7 @@
         }
 
         function getList($start=false, $limit=false, $type="list") {
-            return $this->list("country", $start, $limit, "name", "ASC", false, $type);
+            return $this->lists("country", $start, $limit, "name", "ASC", false, $type);
         }
 
 		function getSingle($value, $ref="name", $tag="ref") {
