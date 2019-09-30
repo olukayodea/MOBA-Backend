@@ -486,6 +486,7 @@ class users extends database {
             `verified` INT NOT NULL, 
             `activation_token` VARCHAR(10) NOT NULL,
             `account_type_token` VARCHAR(255) NOT NULL,
+            `firebase_token` VARCHAR(255) NOT NULL,
             `account_type` varchar(20) NOT NULL DEFAULT 'local',
             `token` VARCHAR(50) NOT NULL,
             `status` varchar(20) NOT NULL DEFAULT 'NEW',

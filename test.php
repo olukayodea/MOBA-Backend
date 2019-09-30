@@ -24,6 +24,8 @@
     $array['email'] = "olukayode.adebiyi@hotmail.co.uk";
     $array['password'] = "Password@1";
     $array['type'] = "local";
+    $array['account_type_token'] = "";
+    $array['firebase_token'] = "12334456543456544";
 
     $url = $u."api/users/login";
     $json_data = json_encode($array);
@@ -40,26 +42,30 @@
     $array['password'] = "Password@1";
     $array['account_type'] = "local";
     $array['account_type_token'] = "";
+    $array['firebase_token'] = "12334456543456544";
     //service provider
     $array['mobile_number'] = "08182441752";
     $array['street'] = "Issuti road";
     $array['city'] = "Igando";
     $array['state'] = "Lagos";
-    $array['state'] = 1;
     $array['category'] = "1,2,3,4,5,6,7";
     $array['id_type'] = "Kunzu";
     $array['id_expiry'] = "Kunzu";
     $array['id_number'] = "Kunzu";
     $array['photo_file'] = "Kunzu";
     $array['id_file'] = "Kunzu";
+    $array['kin_name'] = "Kunzu";
+    $array['kin_email'] = "Kunzu";
+    $array['kin_phone'] = "Kunzu";
+    $array['kin_relationship'] = "Kunzu";
 print_r($array);
     $url = $u."api/users/register";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
-
+/*
     //recover
     $url = $u."api/users/recover/".urlencode("olukayode.adebiyi@hotmail.co.uk");
-    echo get($header, $url); 
+    echo get($header, $url); */
 /*
     //category::listparent
     $url = $u."api/category/listParent";
@@ -72,10 +78,10 @@ print_r($array);
     //category::list
     $url = $u."api/category/list";
     echo get($header, $url);*/
-/*
+
     //advert::category
     $url = $u."api/category/advert/2/1";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //advert::search
     $url = $u."api/advert/search/a/1";
