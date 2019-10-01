@@ -26,6 +26,15 @@ class users extends database {
                         $usersCategory->create($pushData);
                     }
                 }
+                if ($array['kin_name'] != "") {
+                    global $usersKin;
+                    $kin['user_id'] = $create;
+                    $kin['kin_name'] = $array['kin_name'];
+                    $kin['kin_email'] = $array['kin_email'];
+                    $kin['kin_phone'] = $array['kin_phone'];
+                    $kin['kin_relationship'] = $array['kin_relationship'];
+                    $usersKin->create($kin);
+                }
                 $client = $array['last_name']." ".$array['other_names'];
                 $subjectToClient = "Welcome to MOBA";
                 $contact = "MOBA <".replyMail.">";
@@ -176,6 +185,42 @@ class users extends database {
     public function modify($array) {
         $ref = $array['ref'];
         unset($array['ref']);
+        if ($array['photo_file'] != "") {
+            $array['image_url'] = $array['photo_file'];
+            unset($array['photo_file']);
+        }
+        if ($array['id_file'] != "") {
+            $array['id_url'] = $array['id_file'];
+            unset($array['id_file']);
+        }
+        if ($array['category'] != "") {
+            $categoryArray = explode(",",$array['category']);
+            if (count($categoryArray) > 0) {
+                $this->delete("usersCategory", $ref, "user_id");
+                global $usersCategory;
+                
+                $pushData['user_id'] = $ref;
+                for ($i = 0; $i < count($categoryArray); $i++) {
+                    $pushData['category_id'] = $categoryArray[$i];
+                    $usersCategory->create($pushData);
+                }
+            }
+            unset($array['category']);
+        }
+        
+        if ($array['kin_name'] != "") {
+            global $usersKin;
+            $kin['user_id'] = $ref;
+            $kin['kin_name'] = $array['kin_name'];
+            $kin['kin_email'] = $array['kin_email'];
+            $kin['kin_phone'] = $array['kin_phone'];
+            $kin['kin_relationship'] = $array['kin_relationship'];
+            $usersKin->create($kin);
+            unset($array['kin_name']);
+            unset($array['kin_email']);
+            unset($array['kin_phone']);
+            unset($array['kin_relationship']);
+        }
         return $this->update("users", $array, array("ref" => $ref));
     }
 
@@ -519,6 +564,8 @@ class users extends database {
 }
 include_once("usersCategory.php");
 include_once("usersTrack.php");
+include_once("usersKin.php");
 $usersCategory  = new usersCategory;
 $usersTrack     = new usersTrack;
+$usersKin       = new usersKin;
 ?>

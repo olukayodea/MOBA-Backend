@@ -1,8 +1,8 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    //$u = "http://127.0.0.1/MOBA-Backend/";
-    //$token = "1122SJB1TQKBXKKJP2N";
+    // $u = "http://127.0.0.1/MOBA-Backend/";
+    // $token = "1122SJB1TQKBXKKJP2N";
     $u = "https://dev.moba.com.ng/";
     $token = "11241RCL8B298BW0MHP";
     $gateway_passcode = base64_encode($product_key."_".$token);
@@ -49,7 +49,7 @@
     $array['city'] = "Igando";
     $array['state'] = "Lagos";
     $array['category'] = "1,2,3,4,5,6,7";
-    $array['id_type'] = "Kunzu";
+    $array['id_type'] = 1;
     $array['id_expiry'] = "Kunzu";
     $array['id_number'] = "Kunzu";
     $array['photo_file'] = "Kunzu";
@@ -58,7 +58,7 @@
     $array['kin_email'] = "Kunzu";
     $array['kin_phone'] = "Kunzu";
     $array['kin_relationship'] = "Kunzu";
-print_r($array);
+
     $url = $u."api/users/register";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
@@ -235,10 +235,10 @@ print_r($array);
     //get
     $url = $u."api/wallet/get/52";
     echo get($header, $url);*/
-
+/*
     //list
     $url = $u."api/wallet/get/all";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //balance
     $url = $u."api/wallet/get/balance";
@@ -252,15 +252,31 @@ print_r($array);
     //get profile
     $url = $u."api/users/profile";
     echo get($header, $url);*/
-/*
+
     //edit profile
     $array['last_name'] = "Adebiyi";
     $array['other_names'] = "Olukayode";
-    $array['screen_name'] = "Kay";
 
+    //service provider
+    $array['mobile_number'] = "08182441752";
+    $array['street'] = "Issuti road";
+    $array['city'] = "Igando";
+    $array['state'] = "Lagos";
+    $array['category'] = "1,2,3,4,5,6,7";
+    $array['id_type'] = "Kunzu";
+    $array['id_expiry'] = "Kunzu";
+    $array['id_number'] = "Kunzu";
+    $array['photo_file'] = "Kunzu";
+    $array['id_file'] = "Kunzu";
+    $array['kin_name'] = "Kunzu";
+    $array['kin_email'] = "Kunzu";
+    $array['kin_phone'] = "Kunzu";
+    $array['kin_relationship'] = "Kunzu";
+
+    print_r($array);
     $url = $u."api/users/profile";
     $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
+    echo put($header, $url, $json_data);
 /*
     //edit password
     $array['old_password'] = "Olukayode";
@@ -578,15 +594,15 @@ print_r($array);
     echo $url;
 
     function get($header,$url) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
+        // return $output;
     }
 
     function post($header,$url, $data) {

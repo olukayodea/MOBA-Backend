@@ -5,6 +5,7 @@ if(isset($_REQUEST['initiate'])) {
     $users->initialize_table();
     $usersCategory->initialize_table();
     $usersTrack->initialize_table();
+    $usersKin->initialize_table();
     // $projects->initialize_table();
     // $projects_negotiate->initialize_table();
     // $projects_data->initialize_table();
@@ -30,6 +31,7 @@ if(isset($_REQUEST['initiate'])) {
     $users->clear_table();
     $usersCategory->clear_table();
     $usersTrack->clear_table();
+    $usersKin->clear_table();
     // $projects->clear_table();
     // $projects_negotiate->clear_table();
     // $projects_data->clear_table();
