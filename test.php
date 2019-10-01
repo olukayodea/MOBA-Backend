@@ -222,7 +222,7 @@ print_r($array);
     $url = $u."api/wallet/deposit";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
-/*
+
     //remove
     //$array['card'] = 1;
     $array['account'] = 1;
@@ -230,7 +230,7 @@ print_r($array);
 
     $url = $u."api/wallet/withdraw";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    echo post($header, $url, $json_data);
 /*
     //get
     $url = $u."api/wallet/get/52";

@@ -90,17 +90,6 @@
                     $pay['user_profile_id'] = $array['card'];
                     $pay['user_profile_type'] = $type;
                     $pay['amount'] = $array['net_total'];
-                    if ($type == "BA") {
-                        if ($regionData['code'] == "CA") {
-                            $pay['tx_type'] = "E";
-                        } else if ($regionData['code'] == "US") {
-                            $pay['tx_type'] = "A";
-                        }
-                        $pay['tx_type_code'] = "C";
-                    } else if ($type == "CC") {
-                        $pay['tx_type'] = "C";
-                        $pay['tx_type_code'] = "P";
-                    }
                     $pay['region'] = $array['region'];
                     $pay['send_time'] = mktime(23,59, 59, date("m"), date("d"), date("Y"));
 
@@ -114,7 +103,6 @@
                         unset($pay['user_profile_id']);
                         unset($pay['user_profile_type']);
                         unset($pay['tx_type']);
-                        unset($pay['tx_type_code']);
                         unset($pay['send_time']);
 
                         $wallet_id = $this->createWallet($pay);
