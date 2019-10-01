@@ -21,7 +21,7 @@ if(isset($_REQUEST['initiate'])) {
     // $rating_comment->initialize_table();
     // $rating->initialize_table();
     $transactions->initialize_table();
-    // $payments->initialize_table();
+    $payments->initialize_table();
     $payment_card->initialize_table();
     $bank_account->initialize_table();
     $banks->initialize_table();

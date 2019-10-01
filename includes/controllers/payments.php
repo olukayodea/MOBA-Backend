@@ -155,8 +155,6 @@
                 `user_profile_id` INT NOT NULL, 
                 `user_profile_type` VARCHAR(2) NOT NULL, 
                 `amount` DOUBLE NOT NULL, 
-                `tx_type` VARCHAR(4) NOT NULL, 
-                `tx_type_code` VARCHAR(4) NOT NULL, 
                 `send_time` VARCHAR(50) NULL, 
                 `batch_id` VARCHAR(1000) NOT NULL, 
                 `batch_id_gateway` VARCHAR(1000) NULL,

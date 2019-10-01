@@ -213,7 +213,7 @@ print_r($array);
     //list
     $url = $u."api/transaction/get/all/3";
     echo get($header, $url);*/
- 
+ /*
     //wallet
     //add
     $array['card'] = 1;
@@ -221,7 +221,7 @@ print_r($array);
 
     $url = $u."api/wallet/deposit";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+    echo post($header, $url, $json_data);*/
 /*
     //remove
     //$array['card'] = 1;
