@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    $u = "http://127.0.0.1/MOBA-Backend/";
-    $token = "1122SJB1TQKBXKKJP2N";
-    //$u = "https://dev.moba.com.ng/";
-    //$token = "66XPM3PIIG0TAA0C";
+    //$u = "http://127.0.0.1/MOBA-Backend/";
+    //$token = "1122SJB1TQKBXKKJP2N";
+    $u = "https://dev.moba.com.ng/";
+    $token = "1125US3PGB62S11M50W";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors

@@ -102,6 +102,9 @@
                             $return['additional_message'] = "Login complete";
                             $return['token'] = $token;
                             $return['data'] = $userData['data'];
+                            $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $_SESSION['users']['ref'])['data'];
+                            $return['bank_accounts'] =  $bank_account->listAllUserData($_SESSION['users']['ref'], 0, 20)['list'];
+                            $return['bank_cards'] = $wallet->listAllUserData($_SESSION['users']['ref'], 0, 20)['list'];
                         }
                     } else {
                         $return['status'] = "404";
