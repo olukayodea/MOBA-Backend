@@ -162,7 +162,7 @@ print_r($array);
     $url = $u."api/account/changeStatus";
     $json_data = json_encode($array);
     echo put($header, $url, $json_data);*/
-
+/*
     //payment cards
     //add
     $array['cc_last_name'] = "Adeniran";
@@ -174,11 +174,11 @@ print_r($array);
 
     $url = $u."api/cards/add/";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+    echo post($header, $url, $json_data);*/
 /*
     //get
     $url = $u."api/cards/get/1";
-    echo get($header, $url); */
+    echo get($header, $url);*/
 /*
     //get default
     $url = $u."api/cards/get/default";
@@ -213,15 +213,15 @@ print_r($array);
     //list
     $url = $u."api/transaction/get/all/3";
     echo get($header, $url);*/
- /*
+ 
     //wallet
     //add
     $array['card'] = 1;
-    $array['amount'] = 390;
+    $array['amount'] = 1000;
 
     $url = $u."api/wallet/deposit";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    echo post($header, $url, $json_data);
 /*
     //remove
     //$array['card'] = 1;

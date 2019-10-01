@@ -125,24 +125,7 @@
         }
 
         public function bambora_remove_profile($id) {
-            $URL = "https://api.na.bambora.com/v1/profiles/".$id;
-			
-			$headers[] = "Authorization: Passcode ".gateway_passcode;
-            $headers[] = "Content-Type: application/json";
-			
-			$ch = curl_init($URL);
-			curl_setopt($ch, CURLOPT_VERBOSE, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $output = curl_exec($ch);
-            curl_close($ch);
-            $data = json_decode($output, true);
-            return $data;
+            return true;
         }
         
         public function listAllUserData($user, $start, $limit) {
@@ -199,32 +182,8 @@
         }
 
         public function bambora_pay($array) {
-            $cardDetails = $this->listOne($array['card']);
-            $payment['amount'] = $array['gross_total'];
-            $payment['payment_method'] = "payment_profile";
-            $payment['payment_profile']['complete'] = "true";
-            $payment['payment_profile']['customer_code'] = $cardDetails['gateway_token'];
-            $payment['payment_profile']['card_id'] = ucwords(strtolower($cardDetails['card_name']));
-
-            $URL = "https://api.na.bambora.com/v1/payments";
-
-			$xml_data = json_encode($payment);
-			
-			$headers[] = "Authorization: Passcode ".gateway_passcode;
-            $headers[] = "Content-Type: application/json";
-			
-			$ch = curl_init($URL);
-			curl_setopt($ch, CURLOPT_VERBOSE, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_data);
-            $output = curl_exec($ch);
-            curl_close($ch);
-            $data = json_decode($output, true);
+            $data['approved'] = 1;
+            $data['message'] = "Approved";
             return $data;
         }
 
