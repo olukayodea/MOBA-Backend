@@ -83,10 +83,12 @@
 
         public function listAllWalletData($user, $region, $start, $limit) {
             global $country;
-            $regionData = $country->getLoc($region);            
+            $regionData = $country->getLoc($region);        
             
-            $return['list'] = $this->getSortedListWallet($user, "user_id", "region", $regionData['ref'], false, false, "ref", "DESC", "AND", $start, $limit);
-            $return['listCount'] = $this->getSortedListWallet($user, "user_id", "region", $regionData['ref'], false, false, "ref", "DESC", "AND", false, false, "count");
+            print_R($region);
+
+            $return['list'] = $this->getSortedListWallet($user, "user_id", "region", $region, false, false, "ref", "DESC", "AND", $start, $limit);
+            $return['listCount'] = $this->getSortedListWallet($user, "user_id", "region", $region, false, false, "ref", "DESC", "AND", false, false, "count");
 
             return $return;
         }
@@ -158,7 +160,7 @@
             
             $limit = $options->get("result_per_page_mobile");
             $start = $current*$limit;
-            
+            echo $type;
             if ($type == "getOne") {
                 if ($ref) {
                     $data = $this->listOneWallet($ref);
@@ -201,7 +203,7 @@
                 $return['data']['balance'] = $res;
             } else if ($type == "list") {
                 $result = $this->listAllWalletData($user, $region, $start, $limit);
-                
+                print_r($result);
                 $return['status'] = "200";
                 $return['message'] = "OK";
                 $return['counts']['current_page'] = $page;
@@ -211,7 +213,7 @@
                 $return['counts']['total_rows'] = $result['listCount'];
                 $return['data'] = $this->formatResult( $result['list'] );
             }
-
+            print_r($return);
             return $return;
         }
 

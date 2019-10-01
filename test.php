@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    //$u = "http://127.0.0.1/MOBA-Backend/";
-    //$token = "1122SJB1TQKBXKKJP2N";
-    $u = "https://dev.moba.com.ng/";
-    $token = "11241RCL8B298BW0MHP";
+    $u = "http://127.0.0.1/MOBA-Backend/";
+    $token = "1122SJB1TQKBXKKJP2N";
+    // $u = "https://dev.moba.com.ng/";
+    // $token = "11241RCL8B298BW0MHP";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -222,7 +222,7 @@ print_r($array);
     $url = $u."api/wallet/deposit";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
-
+/*
     //remove
     //$array['card'] = 1;
     $array['account'] = 1;
@@ -230,15 +230,15 @@ print_r($array);
 
     $url = $u."api/wallet/withdraw";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+    echo post($header, $url, $json_data);*/
 /*
     //get
     $url = $u."api/wallet/get/52";
     echo get($header, $url);*/
-/*
+
     //list
     $url = $u."api/wallet/get/all";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //balance
     $url = $u."api/wallet/get/balance";
@@ -578,15 +578,15 @@ print_r($array);
     echo $url;
 
     function get($header,$url) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
-        // return $output;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
     }
 
     function post($header,$url, $data) {

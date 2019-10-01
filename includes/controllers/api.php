@@ -580,7 +580,7 @@
                 $return['status'] = "400";
                 $return['message'] = "Bad Request";
             }
-            //print_r($return);
+            print_r($return);
             return $this->convert_to_json($return);
         }
 

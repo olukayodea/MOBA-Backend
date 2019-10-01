@@ -17,9 +17,9 @@ if(isset($_REQUEST['initiate'])) {
     $country->initialize_table();
     $options->initialize_table();
     // $media->initialize_table();
-    // $rating_question->initialize_table();
-    // $rating_comment->initialize_table();
-    // $rating->initialize_table();
+    $rating_question->initialize_table();
+    $rating_comment->initialize_table();
+    $rating->initialize_table();
     $transactions->initialize_table();
     $payments->initialize_table();
     $payment_card->initialize_table();
