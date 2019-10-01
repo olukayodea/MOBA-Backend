@@ -16,6 +16,18 @@ class usersKin extends users {
         }
     }
 
+    function getList($start=false, $limit=false, $order="kin_name", $dir="ASC", $type="list") {
+        return $this->lists("usersKin", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+    }
+
+    function getSingle($name, $tag="kin_name", $ref="ref") {
+        return $this->getOneField("usersKin", $name, $ref, $tag);
+    }
+
+    function listOne($id, $ref="user_id") {
+        return $this->getOne("usersKin", $id, $ref);
+    }
+
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".dbname."`.`usersKin` (
