@@ -113,55 +113,15 @@
         }
 
         private function bambora_get_token($array) {
-            $payment['number'] = $array['cardno'];
-            $payment['expiry_month'] = $array['mm'];
-            $payment['expiry_year'] = $array['yy'];
-            $payment['cvd'] = $array['cvv'];
-            $URL = "https://api.na.bambora.com/scripts/tokenization/tokens";
-
-			$xml_data = json_encode($payment);
-			
-			$headers[] = "Authorization: Passcode ".gateway_passcode;
-			$headers[] = "Content-Type: application/json";
-			
-			$ch = curl_init($URL);
-			curl_setopt($ch, CURLOPT_VERBOSE, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_data);
-            $output = curl_exec($ch);
-            curl_close($ch);
-            $data = json_decode($output, true);
-            return $data['token'];
+            return "demo token";
         }
 
         private function bambora_create_profile($array) {
-            $payment['token']['name'] = ucwords(strtolower($array['cc_first_name']." ".$array['cc_last_name']));
-            $payment['token']['code'] = $array['token'];
-            $URL = "https://api.na.bambora.com/v1/profiles";
+            $return['code'] = 1;
+            $return['message'] = "Operation Successful";
+            $return['customer_code'] = "Demo Code";
 
-			$xml_data = json_encode($payment);
-			
-			$headers[] = "Authorization: Passcode ".gateway_passcode;
-            $headers[] = "Content-Type: application/json";
-			
-			$ch = curl_init($URL);
-			curl_setopt($ch, CURLOPT_VERBOSE, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_data);
-            $output = curl_exec($ch);
-            curl_close($ch);
-            $data = json_decode($output, true);
-            return $data;
+            return $return;
         }
 
         public function bambora_remove_profile($id) {

@@ -4,7 +4,7 @@
     //$u = "http://127.0.0.1/MOBA-Backend/";
     //$token = "1122SJB1TQKBXKKJP2N";
     $u = "https://dev.moba.com.ng/";
-    $token = "1125US3PGB62S11M50W";
+    $token = "11241RCL8B298BW0MHP";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -128,12 +128,12 @@ print_r($array);
     $array['first_name'] = "Olakunle";
     $array['bank'] = "2";
     $array['account_number'] = "1003766227";
-    $array['ref'] = 2;
+    $array['ref'] = 1;
 
     $url = $u."api/account/edit/";
     $json_data = json_encode($array);
     echo put($header, $url, $json_data);*/
-/*
+/*    
     //get
     $url = $u."api/account/get/1";
     echo get($header, $url);*/
@@ -161,8 +161,8 @@ print_r($array);
     $array['ref'] = 1;
     $url = $u."api/account/changeStatus";
     $json_data = json_encode($array);
-    echo put($header, $url, $json_data); */
-/*
+    echo put($header, $url, $json_data);*/
+
     //payment cards
     //add
     $array['cc_last_name'] = "Adeniran";
@@ -174,7 +174,7 @@ print_r($array);
 
     $url = $u."api/cards/add/";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    echo post($header, $url, $json_data);
 /*
     //get
     $url = $u."api/cards/get/1";
@@ -248,10 +248,10 @@ print_r($array);
     //get:contact
     $url = $u."api/users/get/contact/fai";
     echo get($header, $url); */
-
+/*
     //get profile
     $url = $u."api/users/profile";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //edit profile
     $array['last_name'] = "Adebiyi";
@@ -578,55 +578,55 @@ print_r($array);
     echo $url;
 
     function get($header,$url) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
+        // return $output;
     }
 
     function post($header,$url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
         
-        return $output;
+        // return $output;
     }
     
     function put($header,$url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
         
-        return $output;
+        // return $output;
     }
 
     function delete($header,$url) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
+        // return $output;
     }
 ?>
