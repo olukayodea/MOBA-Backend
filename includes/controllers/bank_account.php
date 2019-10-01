@@ -16,13 +16,8 @@
             $replace = array();
             $replace[] = "last_name";
             $replace[] = "first_name";
-            $replace[] = "transit_number";
+            $replace[] = "bank";
             $replace[] = "account_number";
-            if ($array['region'] == "US") {
-                $replace[] = "account_code";
-            } else {
-                $replace[] = "financial_institution";
-            }
             if ($array['ref'] == 0) {
                 unset($array['ref']);
             }
@@ -163,13 +158,11 @@
             $query = "CREATE TABLE IF NOT EXISTS `".dbname."`.`bank_account` (
                 `ref` INT NOT NULL AUTO_INCREMENT, 
                 `user_id` INT NOT NULL, 
-                `region` VARCHAR(3) NOT NULL,
+                `region` INT NOT NULL, 
                 `last_name` VARCHAR(50) NOT NULL,
                 `first_name` VARCHAR(50) NOT NULL,
-                `transit_number` VARCHAR(50) NOT NULL,
+                `bank` VARCHAR(50) NOT NULL,
                 `account_number` VARCHAR(50) NOT NULL,
-                `account_code` VARCHAR(20) NULL,
-                `financial_institution` VARCHAR(20) NULL,
                 `is_default` INT NOT NULL, 
                 `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

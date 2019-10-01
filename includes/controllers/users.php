@@ -430,8 +430,9 @@ class users extends database {
         return $data;
     }
 
-    public function apiGetList($type, $user, $ref=false, $page=1) {
-        global $options;
+    public function apiGetList($type, $user, $ref=false, $page=1, $location=false) {
+        global $wallet;
+        global $bank_account;
         if (intval($page) == 0) {
             $page = 1;
         }
@@ -443,6 +444,9 @@ class users extends database {
             $return['status'] = "200";
             $return['message'] = "OK";
             $return['data'] = $this->formatResult( $this->listOne($user), true );
+            $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $user)['data'];
+            $return['bank_accounts'] =  $bank_account->listAllUserData($user, 0, 20)['list'];
+            $return['bank_cards'] = $wallet->listAllUserData($user, 0, 20)['list'];
         }
         return $return;
     }

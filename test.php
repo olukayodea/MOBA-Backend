@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    //$u = "http://127.0.0.1/MOBA-Backend/";
-    //token = "111YT78DDRZPVGAEOHQ";
-    $u = "https://dev.moba.com.ng/";
-    $token = "66XPM3PIIG0TAA0C";
+    $u = "http://127.0.0.1/MOBA-Backend/";
+    $token = "1122SJB1TQKBXKKJP2N";
+    //$u = "https://dev.moba.com.ng/";
+    //$token = "66XPM3PIIG0TAA0C";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -78,10 +78,10 @@ print_r($array);
     //category::list
     $url = $u."api/category/list";
     echo get($header, $url);*/
-
+/*
     //advert::category
     $url = $u."api/category/advert/2/1";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //advert::search
     $url = $u."api/advert/search/a/1";
@@ -115,12 +115,8 @@ print_r($array);
     //add
     $array['last_name'] = "Adeniran";
     $array['first_name'] = "Olakunle";
-    //$array['region'] = "US";
-    //$array['account_code'] = "PC";
-    $array['region'] = "CA";
-    $array['financial_institution'] = "007";
-    $array['transit_number'] = "99112";
-    $array['account_number'] = "1234567890";
+    $array['bank'] = "2";
+    $array['account_number'] = "1003766227";
 
     $url = $u."api/account/add/";
     $json_data = json_encode($array);
@@ -130,12 +126,8 @@ print_r($array);
     //edit
     $array['last_name'] = "Adeniran";
     $array['first_name'] = "Olakunle";
-    //$array['region'] = "US";
-    //$array['account_code'] = "PC";
-    $array['region'] = "CA";
-    $array['financial_institution'] = "007";
-    $array['transit_number'] = "99112";
-    $array['account_number'] = "1234567890";
+    $array['bank'] = "2";
+    $array['account_number'] = "1003766227";
     $array['ref'] = 2;
 
     $url = $u."api/account/edit/";
@@ -256,10 +248,10 @@ print_r($array);
     //get:contact
     $url = $u."api/users/get/contact/fai";
     echo get($header, $url); */
-/*
+
     //get profile
     $url = $u."api/users/profile";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //edit profile
     $array['last_name'] = "Adebiyi";

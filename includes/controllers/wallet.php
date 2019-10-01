@@ -197,8 +197,8 @@
 
                 $return['status'] = "200";
                 $return['message'] = "OK";
+                $return['data'] = $data;
                 $return['data']['balance'] = $res;
-                $return['data']['region'] = $data;
             } else if ($type == "list") {
                 $result = $this->listAllWalletData($user, $region, $start, $limit);
                 

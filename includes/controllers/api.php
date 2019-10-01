@@ -40,6 +40,7 @@
                     $return['status'] = "200";
                     $return['message'] = "OK";
                     $return['data']['id_type'] = $identity->apiGetList($location);
+                    $return['data']['banks'] = $banks->apiGetList($location);
                     $return['data']['category'] = $category->apiGetList($location);
                 } else if (($mode == "users") && ($action == "register")) {
                     //registeration 
@@ -264,7 +265,7 @@
                         $return = $users->apiGetList("contact", $userData['ref'], $page);
                     } else if (($mode == "users") && ($action == "profile")) {
                         if ($header['method'] == "GET") {
-                            $return = $users->apiGetList("getOne", $userData['ref']);
+                            $return = $users->apiGetList("getOne", $userData['ref'], false, false, $location);
                         } else if ($header['method'] == "PUT") {
                             unset($returnedData['email']);
                             $returnedData['ref'] = $userData['ref'];
@@ -369,6 +370,7 @@
                         $return = $bank_account->apiGetList("getOne", $userData['ref'], $string);
                     } else if (($mode == "account") && ($action == "add")) {
                         $returnedData['user_id'] = $userData['ref'];
+                        $returnedData['region'] = $location['ref'];
                         $add = $bank_account->create($returnedData);
                         if ($add) {
                             $return['status'] = "201";
@@ -575,6 +577,7 @@
                 $return['status'] = "400";
                 $return['message'] = "Bad Request";
             }
+            //print_r($return);
             return $this->convert_to_json($return);
         }
 

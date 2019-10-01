@@ -73,7 +73,7 @@
                 `name` VARCHAR(50) NOT NULL,
                 `financial_institution` VARCHAR(50) NOT NULL,
                 `country` INT NOT NULL, 
-                `status` varchar(20) NOT NULL DEFAULT 'INACTIVE',
+                `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`ref`)
