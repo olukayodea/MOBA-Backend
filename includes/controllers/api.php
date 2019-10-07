@@ -42,7 +42,7 @@
                     $return['data']['id_type'] = $identity->apiGetList($location);
                     $return['data']['banks'] = $banks->apiGetList($location);
                     $return['data']['category'] = $category->apiGetList($location);
-                } else if (($mode == "users") && ($action == "register")) {
+                } else if (($mode == "users") && ($action == "join")) {
                     //registeration 
                     $register = $users->create($returnedData);
                     $userData = $users->apiGetList("getOne", $register);
