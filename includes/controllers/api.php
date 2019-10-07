@@ -637,7 +637,7 @@
                 $array[] = "advert:negotiate";
                 $array[] = "advert:review";
                 $array[] = "advert:post";
-                $array[] = "users:register";
+                $array[] = "users:join";
                 $array[] = "users:login";
                 $array[] = "account:add";
                 $array[] = "cards:add";
