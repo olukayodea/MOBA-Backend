@@ -1,5 +1,19 @@
 <?php
     class api extends database {
+
+		function dumpData($data, $output) {
+			global $db;
+			try {
+				$sql = $db->prepare("INSERT INTO `dump` (`url`, `data`, `output`) VALUES (:url, :data, :output)");
+				$sql->execute(
+					array(	':url' => $_SERVER['REQUEST_URI'],
+							':data' => $data,
+							':output' => $output)
+						);
+			} catch(PDOException $ex) {
+				echo "An Error occured! ".$ex->getMessage(); 
+			}
+		}
         public function prep($header, $request, $data) {
             global $users;
             global $category;
@@ -26,7 +40,7 @@
             $loc = $this->getCode($location);
             
             $regionData = $country->getLoc($loc['country_code']);
-            
+            $this->dumpData($request, ($data));
             $location['ref'] = $regionData['ref'];
             $location['code'] = $regionData['code'];
             $location['city'] = $loc['city'];

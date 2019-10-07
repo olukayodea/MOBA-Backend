@@ -15,6 +15,10 @@ class users extends database {
             unset($data['category']);
             unset($data['photo_file']);
             unset($data['id_file']);
+            unset($data['kin_name']);
+            unset($data['kin_email']);
+            unset($data['kin_phone']);
+            unset($data['kin_relationship']);
             $create = $this->insert("users", $data);
 
             if ($create) {

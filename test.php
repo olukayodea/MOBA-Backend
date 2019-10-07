@@ -9,8 +9,8 @@
 
     //common factors
     $header[] = "Content-Type: application/json";
-    $header[] = "Authorization: Bearer ".$gateway_passcode;
-	$header[] ='key: '.$product_key;
+    //$header[] = "Authorization: Bearer ".$gateway_passcode;
+	//$header[] ='key: '.$product_key;
 	$header[] ='ver: 1';
 	$header[] ='longitude: 3.349149';
     $header[] ='latitude: 6.605874';
@@ -30,20 +30,20 @@
     $url = $u."api/users/login";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
-/*
+
     //register
     //type = "local", "social_media";
     //user_type = "0 for users", "1 for service provider", "2 for service admin";
-    $array['user_type'] = 2;
-    $array['last_name'] = "Doe";
-    $array['other_names'] = "John";
-    $array['screen_name'] = "demo";
-    $array['email'] = "olukayode.adebiyi@hotmail.co.uk";
-    $array['password'] = "Password@1";
+    $array['user_type'] = 0;
+    $array['last_name'] = "Fighi";
+    $array['other_names'] = "Fighi";
+    $array['screen_name'] = "Fighi";
+    $array['email'] = "Chi@gh.bj";
+    $array['password'] = "nigsu111";
     $array['account_type'] = "local";
     $array['account_type_token'] = "";
-    $array['firebase_token'] = "12334456543456544";
-    //service provider
+    $array['firebase_token'] = "asdfasdfa";
+    /*//service provider
     $array['mobile_number'] = "08182441752";
     $array['street'] = "Issuti road";
     $array['city'] = "Igando";
@@ -57,11 +57,11 @@
     $array['kin_name'] = "Kunzu";
     $array['kin_email'] = "Kunzu";
     $array['kin_phone'] = "Kunzu";
-    $array['kin_relationship'] = "Kunzu";
+    $array['kin_relationship'] = "Kunzu";*/
 
     $url = $u."api/users/register";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    echo post($header, $url, $json_data);
 /*
     //recover
     $url = $u."api/users/recover/".urlencode("olukayode.adebiyi@hotmail.co.uk");
@@ -252,7 +252,7 @@
     //get profile
     $url = $u."api/users/profile";
     echo get($header, $url);*/
-
+/*
     //edit profile
     $array['last_name'] = "Adebiyi";
     $array['other_names'] = "Olukayode";
@@ -276,7 +276,7 @@
     print_r($array);
     $url = $u."api/users/profile";
     $json_data = json_encode($array);
-    echo put($header, $url, $json_data);
+    echo put($header, $url, $json_data);*/
 /*
     //edit password
     $array['old_password'] = "Olukayode";
@@ -606,17 +606,17 @@
     }
 
     function post($header,$url, $data) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $output = curl_exec($ch);
+        curl_close($ch);
         
-        // return $output;
+        return $output;
     }
     
     function put($header,$url, $data) {
