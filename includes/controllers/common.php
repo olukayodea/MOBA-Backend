@@ -527,7 +527,6 @@
 			}
 		}
 
-		
         function pagination($page, $count, $pageTitle="page", $type="result_per_page") {
 			global $options;
 			$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
@@ -579,7 +578,7 @@
 					}
 					echo '<li class="page-item'.$active.'"><a class="page-link" href="'.$actual_link.$pageTitle.'='.$i.'">'.($i+1).'</a></li>';
 				}
-		                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		if ($next < $last) {
+				if ($next < $last) {
 					echo '<li class="page-item"><a class="page-link" href="'.$actual_link.$pageTitle.'='.$next.'">&raquo;</a></li>';
 					echo '<li class="page-item"><a class="page-link" href="'.$actual_link.$pageTitle.'='.($lenght-1).'">&raquo;&raquo;</a></li>';
 				}

@@ -12,6 +12,12 @@ class users extends database {
             if ($array['category'] != "") {
                 $categoryArray = explode(",",$array['category']);
             }
+            if ($array['user_type'] == 1) {
+                $address = urlencode($data['street']." ".$data['city']." ".$data['state']." ".$data['country']);
+                $addressData = $this->googleGeoLocation(false, false, $address);
+                $data['latitude'] = $addressData['latitude'];
+                $data['longitude'] = $addressData['longitude'];
+            }
             unset($data['category']);
             unset($data['photo_file']);
             unset($data['id_file']);
@@ -537,7 +543,7 @@ class users extends database {
             return $this->confirmUnique($this->createUnique($key));
         }
     }
-
+    
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".dbname."`.`users` (
@@ -554,6 +560,8 @@ class users extends database {
             `city` VARCHAR(255) NOT NULL, 
             `state` VARCHAR(255) NOT NULL, 
             `country` VARCHAR(255) NOT NULL, 
+            `latitude` DOUBLE NOT NULL,
+            `longitude` DOUBLE NOT NULL,
             `about_me` VARCHAR(255) NOT NULL, 
             `image_url` VARCHAR(255) NULL, 
             `id_url` VARCHAR(255) NULL, 
