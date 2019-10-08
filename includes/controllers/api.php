@@ -54,6 +54,7 @@
                     $return['status'] = "200";
                     $return['message'] = "OK";
                     $return['data']['id_type'] = $identity->apiGetList($location);
+                    $return['data']['country'] = $country->countryAPI();
                     $return['data']['banks'] = $banks->apiGetList($location);
                     $return['data']['category'] = $category->apiGetList($location);
                 } else if (($mode == "users") && ($action == "join")) {
