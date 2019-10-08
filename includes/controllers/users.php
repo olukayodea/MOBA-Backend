@@ -306,7 +306,7 @@ class users extends database {
                 } else {
                     $t = "image_url";
                 }
-                $this->modifyUser("image_url", $upload['desc'], $id, "ref");
+                $this->modifyUser($t, $upload['desc'], $id, "ref");
             }
 
             if ($data) {
