@@ -1,25 +1,14 @@
 <?php
-    class country extends database {
+    class country_state extends database {
         /*  create country
         */
         public function create($array) {
-            $replace[] = "code";
-            $replace[] = "name";
-            $replace[] = "currency";
-            $replace[] = "currency_symbol";
-            $replace[] = "dial_code";
-            $replace[] = "featured_ad";
-            $replace[] = "si_unit";
-            $replace[] = "tax";
-            $replace[] = "status";
+            $replace[] = "state";
             if ($array['ref'] == 0) {
                 unset($array['ref']);
             }
-            $create = $this->replace("country", $array, $replace);
+            $create = $this->replace("country_state", $array, $replace);
             if ($create) {
-                if ($this->checkExixst("country", "is_default", 1,"count") < 1) {
-                    $this->setDefault($create);
-                }
                 return true;
             } else {
                 return false;
@@ -34,70 +23,41 @@
                 $updateData = "ACTIVE";
             }
 
-            $this->updateOne("country", "status", $updateData, $id, "ref");
+            $this->updateOne("country_state", "status", $updateData, $id, "ref");
             return true;
         }
 
         function remove($id) {
-            $this->delete("country", $id);
+            $this->delete("country_state", $id);
             return true;
-        }
-
-        function setDefault($id) {
-            $getFormer = $this->getSingle("1", "ref", "is_default");
-            $this->updateOne("country", "is_default", 0, $getFormer, "ref");
-            $this->updateOne("country", "is_default", 1, $id, "ref");
-            return true;
-        }
-
-        function getCountryData($value, $view="currency_symbol", $row="name") {
-            return $this->getSingle($value, $view, $row);
         }
 
         function getList($start=false, $limit=false, $type="list") {
-            return $this->lists("country", $start, $limit, "name", "ASC", false, $type);
+            return $this->lists("country_state", $start, $limit, "name", "ASC", false, $type);
         }
 
-		function getSingle($value, $ref="name", $tag="ref") {
-            return $this->getOneField("country", $value, $tag, $ref);
+		function getSingle($value, $ref="state", $tag="ref") {
+            return $this->getOneField("country_state", $value, $tag, $ref);
 		}
 
-        function listOne($id, $tag="code") {
-            return $this->getOne("country", $id, $tag);
-        }
-
-        function getLoc($code, $tag="code") {
-            $data = $this->listOne($code, $tag);
-
-            if ($data) {
-                return $data;
-            } else {
-                return $this->listOne(1, "is_default");
-            }
+        function listOne($id, $tag="state") {
+            return $this->getOne("country_state", $id, $tag);
         }
 
         function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
-            return $this->sortAll("country", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
+            return $this->sortAll("country_state", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
         }
 
         public function initialize_table() {
             //create database
-            $query = "CREATE TABLE IF NOT EXISTS `".dbname."`.`country` (
+            $query = "CREATE TABLE IF NOT EXISTS `".dbname."`.`country_state` (
                 `ref` INT NOT NULL AUTO_INCREMENT,
-                `code` VARCHAR(2) NOT NULL, 
-                `name` VARCHAR(20) NOT NULL, 
-                `currency` VARCHAR(3) NOT NULL, 
-                `currency_symbol` VARCHAR(20) NOT NULL, 
-                `dial_code` VARCHAR(5) NOT NULL, 
-                `si_unit` VARCHAR(10) NOT NULL, 
-                `featured_ad` DOUBLE NOT NULL, 
-                `tax` INT NOT NULL, 
-                `is_default` INT NOT NULL, 
+                `country` INT NOT NULL, 
+                `state` VARCHAR(50) NOT NULL,
                 `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`ref`),
-                UNIQUE KEY `code` (`code`)
+                PRIMARY KEY (`ref`)
             ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
 
             $this->query($query);
@@ -105,16 +65,18 @@
 
         public function clear_table() {
             //clear database
-            $query = "TRUNCATE `".dbname."`.`country`";
+            $query = "TRUNCATE `".dbname."`.`country_state`";
 
             $this->query($query);
         }
 
         public function delete_table() {
             //clear database
-            $query = "DROP TABLE `".dbname."`.`country`";
+            $query = "DROP TABLE `".dbname."`.`country_state`";
 
             $this->query($query);
         }
     }
+    include_once("country_state.php");
+    $country_state  = new country_state;
 ?>

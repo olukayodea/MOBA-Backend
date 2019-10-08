@@ -16,6 +16,7 @@ if(isset($_REQUEST['initiate'])) {
     $category->initialize_table();
     $identity->initialize_table();
     $country->initialize_table();
+    $country_state->initialize_table();
     $options->initialize_table();
     // $media->initialize_table();
     $rating_question->initialize_table();

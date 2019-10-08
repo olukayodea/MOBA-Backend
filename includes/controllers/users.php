@@ -553,7 +553,7 @@ class users extends database {
             `street` VARCHAR(255) NOT NULL, 
             `city` VARCHAR(255) NOT NULL, 
             `state` VARCHAR(255) NOT NULL, 
-            `country` INT NOT NULL, 
+            `country` VARCHAR(255) NOT NULL, 
             `about_me` VARCHAR(255) NOT NULL, 
             `image_url` VARCHAR(255) NULL, 
             `id_url` VARCHAR(255) NULL, 
