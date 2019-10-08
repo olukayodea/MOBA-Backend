@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    // $u = "http://127.0.0.1/MOBA-Backend/";
-    // $token = "1122SJB1TQKBXKKJP2N";
-    $u = "https://dev.moba.com.ng/";
-    $token = "11241RCL8B298BW0MHP";
+    $u = "http://127.0.0.1/MOBA-Backend/";
+    $token = "1122SJB1TQKBXKKJP2N";
+    // $u = "https://dev.moba.com.ng/";
+    // $token = "11241RCL8B298BW0MHP";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -14,10 +14,10 @@
 	$header[] ='ver: 1';
 	$header[] ='longitude: 3.349149';
     $header[] ='latitude: 6.605874';
-/*
+
     //data
     $url = $u."api/data";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //login
     //type = "local", "social_media";
@@ -287,7 +287,7 @@
     $url = $u."api/users/profilePicture";
     $json_data = json_encode($array);
     echo put($header, $url, $json_data);*/
-
+/*
     //edit gov_id
     $array['id_type'] = "Kunzu";
     $array['id_expiry'] = "Kunzu";
@@ -296,7 +296,7 @@
 
     $url = $u."api/users/gov_id";
     $json_data = json_encode($array);
-    echo put($header, $url, $json_data);
+    echo put($header, $url, $json_data);*/
 /*
     //Jobs
     //post jpb
@@ -592,15 +592,15 @@
     echo $url;
 
     function get($header,$url) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
-        // return $output;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
     }
 
     function post($header,$url, $data) {

@@ -31,8 +31,9 @@ class country extends database {
         $data = $this->getSortedList("ACTIVE", "status");
 
         for ($i = 0; $i < count($data); $i++) {
+            unset($stateList);
             $state = $country_state->getSortedList("ACTIVE", "status", "country", $data[$i]['ref']);
-            for ($j = 0; $j < count($data); $j++) {
+            for ($j = 0; $j < count($state); $j++) {
                 $stateList[] = ucfirst(strtolower($state[$j]['state']));
             }
             $list[$i]['name'] = ucfirst(strtolower($data[$i]['name']));
