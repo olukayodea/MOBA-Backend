@@ -39,6 +39,14 @@ class users extends database {
                     $kin['kin_relationship'] = $array['kin_relationship'];
                     $usersKin->create($kin);
                 }
+
+                if ($photo_file != "") {
+                    $this->saveProfilePicture($create, $photo_file, "profile");
+                }
+
+                if ($id_file != "") {
+                    $this->saveProfilePicture($create, $photo_file, "gov_id");
+                }
                 $client = $array['last_name']." ".$array['other_names'];
                 $subjectToClient = "Welcome to MOBA";
                 $contact = "MOBA <".replyMail.">";
@@ -190,11 +198,9 @@ class users extends database {
         $ref = $array['ref'];
         unset($array['ref']);
         if ($array['photo_file'] != "") {
-            $array['image_url'] = $array['photo_file'];
             unset($array['photo_file']);
         }
         if ($array['id_file'] != "") {
-            $array['id_url'] = $array['id_file'];
             unset($array['id_file']);
         }
         if ($array['category'] != "") {
@@ -277,7 +283,7 @@ class users extends database {
         <?php }
     }
 
-    function saveProfilePicture($id, $file, $api=false) {
+    function saveProfilePicture($id, $file, $api=false, $data=false) {
         global $media;
         if ($api == false) {
             $upload = $media->uploadDP($id, $file);
@@ -287,7 +293,21 @@ class users extends database {
 
         if ($upload) {
             if ($upload['title'] == "OK") {
+                if ($api == "gov_id") {
+                    $t = "id_url";
+                } else if ($api == "profile") {
+                    $t = "image_url";
+                } else {
+                    $t = "image_url";
+                }
                 $this->modifyUser("image_url", $upload['desc'], $id, "ref");
+            }
+
+            if ($data) {
+                $this->modifyUser("id_type", $data['id_type'], $id, "ref");
+                $this->modifyUser("id_expiry", $data['id_expiry'], $id, "ref");
+                $this->modifyUser("id_number", $data['id_number'], $id, "ref");
+                $this->modifyUser("verified", 1, $id, "ref");
             }
             
             return $upload;
@@ -303,7 +323,7 @@ class users extends database {
         if ($upload) {
             if ($upload['title'] == "OK") {
                 $this->modifyUser("verified", 1, $id, "ref");
-                $this->modifyUser("gov_id_url", $upload['desc'], $id, "ref");
+                $this->modifyUser("id_url", $upload['desc'], $id, "ref");
             } else {
                 return false;
             }

@@ -9,8 +9,8 @@
 
     //common factors
     $header[] = "Content-Type: application/json";
-    //$header[] = "Authorization: Bearer ".$gateway_passcode;
-	//$header[] ='key: '.$product_key;
+    $header[] = "Authorization: Bearer ".$gateway_passcode;
+	$header[] ='key: '.$product_key;
 	$header[] ='ver: 1';
 	$header[] ='longitude: 3.349149';
     $header[] ='latitude: 6.605874';
@@ -31,37 +31,37 @@
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
 
-    //register
-    //type = "local", "social_media";
-    //user_type = "0 for users", "1 for service provider", "2 for service admin";
-    $array['user_type'] = 0;
-    $array['last_name'] = "Fighi";
-    $array['other_names'] = "Fighi";
-    $array['screen_name'] = "Fighi";
-    $array['email'] = "Chi@gh.bj";
-    $array['password'] = "nigsu111";
-    $array['account_type'] = "local";
-    $array['account_type_token'] = "";
-    $array['firebase_token'] = "asdfasdfa";
-    /*//service provider
-    $array['mobile_number'] = "08182441752";
-    $array['street'] = "Issuti road";
-    $array['city'] = "Igando";
-    $array['state'] = "Lagos";
-    $array['category'] = "1,2,3,4,5,6,7";
-    $array['id_type'] = 1;
-    $array['id_expiry'] = "Kunzu";
-    $array['id_number'] = "Kunzu";
-    $array['photo_file'] = "Kunzu";
-    $array['id_file'] = "Kunzu";
-    $array['kin_name'] = "Kunzu";
-    $array['kin_email'] = "Kunzu";
-    $array['kin_phone'] = "Kunzu";
-    $array['kin_relationship'] = "Kunzu";*/
+//     //register
+//     //type = "local", "social_media";
+//     //user_type = "0 for users", "1 for service provider", "2 for service admin";
+//     $array['user_type'] = 0;
+//     $array['last_name'] = "Fighi";
+//     $array['other_names'] = "Fighi";
+//     $array['screen_name'] = "Fighi";
+//     $array['email'] = "Chi@gh.bj";
+//     $array['password'] = "nigsu111";
+//     $array['account_type'] = "local";
+//     $array['account_type_token'] = "";
+//     $array['firebase_token'] = "asdfasdfa";
+//     //service provider
+//     $array['mobile_number'] = "08182441752";
+//     $array['street'] = "Issuti road";
+//     $array['city'] = "Igando";
+//     $array['state'] = "Lagos";
+//     $array['category'] = "1,2,3,4,5,6,7";
+//     $array['id_type'] = 1;
+//     $array['id_expiry'] = "Kunzu";
+//     $array['id_number'] = "Kunzu";
+//     $array['photo_file'] = "Kunzu";
+//     $array['id_file'] = "Kunzu";
+//     $array['kin_name'] = "Kunzu";
+//     $array['kin_email'] = "Kunzu";
+//     $array['kin_phone'] = "Kunzu";
+//     $array['kin_relationship'] = "Kunzu";
 
-    $url = $u."api/users/register";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+//     $url = $u."api/users/register";
+//     $json_data = json_encode($array);
+//     echo post($header, $url, $json_data);
 /*
     //recover
     $url = $u."api/users/recover/".urlencode("olukayode.adebiyi@hotmail.co.uk");
@@ -263,11 +263,6 @@
     $array['city'] = "Igando";
     $array['state'] = "Lagos";
     $array['category'] = "1,2,3,4,5,6,7";
-    $array['id_type'] = "Kunzu";
-    $array['id_expiry'] = "Kunzu";
-    $array['id_number'] = "Kunzu";
-    $array['photo_file'] = "Kunzu";
-    $array['id_file'] = "Kunzu";
     $array['kin_name'] = "Kunzu";
     $array['kin_email'] = "Kunzu";
     $array['kin_phone'] = "Kunzu";
@@ -292,13 +287,16 @@
     $url = $u."api/users/profilePicture";
     $json_data = json_encode($array);
     echo put($header, $url, $json_data);*/
-/*
+
     //edit gov_id
+    $array['id_type'] = "Kunzu";
+    $array['id_expiry'] = "Kunzu";
+    $array['id_number'] = "Kunzu";
     $array['file'] = base64_encode(file_get_contents($u."media/3086af664b539308321cf4adf2b49049ac21ed2b/561564329078709.jpg"));
 
     $url = $u."api/users/gov_id";
     $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
+    echo put($header, $url, $json_data);
 /*
     //Jobs
     //post jpb
@@ -606,17 +604,17 @@
     }
 
     function post($header,$url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
         
-        return $output;
+        // return $output;
     }
     
     function put($header,$url, $data) {

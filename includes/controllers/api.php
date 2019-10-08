@@ -299,29 +299,48 @@
                     } else if (($mode == "users") && ($action == "profilepicture")) {
                         $ref = $userData['ref'];
                         $file = $returnedData['file'];
+                        if (strtoupper($header['method'] == "PUT")) {
 
-                        $add = $users->saveProfilePicture($ref, $file, "profile");
-                        
-                        if ($add) {
-                            if ($add['title'] === "ERROR") {
-                                $return['status'] = "406";
-                                $return['message'] = "Not Acceptable";
-                                $return['additional_message'] = $add['desc'];
+                            $add = $users->saveProfilePicture($ref, $file, "profile");
+                            
+                            if ($add) {
+                                if ($add['title'] === "ERROR") {
+                                    $return['status'] = "406";
+                                    $return['message'] = "Not Acceptable";
+                                    $return['additional_message'] = $add['desc'];
+                                } else {
+                                    $return['status'] = "200";
+                                    $return['message'] = "OK";
+                                    $return['path'] = URL.$add['desc'];
+                                }
                             } else {
-                                $return['status'] = "200";
-                                $return['message'] = "OK";
-                                $return['path'] = URL.$add['desc'];
+                                $return['status'] = "501";
+                                $return['message'] = "Not Implemented";
+                                $return['additional_message'] = "An error occured while updating this profile picture";
                             }
-                        } else {
-                            $return['status'] = "501";
-                            $return['message'] = "Not Implemented";
-                            $return['additional_message'] = "An error occured while updating this profile picture";
+                        } else if (strtoupper($header['method'] == "DELETE")) {
+                            $add = $users->removeProfilePicture($ref);
+                            
+                            if ($add) {
+                                if ($add['title'] === "ERROR") {
+                                    $return['status'] = "406";
+                                    $return['message'] = "Not Acceptable";
+                                    $return['additional_message'] = $add['desc'];
+                                } else {
+                                    $return['status'] = "200";
+                                    $return['message'] = "OK";
+                                }
+                            } else {
+                                $return['status'] = "501";
+                                $return['message'] = "Not Implemented";
+                                $return['additional_message'] = "An error occured while updating this profile picture";
+                            }
                         }
                     } else if (($mode == "users") && ($action == "gov_id")) {
                         $ref = $userData['ref'];
                         $file = $returnedData['file'];
 
-                        $add = $users->saveProfilePicture($ref, $file, "gov_id");
+                        $add = $users->saveProfilePicture($ref, $file, "gov_id", $returnedData);
                         
                         if ($add) {
                             if ($add['title'] === "ERROR") {
@@ -708,6 +727,7 @@
                 $array[] = "advert:image";
                 $array[] = "account:delete";
                 $array[] = "cards:delete";
+                $array[] = "users:profilepicture";
                 if (array_search($type, $array) === false) {
                     return false;
                 } else {
