@@ -1,4 +1,3 @@
-
 <?php
 class country_state extends database {
     /*  create country
