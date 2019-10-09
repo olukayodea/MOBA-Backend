@@ -69,7 +69,9 @@
         }
 
         public function apiGetList($location, $type="all") {
+            global $search;
             $result = array();
+            
             if ($type == "all") {
                 $x = 0;
             } else if ($type == "parent") {
@@ -83,16 +85,15 @@
                 $result[$i]['ref'] = $list[$i]['ref'];
                 $result[$i]['title'] = $list[$i]['category_title'];
                 $result[$i]['icon'] = $this->getIcon($list[$i]['ref']);
-                $result[$i]['ad_count'] = 0;
-                //$search->catSearch($location, $list[$i]['ref'], "count");
+                $result[$i]['ad_count'] = $search->catSearch($location, $list[$i]['ref'], "count");
+                
                 if ($type == "all") {
                     $sub = $this->categoryList($location['ref'], $list[$i]['ref']);
                     for ($j = 0; $j < count($sub); $j++) {
                         $result[$i]['sub'][$j]['ref'] = $sub[$j]['ref'];
                         $result[$i]['sub'][$j]['title'] = $sub[$j]['category_title'];
                         $result[$i]['sub'][$j]['icon'] = $this->getIcon($sub[$j]['ref']);
-                        $result[$i]['sub'][$j]['ad_count'] = 0;
-                        //$search->catSearch($location, $sub[$j]['ref'], "count");
+                        $result[$i]['sub'][$j]['ad_count'] = $search->catSearch($location, $sub[$j]['ref'], "count");
                     }
                 }
             }

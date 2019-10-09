@@ -570,6 +570,7 @@ class users extends database {
             `id_expiry` VARCHAR(50) NULL,
             `id_number` VARCHAR(50) NULL,
             `verified` INT NOT NULL, 
+            `is_featured` INT NOT NULL, 
             `activation_token` VARCHAR(10) NOT NULL,
             `account_type_token` VARCHAR(255) NOT NULL,
             `firebase_token` VARCHAR(255) NOT NULL,

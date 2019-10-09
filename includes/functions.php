@@ -68,10 +68,7 @@
   $db       = $database->connect();
 
   include_once("controllers/users.php");
-  include_once("controllers/projects.php");
-  include_once("controllers/projects_data.php");
-  include_once("controllers/projects_negotiate.php");
-  include_once("controllers/project_save.php");
+  include_once("controllers/posts.php");
   include_once("controllers/messages.php");
   include_once("controllers/banks.php");
   include_once("controllers/category.php");
@@ -94,10 +91,7 @@
   include_once("controllers/api.php");
   
   $users          = new users;
-  $projects       = new projects;
-  $projects_data  = new projects_data;
-  $projects_negotiate = new projects_negotiate;
-  $project_save   = new project_save;
+  $post           = new post;
   $messages       = new messages;
   $banks          = new banks;
   $category       = new category;

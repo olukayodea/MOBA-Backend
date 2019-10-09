@@ -14,10 +14,10 @@
 	$header[] ='ver: 1';
 	$header[] ='longitude: 3.349149';
     $header[] ='latitude: 6.605874';
-
+/*
     //data
     $url = $u."api/data";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //login
     //type = "local", "social_media";
@@ -78,33 +78,29 @@
     //category::list
     $url = $u."api/category/list";
     echo get($header, $url);*/
+
+    //posts::category
+    $url = $u."api/posts/category/1/1";
+    echo get($header, $url);
 /*
-    //advert::category
-    $url = $u."api/category/advert/2/1";
+    //posts::search
+    $url = $u."api/posts/search/a/1";
     echo get($header, $url);*/
 /*
-    //advert::search
-    $url = $u."api/advert/search/a/1";
+    //posts::search
+    $url = $u."api/posts/keywordSearch/ottawa/1";
     echo get($header, $url);*/
 /*
-    //advert::search
-    $url = $u."api/advert/keywordSearch/ottawa/1";
+    //posts::featured
+    $url = $u."api/posts/featured";
     echo get($header, $url);*/
 /*
-    //advert::featured
-    $url = $u."api/advert/list/featured";
+    //posts::maps
+    $url = $u."api/posts/map";
     echo get($header, $url);*/
 /*
-    //advert::maps
-    $url = $u."api/advert/list/map";
-    echo get($header, $url);*/
-/*
-    //advert::aroundme
-    $url = $u."api/advert/list/aroundMe/1";
-    echo get($header, $url);*/
-/*
-    //advert::recentt
-    $url = $u."api/advert/list/recent/1";
+    //posts::aroundme
+    $url = $u."api/posts/aroundMe/1";
     echo get($header, $url);*/
 /*
     //bank accounts

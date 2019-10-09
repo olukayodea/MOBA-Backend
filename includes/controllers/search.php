@@ -77,15 +77,9 @@
             } else {
                 $limitData = "";
             }
-
-            if (isset($_SESSION['filter'])) {
-                $filter = "AND `project_type` = '".$_SESSION['filter']."'  ";
-            } else {
-                $filter = "";
-            }
             
-            $query = "SELECT `ref`, `user_id`, `category_id`, `project_code`, `project_name`, `project_dec`, `project_type`, `tag`, `allow_remote`, `address`,`country`,`country`,`is_featured`,`page_visit`,`billing_type`,`default_fee`, `lat`, `lng`, SQRT(((`lat`- ".$latitude.")*(`lat`- ".$latitude.")) + ((`lng`- ".$longitude.")*(`lng`- ".$longitude."))) AS `total` FROM `projects` WHERE status = 'ACTIVE' ".$filter."AND (`category_id` LIKE '".$val.",%' OR `category_id` LIKE '".$val."' OR `category_id` LIKE '%,".$val."' OR `category_id` LIKE '%,".$val.",%') AND ((`country` LIKE '".$data['code']."' OR `country` LIKE '".$data['country']."') AND (`state` LIKE '".$data['state_code']."' OR `state` LIKE '".$data['state']."')) ORDER BY `total` ASC".$limitData;
-
+            $query = "SELECT `users`.`ref`, `users`.`last_name`, `users`.`other_names`, `users`.`screen_name`, `users`.`email`, `users`.`mobile_number`, `users`.`street`, `users`.`city`, `users`.`state`, `users`.`country`, `users`.`latitude`, `users`.`longitude`, `users`.`about_me`, `users`.`image_url`, `users`.`average_response_time`, SQRT(((`users`.`latitude` - ".$latitude.")*(`users`.`latitude` - ".$latitude.")) + ((`users`.`longitude` - ".$longitude.")*(`users`.`longitude` - ".$longitude."))) AS `total` FROM `usersCategory`, `users` WHERE `users`.`status` = 'ACTIVE' AND `users`.`user_type` = 1 AND `usersCategory`.`user_id` = `users`.`ref` AND `category_id` = ".$val." AND ((`users`.`country` LIKE '".$data['code']."' OR `users`.`country` LIKE '".$data['country']."') AND (`users`.`state` LIKE '".$data['state_code']."' OR `users`.`state` LIKE '".$data['state']."')) ORDER BY `users`.`is_featured` DESC, `total` ASC".$limitData;
+            
             return $this->run($query, false, $type, "s");
         }
 

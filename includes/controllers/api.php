@@ -2,8 +2,8 @@
     class api extends database {
         public function prep($header, $request, $data) {
             global $users;
+            global $post;
             global $category;
-            global $projects;
             global $bank_account;
             global $wallet;
             global $userPayment;
@@ -129,24 +129,24 @@
                     $return['status'] = "200";
                     $return['message'] = "OK";
                     $return['data'] = $list;
-                } else if (($mode == "category") && ($action == "advert")) {
-                    //list all advert in category
-                    $return = $projects->apiGetList($location, "category", $page, false, $string);
                 } else if ($mode == "banks") {
                     //list all 
                     $list = $banks->apiGetList($regionData);
                     $return['status'] = "200";
                     $return['message'] = "OK";
                     $return['data'] = $list;
-                } else if (($mode == "advert") && ($action == "list")) {
+                } else if (($mode == "posts") && ($action == "category")) {
+                    //list all categories
+                    $return = $post->postAPI($location, $action, $string, $page);
+                } else if (($mode == "posts") && ($action == "featured")) {
                     //list all
-                    $return = $projects->apiGetList($location, $string, $page);
-                } else if (($mode == "advert") && ($action == "search")) {
+                    $return = $post->apiGetList($location, $string, $page);
+                } else if (($mode == "posts") && ($action == "aroundme")) {
                     //list all
-                    $return = $projects->apiGetList($location, $action, $page, false, $string);
-                } else if (($mode == "advert") && ($action == "keywordsearch")) {
+                    $return = $post->apiGetList($location, $string, $page);
+                } else if (($mode == "posts") && ($action == "search")) {
                     //list all
-                    $return = $projects->apiGetList($location, $action, $page, false, $string);
+                    $return = $post->apiGetList($location, $action, $page, false, $string);
                 } else if ($this->authenticate($header)) {
                     $userData = $this->authenticatedUser($header['auth']);
                     //authenticated users only
@@ -599,7 +599,7 @@
                 $return['status'] = "400";
                 $return['message'] = "Bad Request";
             }
-            //print_r($return);
+            print_r($return);
             return $this->convert_to_json($return);
         }
 
@@ -657,29 +657,19 @@
             } else if ($method == "GET") {
                 $array[] = "data:";
                 $array[] = "banks:list";
-                $array[] = "advert:approve";
-                $array[] = "advert:complete";
-                $array[] = "advert:featured";
-                $array[] = "advert:hours";
-                $array[] = "advert:messages";
-                $array[] = "advert:newmessages";
-                $array[] = "advert:milestone";
-                $array[] = "advert:negotiate";
-                $array[] = "advert:request";
-                $array[] = "users:recover";
-                $array[] = "advert:review";
-                $array[] = "advert:keywordsearch";
-                $array[] = "advert:search";
                 $array[] = "users:get";
                 $array[] = "users:profile";
                 $array[] = "category:advert";
                 $array[] = "category:listparent";
                 $array[] = "category:listsub";
                 $array[] = "category:list";
-                $array[] = "advert:list";
                 $array[] = "advert:get";
                 $array[] = "account:get";
                 $array[] = "cards:get";
+                $array[] = "posts:category";
+                $array[] = "post:get";
+                $array[] = "post:get";
+                $array[] = "post:get";
                 $array[] = "transaction:get";
                 $array[] = "wallet:get";
                 $array[] = "messages:get";
@@ -690,10 +680,6 @@
                     return true;
                 }
             } else if ($method == "PUT") {
-                $array[] = "advert:negotiate";
-                $array[] = "advert:hours";
-                $array[] = "advert:milestone";
-                $array[] = "advert:post";
                 $array[] = "account:edit";
                 $array[] = "account:makedefault";
                 $array[] = "account:changestatus";
@@ -709,8 +695,6 @@
                     return true;
                 }
             } else if ($method == "DELETE") {
-                $array[] = "advert:delete";
-                $array[] = "advert:image";
                 $array[] = "account:delete";
                 $array[] = "cards:delete";
                 $array[] = "users:profilepicture";
