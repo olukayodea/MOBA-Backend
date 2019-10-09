@@ -250,7 +250,6 @@
                             } else {
                                 $sql->bindValue($key, $value);
                             }
-                            echo "%".$value."%";
                         }
                         $sql->execute();
                     } else {

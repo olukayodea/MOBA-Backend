@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    $u = "http://127.0.0.1/MOBA-Backend/";
-    $token = "1122SJB1TQKBXKKJP2N";
-    // $u = "https://dev.moba.com.ng/";
-    // $token = "11241RCL8B298BW0MHP";
+    // $u = "http://127.0.0.1/MOBA-Backend/";
+    // $token = "1122SJB1TQKBXKKJP2N";
+    $u = "https://dev.moba.com.ng/";
+    $token = "11241RCL8B298BW0MHP";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -83,18 +83,18 @@
     //posts::category
     $url = $u."api/posts/category/1/1";
     echo get($header, $url);*/
-/*
+
     //posts::search
     $url = $u."api/posts/search/a/1";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //posts::featured
     $url = $u."api/posts/featured";
     echo get($header, $url);*/
-
+/*
     //posts::aroundme
     $url = $u."api/posts/aroundMe/1";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //bank accounts
     //get list
@@ -581,29 +581,29 @@
     echo $url;
 
     function get($header,$url) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
+        // return $output;
     }
 
     function post($header,$url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
         
-        return $output;
+        // return $output;
     }
     
     function put($header,$url, $data) {
