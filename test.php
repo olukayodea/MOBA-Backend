@@ -83,18 +83,18 @@
     //posts::category
     $url = $u."api/posts/category/1/1";
     echo get($header, $url);*/
-
+/*
     //posts::search
     $url = $u."api/posts/search/a/1";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //posts::featured
     $url = $u."api/posts/featured";
     echo get($header, $url);*/
-/*
+
     //posts::aroundme
     $url = $u."api/posts/aroundMe/1";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //bank accounts
     //get list

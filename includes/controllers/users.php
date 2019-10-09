@@ -524,6 +524,8 @@ class users extends database {
         global $wallet;
         global $bank_account;
         global $usersKin;
+        global $category;
+        global $usersCategory;
         if (intval($page) == 0) {
             $page = 1;
         }
@@ -538,6 +540,10 @@ class users extends database {
             $kin = $usersKin->listOne($user);
             if ($kin) {
                 $return['data']['next_of_kin'] = $kin;
+            }
+            $userCat = $usersCategory->getSortedListCat($user, "user_id");
+            for ($i = 0; $i < count($userCat); $i++) {
+                $return['categories'][$i] = $category->formatResult($category->listOne($userCat[$i]['category_id']), true);
             }
             $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $user)['data'];
             $return['bank_accounts'] =  $bank_account->listAllUserData($user, 0, 20)['list'];
