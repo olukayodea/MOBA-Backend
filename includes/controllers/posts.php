@@ -9,6 +9,7 @@ class post extends users {
         }
         $data['categories'] = $users->getCatList($data['ref']);
         unset($data['account_type']);
+        unset($data['total']);
         return $data;
     }
     
