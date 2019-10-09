@@ -524,8 +524,7 @@ class users extends database {
         global $wallet;
         global $bank_account;
         global $usersKin;
-        global $category;
-        global $usersCategory;
+        global $rating;
         if (intval($page) == 0) {
             $page = 1;
         }
@@ -541,6 +540,9 @@ class users extends database {
             if ($kin) {
                 $return['data']['next_of_kin'] = $kin;
             }
+                
+            $return['rating']['score'] = round($rating->getRate($user), 2);
+            $return['rating']['total'] = 5;
             $return['categories'] = $this->getCatList($user);
             $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $user)['data'];
             $return['bank_accounts'] =  $bank_account->listAllUserData($user, 0, 20)['list'];

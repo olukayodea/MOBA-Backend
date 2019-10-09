@@ -2,12 +2,19 @@
 class post extends users {
     private function clean($data) {
         global $users;
+        global $rating;
+         //get user ID and name
+
         if ($data['image_url'] == "") {
             $data['image_url'] = "https://ui-avatars.com/api/?name=".urlencode($data['screen_name']);
         } else if (($data['image_url'] != "") && ($data['account_type'] == "local")) {
             $data['image_url'] = URL.$data['image_url'];
         }
         $data['categories'] = $users->getCatList($data['ref']);
+        
+        $data['rating']['score'] = round($rating->getRate($data['ref']), 2);
+        $data['rating']['total'] = 5;
+
         unset($data['account_type']);
         unset($data['total']);
         return $data;
