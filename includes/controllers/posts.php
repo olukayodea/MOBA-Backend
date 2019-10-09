@@ -1,11 +1,13 @@
 <?php
 class post extends users {
     private function clean($data) {
+        global $users;
         if ($data['image_url'] == "") {
             $data['image_url'] = "https://ui-avatars.com/api/?name=".urlencode($data['screen_name']);
         } else if (($data['image_url'] != "") && ($data['account_type'] == "local")) {
             $data['image_url'] = URL.$data['image_url'];
         }
+        $data['categories'] = $users->getCatList($data['ref']);
         unset($data['account_type']);
         return $data;
     }

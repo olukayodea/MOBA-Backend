@@ -541,14 +541,22 @@ class users extends database {
             if ($kin) {
                 $return['data']['next_of_kin'] = $kin;
             }
-            $userCat = $usersCategory->getSortedListCat($user, "user_id");
-            for ($i = 0; $i < count($userCat); $i++) {
-                $return['categories'][$i] = $category->formatResult($category->listOne($userCat[$i]['category_id']), true);
-            }
+            $return['categories'] = $this->getCatList($user);
             $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $user)['data'];
             $return['bank_accounts'] =  $bank_account->listAllUserData($user, 0, 20)['list'];
             $return['bank_cards'] = $wallet->listAllUserData($user, 0, 20)['list'];
         }
+        return $return;
+    }
+
+    public function getCatList($user) {
+        global $usersCategory;
+        global $category;
+        $userCat = $usersCategory->getSortedListCat($user, "user_id");
+        for ($i = 0; $i < count($userCat); $i++) {
+            $return[$i] = $category->formatResult($category->listOne($userCat[$i]['category_id']), true);
+        }
+
         return $return;
     }
     
