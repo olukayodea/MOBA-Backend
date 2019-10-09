@@ -30,38 +30,39 @@
     $url = $u."api/users/login";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
+/*
+    //register
+    //type = "local", "social_media";
+    //user_type = "0 for users", "1 for service provider", "2 for service admin";
+    $array['user_type'] = 1;
+    $array['last_name'] = "Fighi".rand();
+    $array['other_names'] = "Fighi".rand();
+    $array['screen_name'] = "Fighi".rand();
+    $array['email'] = "Chi@gh.bjr".rand();
+    $array['password'] = "nigsu111";
+    $array['account_type'] = "local";
+    $array['account_type_token'] = "";
+    $array['firebase_token'] = "asdfasdfa";
+    //service provider
+    $array['mobile_number'] = "08182441752";
+    $array['street'] = "Issuti road";
+    $array['city'] = "Igando";
+    $array['state'] = "Lagos";
+    $array['country'] = "Nigeria";
+    $array['category'] = rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52);
+    $array['id_type'] = 1;
+    $array['id_expiry'] = "Kunzu";
+    $array['id_number'] = "Kunzu";
+    $array['photo_file'] = "Kunzu";
+    $array['id_file'] = "Kunzu";
+    $array['kin_name'] = "Kunzu";
+    $array['kin_email'] = "Kunzu";
+    $array['kin_phone'] = "Kunzu";
+    $array['kin_relationship'] = "Kunzu";
 
-//     //register
-//     //type = "local", "social_media";
-//     //user_type = "0 for users", "1 for service provider", "2 for service admin";
-//     $array['user_type'] = 0;
-//     $array['last_name'] = "Fighi";
-//     $array['other_names'] = "Fighi";
-//     $array['screen_name'] = "Fighi";
-//     $array['email'] = "Chi@gh.bj";
-//     $array['password'] = "nigsu111";
-//     $array['account_type'] = "local";
-//     $array['account_type_token'] = "";
-//     $array['firebase_token'] = "asdfasdfa";
-//     //service provider
-//     $array['mobile_number'] = "08182441752";
-//     $array['street'] = "Issuti road";
-//     $array['city'] = "Igando";
-//     $array['state'] = "Lagos";
-//     $array['category'] = "1,2,3,4,5,6,7";
-//     $array['id_type'] = 1;
-//     $array['id_expiry'] = "Kunzu";
-//     $array['id_number'] = "Kunzu";
-//     $array['photo_file'] = "Kunzu";
-//     $array['id_file'] = "Kunzu";
-//     $array['kin_name'] = "Kunzu";
-//     $array['kin_email'] = "Kunzu";
-//     $array['kin_phone'] = "Kunzu";
-//     $array['kin_relationship'] = "Kunzu";
-
-//     $url = $u."api/users/register";
-//     $json_data = json_encode($array);
-//     echo post($header, $url, $json_data);
+    $url = $u."api/users/join";
+    $json_data = json_encode($array);
+    echo post($header, $url, $json_data);*/
 /*
     //recover
     $url = $u."api/users/recover/".urlencode("olukayode.adebiyi@hotmail.co.uk");
@@ -78,30 +79,22 @@
     //category::list
     $url = $u."api/category/list";
     echo get($header, $url);*/
-
+/*
     //posts::category
     $url = $u."api/posts/category/1/1";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     //posts::search
     $url = $u."api/posts/search/a/1";
     echo get($header, $url);*/
 /*
-    //posts::search
-    $url = $u."api/posts/keywordSearch/ottawa/1";
-    echo get($header, $url);*/
-/*
     //posts::featured
     $url = $u."api/posts/featured";
     echo get($header, $url);*/
-/*
-    //posts::maps
-    $url = $u."api/posts/map";
-    echo get($header, $url);*/
-/*
+
     //posts::aroundme
     $url = $u."api/posts/aroundMe/1";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //bank accounts
     //get list
@@ -600,17 +593,17 @@
     }
 
     function post($header,$url, $data) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $output = curl_exec($ch);
+        curl_close($ch);
         
-        // return $output;
+        return $output;
     }
     
     function put($header,$url, $data) {

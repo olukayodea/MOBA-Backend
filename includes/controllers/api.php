@@ -135,18 +135,9 @@
                     $return['status'] = "200";
                     $return['message'] = "OK";
                     $return['data'] = $list;
-                } else if (($mode == "posts") && ($action == "category")) {
+                } else if ($mode == "posts") {
                     //list all categories
                     $return = $post->postAPI($location, $action, $string, $page);
-                } else if (($mode == "posts") && ($action == "featured")) {
-                    //list all
-                    $return = $post->apiGetList($location, $string, $page);
-                } else if (($mode == "posts") && ($action == "aroundme")) {
-                    //list all
-                    $return = $post->apiGetList($location, $string, $page);
-                } else if (($mode == "posts") && ($action == "search")) {
-                    //list all
-                    $return = $post->apiGetList($location, $action, $page, false, $string);
                 } else if ($this->authenticate($header)) {
                     $userData = $this->authenticatedUser($header['auth']);
                     //authenticated users only
@@ -599,7 +590,7 @@
                 $return['status'] = "400";
                 $return['message'] = "Bad Request";
             }
-            print_r($return);
+            //print_r($return);
             return $this->convert_to_json($return);
         }
 
@@ -667,9 +658,9 @@
                 $array[] = "account:get";
                 $array[] = "cards:get";
                 $array[] = "posts:category";
-                $array[] = "post:get";
-                $array[] = "post:get";
-                $array[] = "post:get";
+                $array[] = "posts:search";
+                $array[] = "posts:aroundme";
+                $array[] = "posts:featured";
                 $array[] = "transaction:get";
                 $array[] = "wallet:get";
                 $array[] = "messages:get";

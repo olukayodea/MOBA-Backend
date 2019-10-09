@@ -484,7 +484,23 @@ class users extends database {
         unset($data['password']);
         unset($data['account_type_token']);
         unset($data['token']);
-        if ($data['badge'] == 1) {
+        unset($data['firebase_token']);
+        if ($data['user_type'] == 1) {
+            $data['user_type'] = "service_provider";
+            if ($data['is_featured'] == 1) {
+                $data['is_featured'] = "true";
+                $data['is_featured_till'] = "true";
+            } else {
+                $data['is_featured'] = "false";
+            }
+        } else if ($data['user_type'] == 0) {
+            $data['user_type'] = "user";
+            unset($data['is_featured']);
+        } else {
+            $data['user_type'] = "admin";
+            unset($data['is_featured']);
+        }
+        if ($data['verified'] == 1) {
             $data['verified'] = "true";
         } else {
             $data['verified'] = "false";
@@ -500,7 +516,6 @@ class users extends database {
         } else if (($data['image_url'] != "") && ($data['login_type'] == "local")) {
             $data['image_url'] = URL.$data['image_url'];
         }
-        unset($data['badge']);
         unset($data['login_type']);
         return $data;
     }
@@ -571,6 +586,7 @@ class users extends database {
             `id_number` VARCHAR(50) NULL,
             `verified` INT NOT NULL, 
             `is_featured` INT NOT NULL, 
+            `is_featured_till` VARCHAR(10) NOT NULL,
             `activation_token` VARCHAR(10) NOT NULL,
             `account_type_token` VARCHAR(255) NOT NULL,
             `firebase_token` VARCHAR(255) NOT NULL,
@@ -580,7 +596,8 @@ class users extends database {
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ref`),
-            UNIQUE KEY `email` (`email`)
+            UNIQUE KEY `email` (`email`),
+            FULLTEXT KEY (`street`,`about_me`)
         ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
 
         $this->query($query);

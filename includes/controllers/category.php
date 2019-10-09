@@ -68,6 +68,27 @@
           }
         }
 
+        private function clean($data) {
+            $data['image_url'] = $this->getIcon($data['ref']);
+            unset($data['status']);
+            unset($data['country']);
+            unset($data['parent_id']);
+            unset($data['create_time']);
+            unset($data['modify_time']);
+            return $data;
+        }
+        
+        public function formatResult($data, $single=false) {
+            if ($single == false) {
+                for ($i = 0; $i < count($data); $i++) {
+                    $data[$i] = $this->clean($data[$i]);
+                }
+            } else {
+                $data = $this->clean($data);
+            }
+            return $data;
+        }
+
         public function apiGetList($location, $type="all") {
             global $search;
             $result = array();
