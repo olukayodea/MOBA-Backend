@@ -1,8 +1,9 @@
 <?php
     class api extends database {
-        public function prep($header, $request, $data) {
+        public function prep($header, $postPequest, $data) {
             global $users;
             global $post;
+            global $request;
             global $category;
             global $bank_account;
             global $wallet;
@@ -14,7 +15,7 @@
             global $banks;
             global $identity;
 
-            $requestData = explode("/", $request);
+            $requestData = explode("/", $postPequest);
             $mode = @strtolower($requestData[0]);
 			$action = @strtolower($requestData[1]);
             $string = @strtolower($requestData[2]);
@@ -32,6 +33,7 @@
             $location['state'] = $loc['province'];
             $location['state_code'] = $loc['province_code'];
             $location['country'] = $loc['country'];
+            $location['address'] = $loc['address'];
 
             $returnedData = json_decode($data, true);
             if ($this->methodCheck($header['method'], $mode.":".$action)) {
@@ -135,96 +137,71 @@
                     $return['status'] = "200";
                     $return['message'] = "OK";
                     $return['data'] = $list;
-                } else if ($mode == "posts") {
+                } else if (($mode == "posts") && (($action == "category") || ($action == "search") || ($action == "featured") || ($action == "aroundme"))) {
                     //list all categories
                     $return = $post->postAPI($location, $action, $string, $page);
                 } else if ($this->authenticate($header)) {
                     $userData = $this->authenticatedUser($header['auth']);
                     //authenticated users only
-                    if (($mode == "advert") && ($action == "post")) {
+                    if (($mode == "request") && ($action == "create")) {
+                        $returnedData['user_id'] = $userData['ref'];
+                        $return = $request->creatAPI($location, $returnedData);
+                    } else if (($mode == "request") && (($action == "messages") || ($action == "newmessages"))) {
+                        $returnedData['user_id'] = $userData['ref'];
+                        //$returnedData['user_id'] = 2;
                         $act = "post";
-                        if (isset($returnedData['ref'])) {
-                            $act = "edit";
+                        if (is_numeric($string)) {
+                            $returnedData['user_r_id'] = intval($page);
+                            $returnedData['post_id'] = intval($string);
+                            if ($action == "newmessages") {
+                                $act = "new";
+                            } else {
+                                $act = "list";
+                            }
                         }
+                        $return = $request->apiMessages($returnedData, $act);
+                    } else if (($mode == "request") && ($action == "hire")) {
                         $returnedData['user_id'] = $userData['ref'];
-                        $return = $projects->postApi($returnedData);
-                    } else if (($mode == "advert") && ($action == "image")) {
-                        $returnedData['user_id'] = $userData['ref'];
-                        $returnedData['image_id'] = intval($string);
-                        $return = $media->removeAPI($returnedData);
-                    } else if (($mode == "advert") && ($action == "negotiate")) {
+                        //$returnedData['user_id'] = 2;
+                        $return = $request->apiApprove($returnedData);
+                    } else if (($mode == "request") && ($action == "negotiate")) {
                         $act = "post";
                         if ((is_numeric($string)) && (intval($page) > 0)) {
-                            $returnedData['project_id'] = $string;
+                            $returnedData['post_id'] = $string;
                             $returnedData['user_r_id'] = $page;
                             $act = "check";
                         } else if ($string == "respond") {
                             
                             $act = "respond";
                         }
-                        $returnedData['user_id'] = $userData['ref'];
-                        //$returnedData['user_id'] = 2;
-                        $return = $projects->apiMegotiate($returnedData, $act);
+                        //$returnedData['user_id'] = $userData['ref'];
+                        $returnedData['user_id'] = 2;
+                        $return = $request->apiMegotiate($returnedData, $act);
                     } else if (($mode == "advert") && ($action == "featured")) {
                         $act = "post";
                         if (is_numeric($string)) {
-                            $returnedData['project_id'] = $string;
+                            $returnedData['post_id'] = $string;
                             $act = "check";
                         }
                         $returnedData['user_id'] = $userData['ref'];
                         $return = $projects->apiFeatured($returnedData, $act);
-                    } else if (($mode == "advert") && ($action == "hours")) {
-                        $act = "post";
-                        if (is_numeric($string)) {
-                            $returnedData['project_id'] = $string;
-                            $returnedData['user_r_id'] = $page;
-                            $act = "check";
-                        } else if ($string == "respond") {
-                            
-                            $act = "respond";
-                        } else if ($string == "approve") {
-                            
-                            $act = "approve";
-                        }
-                        $returnedData['user_id'] = $userData['ref'];
-                        //$returnedData['user_id'] = 2;
-                        $return = $projects->apiHours($returnedData, $act);
-                    } else if (($mode == "advert") && ($action == "milestone")) {
-                        $act = "post";
-                        if (is_numeric($string)) {
-                            $returnedData['project_id'] = $string;
-                            $returnedData['user_r_id'] = $page;
-                            $act = "check";
-                        } else if ($string == "respond") {
-                            
-                            $act = "respond";
-                        } else if ($string == "approve") {
-                            
-                            $act = "approve";
-                        } else if ($string == "request") {
-                            
-                            $act = "request";
-                        }
-                        $returnedData['user_id'] = $userData['ref'];
-                        //$returnedData['user_id'] = 2;
-                        $return = $projects->apiMilestone($returnedData, $act);
-                    } else if (($mode == "advert") && ($action == "delete")) {
+                    } else if (($mode == "request") && ($action == "delete")) {
                         $returnedData['user_id'] = $userData['ref'];
                         $returnedData['ref'] = intval($string);
-                        $return = $projects->apiDelete($returnedData);
+                        $return = $request->apiDelete($returnedData);
                     } else if (($mode == "advert") && ($action == "get")&& ($string == "counter")) {
                         $return = $projects->apiCounter($page);
-                    } else if (($mode == "advert") && ($action == "get")) {
-                        $return = $projects->apiGetList($location, $string, $page, $userData['ref'], $page);
+                    } else if (($mode == "request") && ($action == "get")) {
+                        $return = $request->apiGetList($string, $page, $userData['ref'], $page);
                     } else if (($mode == "advert") && (($action == "complete") || ($action == "request"))) {
                         //$returnedData['user_id'] = $userData['ref'];
                         $returnedData['user_id'] = 2;
-                        $returnedData['project_id'] = intval($string);
+                        $returnedData['post_id'] = intval($string);
                         $return = $projects->apiComplete($returnedData, $action);
                     } else if (($mode == "advert") && ($action == "approve")) {
                         $returnedData['user_id'] = $userData['ref'];
                         //$returnedData['user_id'] = 2;
-                        $returnedData['project_id'] = intval($string);
+                        $returnedData['post_id'] = intval($string);
                         $returnedData['user_r_id'] = intval($page);
                         $return = $projects->apiAPI($returnedData);
                     } else if (($mode == "advert") && ($action == "review")) {
@@ -232,29 +209,15 @@
                         //$returnedData['user_id'] = 2;
                         if ($string == "parameters") {
                             $act = "list";
-                            $returnedData['project_id'] = intval($page);
+                            $returnedData['post_id'] = intval($page);
                         } else if (intval($string) > 0) {
                             $act = "get";
-                            $returnedData['project_id'] = intval($string);
+                            $returnedData['post_id'] = intval($string);
                         } else {
                             $act = "post";
                         }
                         
-                        $return = $projects->apiReview($returnedData, $act);
-                    } else if (($mode == "advert") && (($action == "messages") || ($action == "newmessages"))) {
-                        $returnedData['user_id'] = $userData['ref'];
-                        //$returnedData['user_id'] = 2;
-                        $act = "post";
-                        if (is_numeric($string)) {
-                            $returnedData['user_r_id'] = intval($page);
-                            $returnedData['project_id'] = intval($string);
-                            if ($action == "newmessages") {
-                                $act = "new";
-                            } else {
-                                $act = "list";
-                            }
-                        }
-                        $return = $projects->apiMessages($returnedData, $act);
+                        $return = $projects->apiReview($returnedData, $act);                
                     } else if (($mode == "users") && ($action == "get") && ($string == "contact")) {
                         $return = $users->apiGetList("contact", $userData['ref'], $page);
                     } else if (($mode == "users") && ($action == "profile")) {
@@ -566,6 +529,17 @@
                             $return['additional_message'] = "An error occured while sending this message";
                         }
                     
+                    
+                    } else if (($mode == "notifications") && ($action == "get") && ($string == "project")) {
+                        if ($page == "") {
+                            $page = 1;
+                        } else if (intval($page) == 0) {
+                            $page = 1;
+                        } else {
+                            $page = intval($page);
+                        }
+
+                        $return = $request->apiMessageList($userData['ref'], $page);
                     } else if (($mode == "notifications") && ($action == "get") && ($string == "all")) {
                         $id = false;
                         $act = "list";
@@ -630,13 +604,16 @@
                 $array[] = "advert:hours";
                 $array[] = "advert:messages";
                 $array[] = "advert:milestone";
-                $array[] = "advert:negotiate";
                 $array[] = "advert:review";
                 $array[] = "advert:post";
                 $array[] = "users:join";
                 $array[] = "users:login";
                 $array[] = "account:add";
                 $array[] = "cards:add";
+                $array[] = "request:create";
+                $array[] = "request:messages";
+                $array[] = "request:negotiate";
+                $array[] = "request:hire";
                 $array[] = "wallet:deposit";
                 $array[] = "wallet:withdraw";
                 $array[] = "messages:send";
@@ -649,18 +626,22 @@
                 $array[] = "data:";
                 $array[] = "banks:list";
                 $array[] = "users:get";
+                $array[] = "users:recover";
                 $array[] = "users:profile";
                 $array[] = "category:advert";
                 $array[] = "category:listparent";
                 $array[] = "category:listsub";
                 $array[] = "category:list";
-                $array[] = "advert:get";
                 $array[] = "account:get";
                 $array[] = "cards:get";
                 $array[] = "posts:category";
                 $array[] = "posts:search";
                 $array[] = "posts:aroundme";
                 $array[] = "posts:featured";
+                $array[] = "request:messages";
+                $array[] = "request:newmessages";
+                $array[] = "request:negotiate";
+                $array[] = "request:get";
                 $array[] = "transaction:get";
                 $array[] = "wallet:get";
                 $array[] = "messages:get";
@@ -676,6 +657,7 @@
                 $array[] = "account:changestatus";
                 $array[] = "cards:makedefault";
                 $array[] = "cards:changestatus";
+                $array[] = "request:negotiate";
                 $array[] = "users:profile";
                 $array[] = "users:password";
                 $array[] = "users:profilepicture";
@@ -688,6 +670,7 @@
             } else if ($method == "DELETE") {
                 $array[] = "account:delete";
                 $array[] = "cards:delete";
+                $array[] = "request:delete";
                 $array[] = "users:profilepicture";
                 if (array_search($type, $array) === false) {
                     return false;

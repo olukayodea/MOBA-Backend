@@ -2,7 +2,8 @@
 class usersCategory extends users {
     /*  create users track
     */
-    public function create($array) {
+    public function create($array, $file=false) {
+        $file = false;
         $create = $this->insert("usersCategory", $array);
         if ($create) {
             return $create;

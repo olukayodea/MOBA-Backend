@@ -7,7 +7,6 @@
         unset($_POST['submitOption']);
         $adminOptions->postMew("service_charge", $_POST['service_charge']);
         $adminOptions->postMew("service_charge_premium", $_POST['service_charge_premium']);
-        $adminOptions->postMew("minimum_post", $_POST['minimum_post']);
         $adminOptions->postMew("max_days_approve", $_POST['max_days_approve']);
         $adminOptions->postMew("mail_interval", $_POST['mail_interval']);
         $adminOptions->postMew("result_per_page", $_POST['result_per_page']);
@@ -30,20 +29,55 @@
 
     }
 ?>
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8">
-<?php $pageHeader->headerFiles(); ?>
-<title>Administrator | System Settings</title>
-</head>
+<!DOCTYPE html>
+<html lang="en">
 
-<body>
-<?php $pageHeader->loginStrip(); ?>
-<?php $pageHeader->navigation(); ?>
-<div class="container-fluid">
-    <?php $adminOptions->pageContent(); ?>
-</div>
-<?php $pageHeader->jsFooter(); ?>
-</body>
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <?php $pageHeader->headerFiles(); ?>
+    <title>Administrator | Settings</title>
+	</head>
+
+  <body>
+	<section>
+    <?php $pageHeader->loginStrip(); ?>
+    <?php $pageHeader->navigation(); ?>
+		
+		<div class="moba-sban1">
+		<div class="container">
+			<div class="row">
+			
+				<div class="col-lg-6 py-5">
+						<h6><a href="<?php echo URL; ?>">Moba</a>  /  Administrator / Settings</h6>
+				</div>
+				<div class="col-lg-6"></div>
+				
+			</div>
+		</div>
+		</div>
+		
+	</section>
+	<section class="moba-details">
+		<div class="container my-5">
+            <div class="row py-5">
+                <div class="col-lg-3">
+                    <?php $adminOptions->navigationBar($redirect); ?>
+                </div>
+                <div class="col-lg-9">
+                    <?php $adminOptions->pageContent(); ?>
+                </div>
+            </div>
+		</div>
+	</section>
+	
+    <?php $pageHeader->footer(); ?>
+    <?php $pageHeader->jsFooter(); ?>
+
+  </body>
+
 </html>

@@ -10,7 +10,7 @@
                     $uploadFile = $this->uploadFile($raw, $folderPath);
                     if ($uploadFile['title'] == "OK") {
                         $data['user_id'] = $array['user_id'];
-                        $data['project_id'] = $array['project_id'];
+                        $data['post_id'] = $array['post_id'];
                         $data['media_type'] = $uploadFile['type'];
                         $data['media_url'] = $folderPath.$uploadFile['desc'];
                         $this->insert("media", $data);
@@ -19,7 +19,7 @@
                     $uploadFile = $this->uploadProjectApi($raw, $folderPath);
                     if ($uploadFile['title'] == "OK") {
                         $data['user_id'] = $array['user_id'];
-                        $data['project_id'] = $array['project_id'];
+                        $data['post_id'] = $array['post_id'];
                         $data['media_type'] = $uploadFile['type'];
                         $data['media_url'] = $folderPath.$uploadFile['desc'];
 
@@ -29,16 +29,15 @@
             }
         }
 
-        public function remove($id, $ref="project_id") {
+        public function remove($id, $ref="post_id") {
             $data = $this->getOne("media", $id, $ref);
             $dirArray['user_id'] = $data['user_id'];
-            $dirArray['project_id'] = $data['project_id'];
+            $dirArray['post_id'] = $data['post_id'];
             unset($data);
             $remove = $this->delete("media", $id, $ref);
             $remove = true;
             if ($remove){
-                $this->cleanUrl();
-                $this->deleteDir($this->cleanUrl()."/media/".$this->hashDir($dirArray)."/");
+                $this->deleteDir($this->cleanUrl()."/media/request/".$id."/");
                 return true;
             } else {
                 return false;
@@ -84,7 +83,7 @@
             return $string[0];
         }
 
-        public function getCover($id, $sort='project_id') {
+        public function getCover($id, $sort='post_id') {
             $data = $this->getOne("media", $id, $sort);
             if ($data['media_url'] != "") {
                 return URL.$data['media_url'];
@@ -98,7 +97,7 @@
         }
 
         public function getAlbum($id) {
-            return $this->sortAll("media", $id, "project_id");
+            return $this->sortAll("media", $id, "post_id");
         }
 
         function reArrayFiles($file_post) {
@@ -115,7 +114,7 @@
         }
 
         function hashDir($array) {
-            return sha1($array['user_id']."_".$array['project_id']);
+            return sha1($array['user_id']."_".$array['post_id']);
         }
 		
 		function uploadFile($array, $userDoc) {
@@ -320,6 +319,10 @@
                     $file = "gov_id.png";
                     $dir = "media/profiles/".$ref."/";
                     $userDoc = "../".$dir;
+                } else if ($type == "request") {
+                    $file = time().rand(10,99).".png";
+                    $dir = "media/request/".$ref."/";
+                    $userDoc = "../".$dir;
                 }
                 if(!is_dir($userDoc)) {
                     mkdir($userDoc, 0777, true);
@@ -368,7 +371,7 @@
             $query = "CREATE TABLE IF NOT EXISTS `".dbname."`.`media` (
                 `ref` INT NOT NULL AUTO_INCREMENT, 
                 `user_id` INT NOT NULL, 
-                `project_id` INT NOT NULL, 
+                `post_id` INT NOT NULL, 
                 `media_type` VARCHAR(50) NOT NULL, 
                 `media_url` VARCHAR(1000) NOT NULL, 
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

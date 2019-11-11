@@ -57,7 +57,7 @@
                 <?php $previous_id = $p_data['previous_id'];
                 } ?>
                 <form method="post" action="">
-                <button type="submit" value="<?php echo $id; ?>" class="btn btn-primary" name="forward" id="forward"><i class="fas fa-forward"></i>&nbsp;Forward</button>
+                <button type="submit" value="<?php echo $id; ?>" class="btn purple-bn1" name="forward" id="forward"><i class="fas fa-forward"></i>&nbsp;Forward</button>
                 </form>
                 <?php if ($data['to_id'] == $ref) { ?>  
                 <form method="post" action="">
@@ -73,7 +73,7 @@
                 <input type="hidden" name="from_id" value="<?php echo $ref; ?>">
                 <input type="hidden" name="to_list" value="<?php echo $to_list; ?>">
                 <input type="hidden" name="previous_id" value="<?php echo $id; ?>">
-                <button type="submit" class="btn btn-primary" name="sendMail" id="sendMail"><i class="fas fa-paper-plane"></i>&nbsp;Send</button>
+                <button type="submit" class="btn purple-bn1" name="sendMail" id="sendMail"><i class="fas fa-paper-plane"></i>&nbsp;Send</button>
                 </form>
                 <?php } ?>
             <?php }
@@ -105,7 +105,7 @@
                     <button type="Send" class="btn btn-outline-primary" name="inboxAction" value="readMail" id="readMail"><i class="fas fa-envelope-open"></i>&nbsp;Mark as Read</button>
                     <button type="Send" class="btn btn-outline-primary" name="inboxAction" value="unreadMail" id="unreadMail"><i class="fas fa-envelope"></i>&nbsp;Mark as Unread</button>
                 </div>
-                <table class="table">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th scope="col"><input type="checkbox" id="checkall"></th>
@@ -176,7 +176,7 @@
                     <button type="Send" class="btn btn-outline-primary" name="inboxAction" value="readMail" id="readMail"><i class="fas fa-envelope-open"></i>&nbsp;Mark as Read</button>
                     <button type="Send" class="btn btn-outline-primary" name="inboxAction" value="unreadMail" id="unreadMail"><i class="fas fa-envelope"></i>&nbsp;Mark as Unread</button>
                 </div>
-            `    <table class="table">
+            `    <table class="table table-striped">
                     <thead>
                         <tr>
                             <th scope="col"><input type="checkbox" id="checkall"></th>
@@ -261,7 +261,7 @@
                 </div>
                 <input type="hidden" name="from_id" value="<?php echo $ref; ?>">
                 <input type="hidden" name="previous_id" value="<?php echo $previous_id; ?>">
-                <button type="Send" class="btn btn-primary" name="sendMail" id="sendMail"><i class="fas fa-paper-plane"></i>&nbsp;Send</button>
+                <button type="Send" class="btn purple-bn1" name="sendMail" id="sendMail"><i class="fas fa-paper-plane"></i>&nbsp;Send</button>
             </form>
             <script src="<?php echo URL; ?>js\tagcomplete.js"></script>
             <script>

@@ -69,9 +69,9 @@
         </select>
       </div>
       <input type="hidden" name="ref" value="<?php echo $edit; ?>">
-      <button type="submit" name="submitCountry" class="btn btn-primary"><?php echo $tag2; ?></button>
+      <button type="submit" name="submitCountry" class="btn purple-bn1"><?php echo $tag2; ?></button>
       <?php if ($edit > 0) { ?>
-      <button type="button" class="btn btn-primary" onClick="location='<?php echo URL.$redirect; ?>'" >Cancel</button>
+      <button type="button" class="btn purple-bn1" onClick="location='<?php echo URL.$redirect; ?>'" >Cancel</button>
       <?php } ?>
       </form>
     </main>
@@ -93,7 +93,7 @@
       $listCount = $this->getList(false, false, "count"); ?>
         <h2>List All Countries</h2>
 <form method="post" action="" enctype="multipart/form-data">
-<table class="table">
+<table class="table table-striped">
 <thead>
 <tr>
   <th scope="col">#</th>
@@ -134,7 +134,7 @@
   <?php } ?>
 </tbody>
 </table>
-<button type="submit" name="set_is_default" class="btn btn-primary">Set Default Country</button>
+<button type="submit" name="set_is_default" class="btn purple-bn1">Set Default Country</button>
 <?php $this->pagination($page, $listCount); ?>
 </form>
     <?php }

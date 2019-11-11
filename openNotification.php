@@ -8,7 +8,7 @@
 
     $data = $notifications->listOne($ref);
 
-    if ($data['event'] == "project_messages") {
+    if ($data['event'] == "post_messages") {
         $notifications->markReadOne($ref);
         header("location: ".$common->seo($data['event_id'], "view")."#messages");
     }

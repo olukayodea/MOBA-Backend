@@ -8,6 +8,10 @@
           }
       }
 
+      public function navigationBar() { ?>
+          <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL; ?>"><b>Home</b></a></p>
+     <?php }
+
     private function listAll($redirect) {
       global $users;
       global $options;
@@ -24,7 +28,7 @@
       $list = $this->getList($start, $limit);
       $listCount = $this->getList(false, false, "ref", "ASC", "count"); ?>
       <h2>Payment Cards</h2>
-      <table class="table">
+      <table class="table table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>
@@ -77,7 +81,7 @@
       
       <a href="javascript:history.go(-1);">Back</a>
       <h2>Card Details</h2>
-      <table class="table">
+      <table class="table table-striped">
         <tr>
           <th width="25%">Card Name</th>
           <td><?php echo $data['card_name']; ?></td>
@@ -108,7 +112,7 @@
         </tr>
       </table>
       <h2>Transactions on Card</h2>
-      <table class="table">
+      <table class="table table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>

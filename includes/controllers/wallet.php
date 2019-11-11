@@ -112,6 +112,7 @@
             $user['name'] = $users->listOnValue($data['user_id'], "screen_name");
             $user['rating']['score'] = round($rating->getRate($data['user_id']), 2);
             $user['rating']['total'] = 5;
+            $user['rating']['remark'] = $rating->textRate(intval($rating->getRate($data['user_id'])));
             $data['user_id'] = $user;
 
             

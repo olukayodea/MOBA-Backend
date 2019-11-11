@@ -14,10 +14,10 @@
     $replyMail  = "donotreply@moba.com.ng";
     $ip_address = $_SERVER['REMOTE_ADDR'];
   } else if (($curdomain == "127.0.0.1") || ($curdomain == "localhost")) {
-    $URL        = "http://127.0.0.1/MOBA/";
+    $URL        = "http://127.0.0.1/MOBA-Backend/";
     $servername = "localhost";
     $dbusername = "root";
-    $dbpassword = "mysql";
+    $dbpassword = "root";
     $dbname     = "MOBA_main";
     $replyMail  = "donotreply@moba.com.ng";
     $ip_address = "207.35.181.162";
@@ -32,20 +32,20 @@
   }
 
   //get the current server URL
-  define("URL", $URL, true);
+  define("URL", $URL);
   //get the database server name
-  define("servername",  $servername, true);
+  define("servername",  $servername);
   //get the database server username
-  define("dbusername",  $dbusername, true);
+  define("dbusername",  $dbusername);
   //get the database server password
-  define("dbpassword",  $dbpassword, true);
+  define("dbpassword",  $dbpassword);
   //get the database name
-  define("dbname",  $dbname, true);
-  define("replyMail",  $replyMail, true);
-  define("ip_address", $ip_address, true);
+  define("dbname",  $dbname);
+  define("replyMail",  $replyMail);
+  define("ip_address", $ip_address);
 
-  define("search_radius", 0.5, true);
-  define("search_radius_me", 0.02, true);
+  define("search_radius", 1000);
+  define("search_radius_me", 200);
 
   //google APIs
   define("GoogleAPI", "AIzaSyAMCoTIoeIbfVpr5jwfTUw_jEHmZjmU8CY");
@@ -53,7 +53,7 @@
   define("GoogleSecret", "2pV-S4uN-7sdz9-LmeGYMiOW");
 
   //payment gateway
-  define("merchID",  "300206916", true);
+  define("merchID",  "300206916");
   define("gateway_access_code", "0bcd3711b13744D5A5E8608ca9A5F7B0");
   define("batch_gateway_access_code", "892e267e758041Cf9c5Cef7907C95E48");
   define("gateway_passcode", base64_encode(merchID.":".gateway_access_code));
@@ -69,6 +69,7 @@
 
   include_once("controllers/users.php");
   include_once("controllers/posts.php");
+  include_once("controllers/request.php");
   include_once("controllers/messages.php");
   include_once("controllers/banks.php");
   include_once("controllers/category.php");
@@ -92,6 +93,7 @@
   
   $users          = new users;
   $post           = new post;
+  $request        = new request;
   $messages       = new messages;
   $banks          = new banks;
   $category       = new category;

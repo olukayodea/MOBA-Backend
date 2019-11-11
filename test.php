@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    // $u = "http://127.0.0.1/MOBA-Backend/";
-    // $token = "1122SJB1TQKBXKKJP2N";
-    $u = "https://dev.moba.com.ng/";
-    $token = "11241RCL8B298BW0MHP";
+    $u = "http://127.0.0.1/MOBA-Backend/";
+    $token = "111HEVQ38JEOKVNB1EJ";
+    // $u = "https://dev.moba.com.ng/";
+    // $token = "111HEVQ38JEOKVNB1EJ";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -30,21 +30,28 @@
     $url = $u."api/users/login";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
-/*
-    //register
+
+    $img[] = "tmp/1.jpeg";
+    $img[] = "tmp/2.jpeg";
+    $img[] = "tmp/2.jpg";
+    $img[] = "tmp/2.png";
+    $img[] = "tmp/3.jpg";
+    $img[] = "tmp/4.png";
+    $sImg = shuffle($img);
+    //1395 bank street  9am to 1:30pm tuesdays to friday, Elter Krity; 613 745 8124 x5360
+/*    //register
     //type = "local", "social_media";
     //user_type = "0 for users", "1 for service provider", "2 for service admin";
     $array['user_type'] = 1;
     $array['last_name'] = "Fighi".rand();
     $array['other_names'] = "Fighi".rand();
-    $array['screen_name'] = "Fighi".rand();
     $array['email'] = "Chi@gh.bjr".rand();
     $array['password'] = "nigsu111";
     $array['account_type'] = "local";
     $array['account_type_token'] = "";
     $array['firebase_token'] = "asdfasdfa";
     //service provider
-    $array['mobile_number'] = "08182441752";
+    $array['mobile_number'] = "080".rand(10000000, 99999999);
     $array['street'] = "Issuti road";
     $array['city'] = "Igando";
     $array['state'] = "Lagos";
@@ -54,11 +61,11 @@
     $array['id_expiry'] = "Kunzu";
     $array['id_number'] = "Kunzu";
     $array['photo_file'] = "Kunzu";
-    $array['id_file'] = "Kunzu";
-    $array['kin_name'] = "Kunzu";
-    $array['kin_email'] = "Kunzu";
-    $array['kin_phone'] = "Kunzu";
-    $array['kin_relationship'] = "Kunzu";
+    $array['id_file'] = base64_encode(file_get_contents($img[$sImg]));
+    $array['kin_name'] = "Kunzu".rand();
+    $array['kin_email'] = rand().'@'.rand().".com";
+    $array['kin_phone'] = rand();
+    $array['kin_relationship'] = "Family";
 
     $url = $u."api/users/join";
     $json_data = json_encode($array);
@@ -80,6 +87,7 @@
     $url = $u."api/category/list";
     echo get($header, $url);*/
 /*
+    Posts
     //posts::category
     $url = $u."api/posts/category/1/1";
     echo get($header, $url);*/
@@ -91,10 +99,97 @@
     //posts::featured
     $url = $u."api/posts/featured";
     echo get($header, $url);*/
-
+/*
     //posts::aroundme
     $url = $u."api/posts/aroundMe/1";
-    echo get($header, $url);
+    echo get($header, $url);*/
+  
+    //Request
+    //request::create
+    $array['fee']  = "250.00";
+    $array['time']  = "60";
+    $array['address']  = "147 isuti road, Igando Lagos";
+    $array['description']  = "this is just a description text";
+    $array['category_id']  = 1;
+    $array['media'][0]  = base64_encode(file_get_contents($img[$sImg]));
+    $array['media'][1]  = base64_encode(file_get_contents($img[$sImg]));
+    $array['media'][2]  = base64_encode(file_get_contents($img[$sImg]));
+
+    $url = $u."api/request/create";
+    $json_data = json_encode($array);
+    echo post($header, $url, $json_data);
+/*
+    //request::hire
+    $array['user_r_id'] = "2";
+    $array['post_id'] = "1";
+
+    $url = $u."api/request/hire";
+    $json_data = json_encode($array);
+    echo post($header, $url, $json_data);*/
+/*
+    //negotiate fees
+    $array['negotiated_fee'] = "100";
+    $array['user_r_id'] = "2"; //if the user is the ad owner, this is the id of the responder
+    $array['post_id'] = "1";
+    $url = $u."api/request/negotiate";
+    $json_data = json_encode($array);
+    echo post($header, $url, $json_data);*/
+/*    
+    //get negotiate status
+    $url = $u."api/request/negotiate/1/2";
+    echo get($header, $url);*/
+/*
+    //respond to negotiate request
+    $array['reponse'] = "y"; //y for yes, n for no
+    $array['neg_id'] = "1";
+    $array['msg_id'] = "5";
+    $url = $u."api/request/negotiate/respond";
+    $json_data = json_encode($array);
+    echo put($header, $url, $json_data);*/
+/*
+    //List all advert
+    $url = $u."api/advert/get/all";
+    echo get($header, $url);*/
+/*
+    $url = $u."api/advert/get/all";
+    echo get($header, $url);*/
+/*
+    $url = $u."api/request/get/open";
+    echo get($header, $url);*/
+/*    
+    $url = $u."api/request/get/running";
+    echo get($header, $url);*/
+/*    
+    $url = $u."api/request/get/current";
+    echo get($header, $url);*/
+/*    
+    $url = $u."api/request/get/past";
+    echo get($header, $url);*/
+/*    
+    $url = $u."api/request/get/active";
+    echo get($header, $url);*/
+/*
+    $url = $u."api/request/get/27/2";
+    echo get($header, $url);*/
+/*
+    $url = $u."api/request/delete/1";
+    echo delete($header, $url);*/
+/*
+    //request messages
+    $url = $u."api/request/messages/1/2"; //post ID
+    echo get($header, $url);*/
+/*
+    //request new messages
+    $url = $u."api/request/newMessages/1/2";//post ID //user ID
+    echo get($header, $url);*/
+/*
+    //request message
+    $array['message'] = "random message ".rand();
+    $array['user_r_id'] = "2";
+    $array['post_id'] = "1";
+    $url = $u."api/request/messages";
+    $json_data = json_encode($array);
+    echo post($header, $url, $json_data);*/
 /*
     //bank accounts
     //get list
@@ -286,113 +381,7 @@
     $url = $u."api/users/gov_id";
     $json_data = json_encode($array);
     echo put($header, $url, $json_data);*/
-/*
-    //Jobs
-    //post jpb
-    $array['project_type'] = "client"; //client or vendor
-    $array['project_name'] = "Sample Demo";
-    $array['project_dec'] = "Sample";
-    $array['allow_remote'] = 1;
-    $array['category_id'][] = 6;
-    $array['category_id'][] = 8;
-    $array['category_id'][] = 7;
-    $array['category_id'][] = 2;
-    $array['address'] = "1541 Riverside Drive, Ottawa, ON, Canada";
-    $array['billing_type'] = "per_hour";
-    $array['default_fee'] = "25";
-    $array['card'] = 1; //if project_type is client
-    $array['tag'] = "Sample, Samples, another one";
-    $array['image'][] = base64_encode(file_get_contents($u."media/3086af664b539308321cf4adf2b49049ac21ed2b/561564329078709.jpg"));
-    $array['image'][] = base64_encode(file_get_contents($u."media/3086af664b539308321cf4adf2b49049ac21ed2b/561564329078709.jpg"));
-    $array['image'][] = base64_encode(file_get_contents($u."media/3086af664b539308321cf4adf2b49049ac21ed2b/561564329078709.jpg"));
-    $array['image'][] = base64_encode(file_get_contents($u."media/3086af664b539308321cf4adf2b49049ac21ed2b/561564329078709.jpg"));
 
-    $url = $u."api/advert/post";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
-/*
-    //edit jpb
-    $array['ref'] = 34;
-    $array['project_type'] = "client"; //client or vendor
-    $array['project_name'] = "Sample Demo";
-    $array['project_dec'] = "Sample";
-    $array['allow_remote'] = 1;
-    $array['category_id'][] = 6;
-    $array['category_id'][] = 8;
-    $array['category_id'][] = 7;
-    $array['category_id'][] = 2;
-    $array['address'] = "1541 Riverside Drive, Ottawa, ON, Canada";
-    $array['billing_type'] = "per_hour";
-    $array['default_fee'] = "25";
-    $array['card'] = 1; //if project_type is client
-    $array['tag'] = "Sample, Samples, another one";
-    //include if you want to add more images to 
-
-    $url = $u."api/advert/post";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
-/*
-    //remove image
-    $url = $u."api/advert/image/67";
-    $json_data = json_encode($array);
-    echo delete($header, $url);*/
-/*
-    //List all advert
-    $url = $u."api/advert/get/all";
-    echo get($header, $url);*/
-/*
-    $url = $u."api/advert/get/active";
-    echo get($header, $url);*/
-/*    
-    $url = $u."api/advert/get/conversation";
-    echo get($header, $url);*/
-/*    
-    $url = $u."api/advert/get/on-going";
-    echo get($header, $url);*/
-/*    
-    $url = $u."api/advert/get/running";
-    echo get($header, $url);*/
-/*    
-    $url = $u."api/advert/get/past";
-    echo get($header, $url);*/
-/*    
-    $url = $u."api/advert/get/archive";
-    echo get($header, $url);*/
-/*    
-    $url = $u."api/advert/get/draft";
-    echo get($header, $url);*/
-/*
-    $url = $u."api/advert/get/saved";
-    echo get($header, $url);*/
-/*
-    $url = $u."api/advert/get/27/2";
-    echo get($header, $url);*/
-/*
-    $url = $u."api/advert/get/counter/26";
-    echo get($header, $url);*/
-/*
-    $url = $u."api/advert/delete/22";
-    echo delete($header, $url);*/
-/*
-    //approve advert
-    $url = $u."api/advert/approve/23/2";
-    echo get($header, $url);*/
-/*
-    //advert messages
-    $url = $u."api/advert/messages/25";
-    echo get($header, $url);*/
-/*
-    //advert new messages
-    $url = $u."api/advert/newMessages/25";
-    echo get($header, $url);*/
-/*
-    //send message
-    $array['message'] = "random message ".rand();
-    $array['user_r_id'] = "1";
-    $array['project_id'] = "25";
-    $url = $u."api/advert/messages";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
 /*
     //featured ad
     $array['days'] = "100";
@@ -405,26 +394,6 @@
     //get status
     $url = $u."api/advert/featured/26";
     echo get($header, $url);*/
-/*
-    //negotiate fees
-    $array['negotiated_fee'] = "100";
-    $array['user_r_id'] = "1"; //if the user is the ad owner, this is the id of the responder
-    $array['project_id'] = "26";
-    $url = $u."api/advert/negotiate";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
-/*    
-    //get negotiate status
-    $url = $u."api/advert/negotiate/26/2";
-    echo get($header, $url);*/
-/*
-    //respond to negotiate request
-    $array['reponse'] = "y"; //y for yes, n for no
-    $array['neg_id'] = "18";
-    $array['msg_id'] = "129";
-    $url = $u."api/advert/negotiate/respond";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
 /*
     //propose hours
     $array['hours'] = "100";
@@ -570,66 +539,71 @@
     $json_data = json_encode($array);
     echo get($header, $url);*/
 /*
+    //lst
+    $url = $u."api/notifications/get/project";
+    $json_data = json_encode($array);
+    echo get($header, $url);*/
+/*
     //read
     $url = $u."api/notifications/get/29";
     $json_data = json_encode($array);
     echo get($header, $url);*/
 
     print_r($header);
-    print_r($json_data);
+    @print_r($json_data);
     echo "<br>";
     echo $url;
 
     function get($header,$url) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
-        // return $output;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
     }
 
     function post($header,$url, $data) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $output = curl_exec($ch);
+        curl_close($ch);
         
-        // return $output;
+        return $output;
     }
     
     function put($header,$url, $data) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $output = curl_exec($ch);
+        curl_close($ch);
         
-        // return $output;
+        return $output;
     }
 
     function delete($header,$url) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
-        // return $output;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
     }
 ?>

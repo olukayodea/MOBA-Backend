@@ -22,7 +22,7 @@
             $list = $this->getList($start, $limit);
             $listCount = $this->getList(false, false, "ref", "DESC", "count") ?>
             <h2>Pending Payments</h2>
-<table class="table">
+<table class="table table-striped">
   <thead>
     <tr>
       <th scope="col">#</th>

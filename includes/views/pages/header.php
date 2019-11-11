@@ -1,52 +1,33 @@
 <?php
     class pageHeader extends database {
-        function loginStrip($showCat=false, $login=false) {           
+        function loginStrip($home=false, $login=false) {           
             global $country;
             global $wallet;
             global $inbox;
             $regionData = $country->getLoc($_SESSION['location']['code']);
             $msgCount = $inbox->getSortedList($_SESSION['users']['ref'], "to_id", "status", "SENT", "read", 0, "ref", "DESC", "AND", false, false, "count"); ?>
             
-            <script>
-            window.fbAsyncInit = function() {
-                FB.init({
-                appId      : '444545979676403',
-                cookie     : true,
-                xfbml      : true,
-                version    : 'v3.3'
-                });
-                
-                FB.AppEvents.logPageView();
-                <?php if ($login == true) { ?>
-                checkLoginState();
-                <?php } ?>
-                
-            };
 
-            (function(d, s, id){
-                var js, fjs = d.getElementsByTagName(s)[0];
-                if (d.getElementById(id)) {return;}
-                js = d.createElement(s); js.id = id;
-                js.src = "https://connect.facebook.net/en_US/sdk.js";
-                fjs.parentNode.insertBefore(js, fjs);
-            }(document, 'script', 'facebook-jssdk'));
-            </script>
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <a class="navbar-brand" href="<?php echo URL; ?>">MOBA</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <?php if  ($home === true) {
+                $nav = "nav-link"; ?>
+            <nav class="navbar absolute-top navbar-expand-lg navbar-dark opaque-navbar">
+            <?php } else {
+                $nav = "nav-link1"; ?>
+            <nav class="navbar absolute-top1 navbar-expand-lg navbar-dark bg-white">
+            <?php } ?>
+                <div class="container">
+                    <a class="navbar-brand" href="<?php echo URL; ?>"><img src="<?php echo URL; ?>images/logo.png" width="80"></a>
+                    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <?php if (isset($_SESSION['users'])) { ?>
-                        <ul class="navbar-nav mr-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo URL; ?>">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo URL; ?>hire">Post Ad</a>
-                            </li>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                        <a class="<?php echo $nav; ?>" href="<?php echo URL."allCategories"; ?>">ALL SERVICES</a>
+                        </li>
+                        <?php if (isset($_SESSION['users'])) { ?>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo ucwords(strtolower($_SESSION['users']['screen_name'])); ?></a>
+                                <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo strtoupper($_SESSION['users']['screen_name']); ?></a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     <a class="dropdown-item" href="<?php echo URL; ?>ads">Posted Ads</a>
                                     <div class="dropdown-divider"></div>
@@ -62,12 +43,11 @@
                                     <a class="dropdown-item" href="Javascript:void(0);" onclick="signOut();">Logout</a>
                                 </div>
                             </li>
-
-                            <?php if ($_SESSION['users']['user_type'] == "1") {
+                            <?php if ($_SESSION['users']['user_type'] == "2") {
                                 global $users;
                                 $list = $users->getSortedList("1", "verified", false, false, false, false, "ref", "ASC", "AND", false, false, "count");?>
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrator</a>
+                                    <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ADMINISTRATOR</a>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
                                         <a class="dropdown-item" href="<?php echo URL; ?>admin/adverts">Posted Ads</a>
                                         <div class="dropdown-divider"></div>
@@ -82,6 +62,7 @@
                                         <a class="dropdown-item" href="<?php echo URL; ?>admin/transactions">Transactions</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="<?php echo URL; ?>admin/users">Users</a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/users/providers">Service Providers</a>
                                         <a class="dropdown-item" href="<?php echo URL; ?>admin/users/admin">System Administrators</a>
                                         <a class="dropdown-item" href="<?php echo URL; ?>admin/accuntVerification">Account Verification Request<?php if ($list > 0){ ?>  <span id="badge2"><?php echo $list; ?></span><?php } ?></a>
                                         <div class="dropdown-divider"></div>
@@ -89,61 +70,33 @@
                                     </div>
                                 </li>
                             <?php } ?>
-                        </ul>
-                    <?php } else { ?>
-                        <ul class="navbar-nav mr-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo URL; ?>">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo URL; ?>hire">Post Ad</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo URL; ?>login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="<?php echo URL; ?>login?join">Register</a>
-                            </li>
-                        </ul>
-                    <?php } ?>
+                        <?php } else { ?>
+                        <li class="nav-item">
+                        <a class="<?php echo $nav; ?>" href="<?php echo URL; ?>login?join">SIGNUP</a>
+                        </li>
+                        <li class="nav-item">
+                        <a class="<?php echo $nav; ?>" href="<?php echo URL; ?>login">LOGIN</a>
+                        </li>
+                        <?php } ?>
+                    </ul>
                     <form method="get" class="form-inline my-2 my-lg-0" action="<?php echo URL."search"; ?>">
                         <?php if (isset($_SESSION['users'])) { ?>
-                            <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications' ;?>'"><i class="fas fa-bell"></i><span id="badge"></span></button>
+                            <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications' ;?>'"><i class="fas fa-bell" style="color:#3e3e94"></i><span id="badge"></span></button>
                         <?php } ?>
-                        <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'selectCity' ;?>'"><i class="fas fa-location-arrow"></i></button>
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="s" id="s" value="<?php echo $_REQUEST['s']; ?>" required>
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'selectCity' ;?>'"><i class="fas fa-location-arrow" style="color:#3e3e94"></i></button>
+                        <div class="row ml-2">
+                            <div class="col-lg-10 p-0">					
+                                <input type="text" class="form-control pd1 float-left" type="search" placeholder="Search" aria-label="Search" name="s" id="s" value="<?php echo $_REQUEST['s']; ?>" required>
+                            </div>
+                            <div class="col-lg-2">
+                                <button type="submit" class="btn purple-bn1 pd1">GO</button>
+                            </div>
+                        </div>
                     </form>
+                    </div>
                 </div>
             </nav>
-        <?php if ($showCat == true) {
-                global $category;
-                $parentList = $category->categoryList(); ?>
-                
-                <ul class="nav">
-                <?php for ($i = 0; $i < count($parentList); $i++) {
-                    $subCat = $category->categoryList($parentList[$i]['ref']);
-                    $sub = false;
-                    if (count($subCat) > 0) {
-                        $sub = true;
-                     } ?>
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown<?php if ($sub == true) { ?>-toggle<?php } ?>" href="<?php echo $this->seo($parentList[$i]['ref'], "category"); ?>" role="button" aria-haspopup="false" aria-expanded="false">
-                    <img src="<?php echo $category->getIcon($parentList[$i]['ref']); ?>" height="40" width="40"><br>
-                    <?php echo ucwords(strtolower($parentList[$i]['category_title'])); ?></a>
-                        <?php if ($sub == true) { ?>
-                        <div class="dropdown-menu">
-                            <?php for ($j = 0; $j < count($subCat); $j++) { ?>
-                            <a class="dropdown-item" href="<?php echo $this->seo($subCat[$j]['ref'], "category"); ?>">
-                            <img src="<?php echo $category->getIcon($subCat[$j]['ref']); ?>" height="40" width="40"><br>
-                            <?php echo ucwords(strtolower($subCat[$j]['category_title'])); ?></a>
-                            <?php } ?>
-                        </div>
-                        <?php } ?>
-                    </li>
-                <?php } ?>
-                </ul>
-            <?php }
+        <?php
         }
 
         function navigation() {
@@ -190,6 +143,46 @@
             </div>
         <?php }
 
+        function footer() { ?>
+            <section class="moba-footer">	
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="float-left mr-3"><img src="<?php echo URL; ?>images/logo.png" width="80"></a></div>
+                        <p>
+                            Moba  dolor sit amet, consectetur adipisicing seddo 
+                            eiusmodtempor consectetur incididun labore edipisicing etdolore.
+                        </p>
+                    </div>
+                    <div class="col-lg-3">
+                        <h6>QUICK LINK</h6>
+                        <p>
+                            <a href="#">Home</a><br>
+                            <a href="#">Post Ad</a><br>
+                            <a href="#">Sign Up</a><br>
+                            <a href="#">Log In</a>
+                        </p>
+                    </div>
+                    <div class="col-lg-2">
+                        <h6>SOCIAL</h6>	
+                        <a href="#">Facebook</a><br>
+                        <a href="#">Twitter</a><br>
+                        <a href="#">Linkedin</a><br>
+                        <a href="#">instagram</a>
+                        
+                    </div>
+                    <div class="col-lg-3">
+                        <h6>CONTACT</h6>
+                        <p>
+                            07058794031, 08056569644<br>
+                            info@moba.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <?php }
+
         function jsFooter() {
             global $options;
             $data = json_encode( explode( ",", $options->get("text_filter") ) ); ?>
@@ -205,6 +198,8 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     
     <script type="text/javascript">
+	TweenLite.set('.right-img', {backgroundSize:"110%"});
+	TweenLite.to('.right-img', 1.3, {backgroundSize:"100%", ease:Power1.easeOut, delay: 0.7}); 
         $(document).ready(function(){
             if ( !$.cookie("l_d") ) {
                 getLocation();
@@ -213,6 +208,13 @@
             if($('#content').length){
                 $( '#content' ).focus();
             }
+            $( "#autocomplete" ).autocomplete({
+                source: "<?php echo URL; ?>includes/views/scripts/homeCateList",
+                minLength: 2,
+                select: function( event, ui ) {
+                    window.location.href = ui.item.id;
+                }
+            });
 
             $( "#s" ).autocomplete({
                 source: "<?php echo URL; ?>includes/views/scripts/filterHome",
@@ -277,13 +279,6 @@
                     }
                 });
             }
-            FB.getLoginStatus(function(response) {
-                if (response && response.status === 'connected') {
-                    FB.logout(function(response) {
-                        console.log('User signed out facebook.');
-                    });
-                }
-            });
             location='<?php echo URL; ?>login?logout';
         }
 
@@ -336,7 +331,8 @@
     <meta name="google-signin-client_id" content="<?php echo GoogleClientId; ?>">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+    <link href="<?php echo URL; ?>css/main.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js" integrity="sha256-lPE3wjN2a7ABWHbGz7+MKBJaykyzqCbU96BJWjio86U=" crossorigin="anonymous"></script>
     <!-- jQuery --->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 
@@ -356,36 +352,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="<?php echo URL; ?>css/fileinput.css" media="all" rel="stylesheet" type="text/css" >
-    <style type="text/css">
-        @media screen and (min-width: 768px){
-        .dropdown:hover .dropdown-menu, .btn-group:hover .dropdown-menu{
-                display: block;
-            }
-            .dropdown-menu{
-                margin-top: 0;
-            }
-            .dropdown-toggle{
-                margin-bottom: 2px;
-            }
-            .navbar .dropdown-toggle, .nav-tabs .dropdown-toggle{
-                margin-bottom: 0;
-            }
-        }
-        </style>
-        <?php }
-
-        public function selector() { ?>
-    <select name="jumpMenu" id="jumpMenu" onchange="MM_jumpMenu('parent',this,0)" class="form-control">
-        <option value="?filter=all">Show all</option>
-        <option value="?filter=client"<?php if ($_SESSION['filter'] == "client") { ?> selected<?php } ?>>Show all Posted Jobs</option>
-        <option value="?filter=vendor"<?php if ($_SESSION['filter'] == "vendor") { ?> selected<?php } ?>>Show all Available Service Providers</option>
-    </select>
-    <script type="text/javascript">
-    function MM_jumpMenu(targ,selObj,restore){ //v3.0
-        eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
-        if (restore) selObj.selectedIndex=0;
-    }
-    </script>
         <?php }
     }
 ?>

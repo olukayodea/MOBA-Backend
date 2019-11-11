@@ -2,8 +2,9 @@
 	class messages extends database {
         public function add($array) {
             $create = $this->insert("messages", $array);
+            //send push notification
             if ($create) {
-                $this->sendNotification($array['project_id'], $array['user_r_id']);
+                $this->sendNotification($array['post_id'], $array['user_r_id'], $array['user_id']);
                 return true;
             } else {
                 return false;
@@ -15,9 +16,9 @@
         }
 
         function getNewMessage($ref, $sender) {
-            $query = "SELECT `user_id` FROM `messages` WHERE project_id = :project_id AND `user_id` = :user AND `status` = 0";
+            $query = "SELECT `user_id` FROM `messages` WHERE post_id = :post_id AND `user_id` = :user AND `status` = 0";
 
-            $prepare[":project_id"] = $ref;
+            $prepare[":post_id"] = $ref;
             $prepare[":user"] = $sender;
 
             return $this->query($query, $prepare, "count");
@@ -36,9 +37,9 @@
         }
 
         public function getLast($ref, $user, $owner) {
-            $query = "SELECT * FROM `messages` WHERE project_id = :project_id AND ((`user_id` = :user AND `user_r_id` = :owner) OR (`user_r_id` = :user AND `user_id` = :owner)) ORDER BY `ref` DESC LIMIT 1";
+            $query = "SELECT * FROM `messages` WHERE post_id = :post_id AND ((`user_id` = :user AND `user_r_id` = :owner) OR (`user_r_id` = :user AND `user_id` = :owner)) ORDER BY `ref` DESC LIMIT 1";
 
-            $prepare[":project_id"] = $ref;
+            $prepare[":post_id"] = $ref;
             $prepare[":owner"] = $owner;
             $prepare[":user"] = $user;
 
@@ -46,30 +47,31 @@
         }
 
         public function getResponse($ref, $owner) {
-            $query = "SELECT `user_id` FROM `messages` WHERE project_id = :project_id AND `user_id` != :user GROUP BY `user_id` ORDER BY `ref` ASC";
+            $query = "SELECT `user_id` FROM `messages` WHERE post_id = :post_id AND `user_id` != :user GROUP BY `user_id` ORDER BY `ref` ASC";
 
-            $prepare[":project_id"] = $ref;
+            $prepare[":post_id"] = $ref;
             $prepare[":user"] = $owner;
 
             return $this->query($query, $prepare, "list");
         }
 
-        public function sendNotification($ref, $user) {
-            global $projects;
+        public function sendNotification($ref, $user, $users_r) {
+            global $users;
             global $notifications;
-            $query = "SELECT `ref` FROM `messages` WHERE project_id = :project_id AND `user_r_id` = :user AND `status` = 0";
+            
+            $query = "SELECT `ref` FROM `messages` WHERE post_id = :post_id AND `user_r_id` = :user AND `status` = 0";
 
-            $prepare[":project_id"] = $ref;
+            $prepare[":post_id"] = $ref;
             $prepare[":user"] = $user;
 
             $count = $this->query($query, $prepare, "count");
 
             if ($count > 0) {
-                $data['event'] = "project_messages";
+                $data['event'] = "post_messages";
                 $data['event_id'] = $ref;
                 $data['user_id'] = $user;
-                $data['message'] = $count." ".$this->addS('message', $count)." in ".$projects->getSingle($ref);
-                $data['email'] = "You have ".$count." unread ".$this->addS('message', $count)." in ".$projects->getSingle($ref);
+                $data['message'] = $count." ".$this->addS('message', $count)." from ".$users->listOnValue($users_r, "screen_name");
+                $data['email'] = "You have ".$count." unread ".$this->addS('message', $count)." from ".$users->listOnValue($users_r, "screen_name");
                 $data['timestamp'] = time()+(60*10);
                 $data['count'] = $count;
                 $notifications->create($data);
@@ -77,9 +79,9 @@
         }
 
         public function getPage($ref, $user, $owner) {
-            $query = "SELECT * FROM `messages` WHERE `project_id` = :project_id AND ((`user_id` = :user AND `user_r_id` = :owner) OR (`user_r_id` = :user AND `user_id` = :owner)) ORDER BY `ref` ASC";
+            $query = "SELECT * FROM `messages` WHERE `post_id` = :post_id AND ((`user_id` = :user AND `user_r_id` = :owner) OR (`user_r_id` = :user AND `user_id` = :owner)) ORDER BY `ref` ASC";
 
-            $prepare[":project_id"] = $ref;
+            $prepare[":post_id"] = $ref;
             $prepare[":owner"] = $owner;
             $prepare[":user"] = $user;
 
@@ -90,9 +92,9 @@
             global $notifications;
             $array['status'] = 1;
             $where['user_r_id'] = $id;
-            $where['project_id'] = $ref;
+            $where['post_id'] = $ref;
             $this->update("messages", $array, $where, "AND");
-            $notifications->markRead("project_messages", $ref, $id);
+            $notifications->markRead("post_messages", $ref, $id);
         }
 
         function markReadOne($id, $sender, $ref) {
@@ -100,9 +102,9 @@
             $array['status'] = 1;
             $where['user_id'] = $sender;
             $where['user_r_id'] = $id;
-            $where['project_id'] = $ref;
+            $where['post_id'] = $ref;
             $this->update("messages", $array, $where, "AND");
-            $notifications->markRead("project_messages", $ref, $id);
+            $notifications->markRead("post_messages", $ref, $id);
         }
 
         public function initialize_table() {
@@ -111,7 +113,7 @@
                 `ref` INT NOT NULL AUTO_INCREMENT,
                 `user_id` INT NOT NULL, 
                 `user_r_id` INT NOT NULL, 
-                `project_id` INT NOT NULL, 
+                `post_id` INT NOT NULL, 
                 `message` TEXT NULL, 
                 `m_type` VARCHAR(50) NOT NULL, 
                 `m_type_data` VARCHAR(5000) NULL, 

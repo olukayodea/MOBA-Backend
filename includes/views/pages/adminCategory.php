@@ -1,7 +1,9 @@
 <?php
   class adminCategory extends category {
     public function navigationBar($redirect) { ?>
-    <a href="<?php echo URL.$redirect; ?>">List All</a> | <a href="<?php echo URL.$redirect."/create"; ?>">Add New</a>
+      <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect; ?>"><b>List All</b></p>
+      <div class="moba-line my-2"></div>
+      <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/create"; ?>"><b>Add New</b></a></p>	
         <?php }
 
     function pageContent($redirect, $view="list", $edit=0) {
@@ -14,7 +16,6 @@
 
     function createNew($redirect, $edit=0) {
       $list = $this->getSortedList("ACTIVE", "status", "parent_id", 0);
-      $session = rand();
 
       if ($edit > 0) {
           $data = $this->getOne("category", $edit, "ref");
@@ -67,9 +68,9 @@
     </select>
   </div>
   <input type="hidden" name="ref" value="<?php echo $edit; ?>">
-  <button type="submit" name="submitCat" id="submitCat" class="btn btn-primary"><?php echo $tag; ?></button>
+  <button type="submit" name="submitCat" id="submitCat" class="btn purple-bn1"><?php echo $tag; ?></button>
   <?php if ($edit > 0) { ?>
-  <button type="button" class="btn btn-primary" onClick="location='<?php echo $redirect; ?>'" >Cancel</button>
+  <button type="button" class="btn purple-bn1" onClick="location='<?php echo $redirect; ?>'" >Cancel</button>
   <?php } ?>
   </form>
 </main>
@@ -125,7 +126,7 @@ $("#fileUpload").on('change', function () {
       $list = $this->getList($start, $limit);
       $listCount = $this->getList(false, false, "ref", "ASC", "count"); ?>
         <h2>List All Categories</h2>
-<table class="table">
+<table class="table table-striped">
 <thead>
 <tr>
   <th scope="col">#</th>

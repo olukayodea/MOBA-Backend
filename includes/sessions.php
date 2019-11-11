@@ -8,6 +8,7 @@
 		$screen_name = trim($_SESSION['users']['screen_name']);
 		$email = trim($_SESSION['users']['email']);
         $ref = trim($_SESSION['users']['ref']);
+        $user_type = trim($_SESSION['users']['user_type']);
         $verified = trim($_SESSION['users']['verified']);
 		$sessionTime = trim($_SESSION['users']['sessionTime']);
 
@@ -27,9 +28,9 @@
 			if (($redirect == "ads") || ($redirect == "hire")) {
 				$verified = $users->listOnValue($ref, "verified");
 				if ($verified < 2) {
-					if ($verified == 0) {
+					if (($verified == 0) && ($user_type ==1)) {
 						$warning = "You must upload a government ID";
-					} else if ($verified == 1) {
+					} else if (($verified == 1) && ($user_type ==1)) {
 						$warning = "We are verifying your uploaded ID";
 					}
 				}

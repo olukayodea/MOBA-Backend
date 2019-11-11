@@ -1,9 +1,10 @@
 <?php
   class adminUsers extends users {
     function pageContent($redirect, $view="users", $ref=false) {
+      echo $view;
       if ($view == "oneView") {
         $this->viewDetails($ref);
-      } else if ($view == "users") {
+      } else if (($view == "users") || ($view == "providers")) {
         $this->listUsers($redirect, $view);
       } else if ($view == "verification") {
         $this->verification();
@@ -27,7 +28,7 @@
       $list = $this->getSortedList("1", "verified", false, false, false, false, "ref", "ASC", "AND", $start, $limit);
       $listCount = $this->getSortedList("1", "verified", false, false, false, false, "ref", "DESC", "AND", false, false, "count"); ?>
       <h2>List All Pending Verification (<?php echo count($list); ?>)</h2>
-<table class="table">
+<table class="table table-striped">
   <thead>
     <tr>
       <th scope="col">#</th>
@@ -79,20 +80,15 @@
     
     $data = $users->listOne($ref);
 
-    $jobs = $projects->getSortedList("ACTIVE", "status", "user_id", $ref, false, false, "ref", "DESC", "AND", 0, 10);
-
-    $ongoing = $projects->getList(false, false, "ref", "DESC", "`status` = 'ON-GOING' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
-    $activeTask = $projects->getList(false, false, "ref", "DESC", "`status` = 'ON-GOING' AND ((`user_id` = ".$ref." AND `project_type` = 'vendor') OR (`client_id` = ".$ref." AND `project_type` = 'client'))");
-
     if ($data['status'] == "ACTIVE") {
       $statusTag = "De-activate";
     } else if ($data['status'] == "INACTIVE") {
       $statusTag = "Activate";
     }
-    if ($data['user_type'] == "1") {
+    if ($data['user_type'] == "2") {
       $view = "admin";
       $tag = "Make User";
-    } else if ($data['user_type'] == "0") {
+    } else if ($data['user_type'] < "2") {
       $view = "users";
       $tag = "Make Admin";
     } ?>
@@ -132,7 +128,7 @@
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <form method="post" action="">
           <input type="hidden" name="ref" value="<?php echo $ref; ?>">
-          <button type="submit" name="approve" class="btn btn-primary">Validate</button>
+          <button type="submit" name="approve" class="btn purple-bn1">Validate</button>
           <button type="submit" name="reject" class="btn btn-secondary">Reject</button>
         </div>
       </div>
@@ -142,7 +138,7 @@
     $list = $transactions->getSortedList($ref, "user_id", false, false, false, false, "card_name", "ASC", "AND", $start, $limit); 
     $listCount = $transactions->getSortedList($ref, "user_id", false, false, false, false, "card_name", "ASC", "AND", false, false, "count"); ?>
     <h4>Cards</h4>
-    <table class="table">
+    <table class="table table-striped">
     <thead>
     <tr>
     <th scope="col">#</th>
@@ -180,7 +176,7 @@
     $list = $transactions->getSortedListTrans($ref, "user_id", false, false, false, false, "ref", "DESC", "AND", $start, $limit); 
     $listCount = $transactions->getSortedListTrans($ref, "user_id", false, false, false, false, "ref", "DESC", "AND", false, false, "count"); ?>
     <h4>Transaction</h4>
-    <table class="table">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -213,55 +209,6 @@
       </tbody>
     </table>
     <?php $this->pagination($page_num, $listCount, "page_num"); ?>
-    <h4>Active Assigned Tasks</h4>
-    <div class="row">
-        <?php for ($i = 0; $i < count($activeTask); $i++) { ?>
-    <div class="card" style="width: 20rem;">
-    <img class="card-img-top" src="<?php echo $media->getCover($activeTask[$i]['ref']); ?>" alt="<?php echo $activeTask[$i]['project_name']; ?>">
-    
-    <div class="card-body">
-        <h5 class="card-title"><?php echo $activeTask[$i]['project_name']; ?></h5>
-    </div>
-    <div class="card-footer">
-        <a href="<?php echo $this->seo($activeTask[$i]['ref'], "profile"); ?>" class="btn btn-primary">Open</a>
-        
-    </div>
-    </div>
-        <?php } ?>
-
-    </div>
-    <h4>Actively Listed Jobs</h4>
-    <div class="row">
-        <?php for ($i = 0; $i < count($jobs); $i++) { ?>
-    <div class="card" style="width: 20rem;">
-    <img class="card-img-top" src="<?php echo $media->getCover($jobs[$i]['ref']); ?>" alt="<?php echo $jobs[$i]['project_name']; ?>">
-    
-    <div class="card-body">
-        <h5 class="card-title"><?php echo $jobs[$i]['project_name']; ?></h5>
-    </div>
-    <div class="card-footer">
-        <a href="<?php echo $this->seo($jobs[$i]['ref'], "view"); ?>" class="btn btn-primary">Open</a>
-        
-    </div>
-    </div>
-        <?php } ?>
-
-    </div>
-    <h4>Ongoing Jobs</h4>
-    <div class="row">
-        <?php for ($i = 0; $i < count($ongoing); $i++) { ?>
-    <div class="card" style="width: 20rem;">
-    <img class="card-img-top" src="<?php echo $media->getCover($ongoing[$i]['ref']); ?>" alt="<?php echo $ongoing[$i]['project_name']; ?>">
-    
-    <div class="card-body">
-        <h5 class="card-title"><?php echo $ongoing[$i]['project_name']; ?></h5>
-    </div>
-    <div class="card-footer">
-        <a href="<?php echo $this->seo($ongoing[$i]['ref'], "profile"); ?>" class="btn btn-primary">Open</a>
-        
-    </div>
-    </div>
-        <?php } ?>
 
     </div>
 <?php }
@@ -277,10 +224,17 @@
     
     $limit = $options->get("result_per_page");
     $start = $page*$limit;
-    $list = $this->getSortedList("0", "user_type", false, false, false, false, "ref", "ASC", "AND", $start, $limit); 
-    $listCount = $this->getSortedList("0", "user_type", false, false, false, false, "ref", "ASC", "AND", false, false, "count"); ?>
-    <h2>List All System Users</h2>
-<table class="table">
+    if ($view == "providers") {
+      $list = $this->getSortedList("1", "user_type", false, false, false, false, "ref", "ASC", "AND", $start, $limit); 
+      $listCount = $this->getSortedList("1", "user_type", false, false, false, false, "ref", "ASC", "AND", false, false, "count");
+      $tag = "List All Service Providers";
+    } else {
+      $list = $this->getSortedList("0", "user_type", false, false, false, false, "ref", "ASC", "AND", $start, $limit); 
+      $listCount = $this->getSortedList("0", "user_type", false, false, false, false, "ref", "ASC", "AND", false, false, "count");
+      $tag = "List All Users";
+    } ?>
+    <h2><?php echo $tag; ?></h2>
+<table class="table table-striped">
 <thead>
   <tr>
     <th scope="col">#</th>
@@ -300,6 +254,8 @@
         $statusTag = "De-activate";
       } else if ($list[$i]['status'] == "INACTIVE") {
         $statusTag = "Activate";
+      } else if ($list[$i]['status'] == "NEW") {
+        $statusTag = "Delete";
       } ?>
   <tr>
     <th scope="row"><?php echo $start+$i+1; ?></th>
@@ -329,10 +285,10 @@
     
     $limit = $options->get("result_per_page");
     $start = $page*$limit;
-    $list = $this->getSortedList("1", "user_type", false, false, false, false, "ref", "ASC", "AND", $start, $limit); 
-    $listCount = $this->getSortedList("1", "user_type", false, false, false, false, "ref", "ASC", "AND", false, false, "count"); ?>
+    $list = $this->getSortedList("2", "user_type", false, false, false, false, "ref", "ASC", "AND", $start, $limit); 
+    $listCount = $this->getSortedList("2", "user_type", false, false, false, false, "ref", "ASC", "AND", false, false, "count"); ?>
       <h2>List All System Administrators</h2>
-<table class="table">
+<table class="table table-striped">
 <thead>
 <tr>
   <th scope="col">#</th>
@@ -369,6 +325,15 @@
 </table>
 <?php $this->pagination($page, $listCount);
     }
+
+
+    public function navigationBar($redirect) { ?>
+      <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect; ?>"><b>Users</b></a></p>
+      <div class="moba-line my-2"></div>
+      <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/providers"; ?>"><b>Service Providers</b></a></p>
+      <div class="moba-line my-2"></div>
+      <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/admin"; ?>"><b>System Administrators</b></a></p>	
+ <?php }
 
   }
 ?>

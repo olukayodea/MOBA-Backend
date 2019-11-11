@@ -2,7 +2,8 @@
 class usersKin extends users {
     /*  create users track
     */
-    public function create($array) {
+    public function create($array, $file=false) {
+        $file = false;
         $replace = array();
         $replace[] = "kin_name";
         $replace[] = "kin_email";

@@ -1,6 +1,6 @@
 $(".imgAdd").click(function(){
     var randomId = "uploadFile"+Math.floor((Math.random() * 100000000) + 1);
-    $(this).closest(".row").find('.imgAdd').before('<div class="col-sm-2 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">Select File<input type="file" name="uploadFile[]" id="'+randomId+'" class="uploadFile img" value="Upload Photo" accept="image/*" style="width:0px;height:0px;overflow:hidden;" onchange="checkFileSize(event)"></label><i class="fa fa-times del"></i></div>');
+    $(this).closest(".row").find('.imgAdd').before('<div class="col-sm-2 imgUp"><div class="imagePreview"></div><label class="btn purple-bn1">Select File<input type="file" name="uploadFile[]" id="'+randomId+'" class="uploadFile img" value="Upload Photo" accept="image/*" style="width:0px;height:0px;overflow:hidden;" onchange="checkFileSize(event)"></label><i class="fa fa-times del"></i></div>');
   });
   $(document).on("click", "i.del" , function() {
       $(this).parent().remove();

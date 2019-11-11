@@ -14,10 +14,18 @@
             global $country;
             $list = $country->getList();
              ?>
-            <a href="<?php echo URL.$redirect."?view=all&sort=".$sort; ?>">List All Transactions</a> | <a href="<?php echo URL.$redirect."?view=success&sort=".$sort; ?>">List All Successful Transactions</a> | <a href="<?php echo URL.$redirect."?view=failed&sort=".$sort; ?>">List all Failed Transactions</a> | <a href="<?php echo URL.$redirect."?view=draft&sort=".$sort; ?>">List All New Transactions</a>
-            <?php if ($type != "user") { ?><br>
+            <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect."?view=all&sort=".$sort; ?>"
+            ><b>List All Transactions</b></p>
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."?view=success&sort=".$sort; ?>"><b>List All Successful Transactions</b></a></p>	
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."?view=failed&sort=".$sort; ?>"><b>List all Failed Transactions</b></a></p>		
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."?view=draft&sort=".$sort; ?>"><b>List All New Transactions</b></a></p>
+            <?php if ($type != "user") { ?>
             <?php for ($i = 0; $i < count($list); $i++) { ?>
-            <a href="<?php echo URL.$redirect."?view=".$view."&sort=".$list[$i]['code']; ?>"><?php echo $list[$i]['name']; ?></a><?php if ($i < count($list)-1) { ?> | <?php } } ?>
+              <div class="moba-line my-2"></div>
+              <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."?view=".$view."&sort=".$list[$i]['code']; ?>"><b><?php echo $list[$i]['name']; ?></b></a></p><?php } ?>
             <?php }
         }
 
@@ -54,7 +62,7 @@
                 $tag = "All Transactions in ".$regionData['name'];
             } ?>
             <h2><?php echo $tag; ?></h2>
-          <table class="table">
+          <table class="table table-striped">
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -121,7 +129,7 @@
               $tag = "All Transactions";
             } ?>
             <h2><?php echo $tag; ?></h2>
-          <table class="table">
+          <table class="table table-striped">
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -166,7 +174,7 @@
             ?>
             <a href="javascript:history.go(-1);">Back</a>
             <h2><?php echo "Transaction: ".$this->txid($data['ref']); ?></h2>
-          <table class="table">
+          <table class="table table-striped">
             <tbody>
               <tr>
                 <th scope="row">Transaction Ref</th>

@@ -16,7 +16,11 @@
         public function navigationBarWallet($redirect, $ref) {
             $list = $this->availableRegion($ref);
             for ($i = 0; $i < count($list); $i++) { ?>
-            <a href="<?php echo URL.$redirect."/".$list[$i]['code']; ?>"><?php echo $list[$i]['name']." (".$list[$i]['code'].")"; ?></a><?php if ($i < count($list)-1) { echo "|"; } ?>
+            <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect."/".$list[$i]['code']; ?>"><b><?php echo $list[$i]['name']." (".$list[$i]['code'].")"; ?></a></b></p>
+            <?php if ($i < count($list)-1) { ?>
+                <div class="moba-line my-2"></div>
+            <?php } ?>
+            
             <?php } 
         }
 
@@ -167,7 +171,7 @@
 
             <input type="hidden" name="user_id" value="<?php echo $array['ref']; ?>">
             <input type="hidden" name="region" value="<?php echo $array['region']; ?>">
-            <button type="submit" name="postWallet" class="btn btn-primary">Confirm and Pay</button>
+            <button type="submit" name="postWallet" class="btn purple-bn1">Confirm and Pay</button>
             </form>
             </div>
             <?php
@@ -201,7 +205,7 @@
             $listCount = $data['listCount']; ?>
             <br>
             <h2>All Wallet Transactions</h2>
-            <table class="table">
+            <table class="table table-striped">
             <thead>
                 <tr>
                 <th scope="col">#</th>
@@ -313,7 +317,7 @@
                     <input type="hidden" name="ref" value="<?php echo $ref; ?>">
                     <input type="hidden" name="type" id="type" value="CC">
                     <input type="hidden" name="region" value="<?php echo $regionData['ref']; ?>">
-                    <button type="submit" name="post" class="btn btn-primary">Review Payment</button>
+                    <button type="submit" name="post" class="btn purple-bn1">Review Payment</button>
                 <?php } else { ?>
                     <i class='fas fa-exclamation-circle'></i>  You must add a payment card first. <a href="<?php echo URL."paymentCards/create"; ?>">Click here</a> to add one now
                 <?php } ?>
@@ -369,7 +373,7 @@
         <input type="text" class="form-control" name="cvv" id="cvv" placeholder="CVV">
     </div>
     <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
-    <button type="submit" name="getPayment" class="btn btn-primary"><?php echo $tag2; ?></button>
+    <button type="submit" name="getPayment" class="btn purple-bn1"><?php echo $tag2; ?></button>
     </form>
 </main>
 <script type="text/javascript" src="<?php echo URL; ?>js/creditCard.js"></script>
@@ -395,7 +399,7 @@
             <h2>List All Payment Cards</h2>
             <small>You must have atleast one card active and can not remove a default card. To remove a default card, you must activate another card as default</small>
 <form method="post" action="" enctype="multipart/form-data">
-<table class="table">
+<table class="table table-striped">
   <thead>
     <tr>
       <th scope="col">#</th>
@@ -430,7 +434,7 @@
 </table>
 <?php $this->pagination($page, $listCount);
 if (count($list) > 1) { ?>
-<button type="submit" name="set_is_default" class="btn btn-primary">Set Default Card</button>
+<button type="submit" name="set_is_default" class="btn purple-bn1">Set Default Card</button>
 <?php } ?>
 </form>
         <?php }
@@ -455,7 +459,9 @@ if (count($list) > 1) { ?>
         }
 
         public function navigationBar($redirect) { ?>
-            <a href="<?php echo URL.$redirect; ?>">List All</a> | <a href="<?php echo URL.$redirect."/create"; ?>">Add New</a>
+            <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect; ?>"><b>List All</b></p>
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/create"; ?>"><b>Add New</b></a></p>	
        <?php }
     }
 ?>

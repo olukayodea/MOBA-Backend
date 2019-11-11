@@ -30,10 +30,11 @@ RewriteRule edit/Password updateProfile.php?type=Password [QSA,NC,L]
 RewriteRule edit/IDs updateProfile.php?type=IDs [QSA,NC,L]
 RewriteRule notifications/(.*)$ notifications.php?view=$1 [QSA,NC,L]
 RewriteRule wallet/(.*)$ wallet.php?view=$1 [QSA,NC,L]
+RewriteRule profile/request/(.*)$ requestProfile.php?view=$1 [QSA,NC,L]
 RewriteRule profile/(.*)$ publicProfile.php?view=$1 [QSA,NC,L]
 
 RewriteRule category/([a-zA-Z)([0-9]+)/(.*?)/$ jobs.php?id=$1 [QSA,NC,L]
-RewriteRule listings/([a-zA-Z)([0-9]+)/(.*?)/$ view.php?id=$1 [QSA,NC,L]
+RewriteRule request/([a-zA-Z)([0-9]+)/(.*?)/$ view.php?id=$1 [QSA,NC,L]
 RewriteRule task/([a-zA-Z)([0-9]+)/(.*?)/$ view_current.php?id=$1 [QSA,NC,L]
 
 RewriteCond %{REQUEST_FILENAME} !-d

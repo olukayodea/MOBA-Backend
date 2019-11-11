@@ -32,7 +32,7 @@
                 $region = $_SESSION['location']['code'];
             }
             if ($error === false) {
-            if ($region == "CA") {
+            if (($region == "CA") || $region == "NG") {
             ?>
                 <main class="col-12" role="main">
                     <form method="post" action="" enctype="multipart/form-data" autocomplete="off">
@@ -48,10 +48,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="financial_institution">Financial Institution</label>
+                        <label for="bank">Financial Institution</label>
                         <div class="form-row">
                             <div class="col-md-12">
-                                <select class="form-control" id="financial_institution" name="financial_institution" required>
+                                <select class="form-control" id="bank" name="bank" required>
                                     <option value="">Select One</option>
                                     <?php for ($i = 0; $i < count($list); $i++) { ?>
                                         <option value="<?php echo $list[$i]['ref']; ?>"<?php if ($data['financial_institution'] == $list[$i]['ref']) { ?> selected<?php } ?>><?php echo $list[$i]['name']; ?></option>
@@ -61,62 +61,13 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="transit_number">Bank Transit Number</label>
-                            <input type="number" class="form-control" name="transit_number" id="transit_number" placeholder="Transit Number" value="<?php echo $data['transit_number']; ?>" max="99999" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="account_number">Account Number</label>
-                            <input type="number" class="form-control" name="account_number" id="account_number" placeholder="Account Number" value="<?php echo $data['account_number']; ?>" required>
-                        </div>
+                        <label for="account_number">Account Number</label>
+                        <input type="number" class="form-control" name="account_number" id="account_number" placeholder="Account Number" value="<?php echo $data['account_number']; ?>" required>
                     </div>
                     <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
                     <input type="hidden" name="ref" value="<?php echo $edit; ?>">
                     <input type="hidden" name="region" value="<?php echo $region; ?>">
-                    <button type="submit" name="getPayment" class="btn btn-primary"><?php echo $tag2; ?></button>
-                    </form>
-                </main>
-            <?php } else if ($region == "US") { ?>
-                <main class="col-12" role="main">
-                    <form method="post" action="" enctype="multipart/form-data" autocomplete="off">
-                    <h2><?php echo $tag; ?></h2>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="last_name">Last Name</label>
-                            <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last Name" value="<?php echo $data['last_name']; ?>" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="first_name">First Name</label>
-                            <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First Name" value="<?php echo $data['first_name']; ?>" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="transit_number">Transit Routing Number</label>
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <input type="number" class="form-control" name="transit_number" id="transit_number" value="<?php echo $data['transit_number']; ?>" placeholder="Transit Routing Number">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="account_code">Account type</label>
-                            <select name="account_code" id="account_code" class="form-control">
-                                <option value="PC"<?php if ($data['account_code'] == "PC") {?> selected<?php } ?>>Personal Checking</option>
-                                <option value="PS"<?php if ($data['account_code'] == "PS") {?> selected<?php } ?>>Personal Savings</option>
-                                <option value="CC"<?php if ($data['account_code'] == "CC") {?> selected<?php } ?>>Corporate Checking</option>
-                                <option value="CS"<?php if ($data['account_code'] == "CS") {?> selected<?php } ?>>Corporate Savings</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="account_number">Account Number</label>
-                            <input type="number" class="form-control" name="account_number" id="account_number" value="<?php echo $data['account_number']; ?>" placeholder="Account Number">
-                        </div>
-                    </div>
-                    <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
-                    <input type="hidden" name="ref" value="<?php echo $edit; ?>">
-                    <input type="hidden" name="region" value="<?php echo $region; ?>">
-                    <button type="submit" name="getPayment" class="btn btn-primary"><?php echo $tag2; ?></button>
+                    <button type="submit" name="getPayment" class="btn purple-bn1"><?php echo $tag2; ?></button>
                     </form>
                 </main>
             <?php } else { ?>
@@ -150,11 +101,11 @@
             <h2>List All Bank Account</h2>
             <small>You must have atleast one bank account active and can not remove a default bank account. To remove a default bank account, you must activate another bank account as default</small>
 <form method="post" action="" enctype="multipart/form-data">
-<table class="table">
+<table class="table table-striped">
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col">Default</th>
+      <th scope="col"></th>
       <th scope="col">Name on Account</th>
       <th scope="col">Account Details</th>
       <th scope="col">Status</th>
@@ -184,7 +135,7 @@
   </tbody>
 </table>
 <?php if (count($list) > 1) { ?>
-<button type="submit" name="set_is_default" class="btn btn-primary">Set Default Bank Account</button>
+<button type="submit" name="set_is_default" class="btn purple-bn1">Set Default Bank Account</button>
 <?php } ?>
 <?php $this->pagination($page, $listCount); ?>
 </form>
@@ -210,7 +161,9 @@
         }
 
         public function navigationBar($redirect) { ?>
-            <a href="<?php echo URL.$redirect; ?>">List All</a> | <a href="<?php echo URL.$redirect."/create"; ?>">Add New</a>
+            <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect; ?>"><b>List All</b></p>
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/create"; ?>"><b>Add New</b></a></p>		
        <?php }
     }
 ?>

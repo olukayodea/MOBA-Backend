@@ -27,7 +27,7 @@
                 `ref` INT NOT NULL AUTO_INCREMENT, 
                 `user_id` INT NOT NULL, 
                 `reviewed_by` INT NOT NULL, 
-                `project_id` INT NOT NULL, 
+                `post_id` INT NOT NULL, 
                 `comment` VARCHAR(5000) NOT NULL, 
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

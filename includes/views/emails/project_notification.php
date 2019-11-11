@@ -1,12 +1,12 @@
 <?php
 	include_once("../../functions.php");
-	$last_name = $common->get_prep($_REQUEST['last_name']);		
-    $other_names = $common->get_prep($_REQUEST['other_names']);
-	$id = $common->get_prep($_REQUEST['id']);
-	$getname = explode(" ", $other_names);
-    
-    $data = $projects->listOne($id);
-    $getAlbum = $media->getAlbum($id);
+  $last_name = $common->get_prep($_REQUEST['last_name']);		
+  $other_names = $common->get_prep($_REQUEST['other_names']);
+  $id = $common->get_prep($_REQUEST['id']);
+  $getname = explode(" ", $other_names);
+
+  $data = $request->listOne($id);
+  $getAlbum = $media->getAlbum($id);
 ?>
 <html>
 <head>
@@ -69,43 +69,21 @@ body,td,th {
     <td>
     <p class="text">Dear <?php echo ucwords(strtolower($getname[0])); ?>, </p>
     <p class="text">MOBA</p>
-    <?php if ($data['status'] == "ACTIVE") { ?>
-    <p class="text">Congratulations, your ad has been posted.</p>
+    <?php if ($data['status'] == "OPEN") { ?>
+    <p class="text">Congratulations, your request has been approved and is now active.</p>
     <?php } ?>
     <table width="100%" border="0">
   <tr>
     <td class="text">Listed Category(s)</td>
     <td class="text"><?php echo $common->getTagFromWord($data['category_id'], "category", "blank"); ?></td>
-    <td rowspan="10">
-        <?php if (count($getAlbum) > 0) {
-        for ($i = 0; $i < count($getAlbum); $i++) { ?>
-            <img src="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>" alt="<?php echo $data['project_name']; ?>" class="img-thumbnail" style="width:auto; height:150px;">
-        <?php }
-        } else { ?>
-            <img src="<?php echo $media->mediaDefault(); ?>" alt="<?php echo $data['project_name']; ?>" class="img-thumbnail" style="width:auto; height:250px;">
-        <?php } ?>
-
-    </td>
-  </tr>
-  <tr>
-    <td class="text">Ad Type</td>
-    <td class="text"><?php echo $common->cleanText( $data['project_type'] ); ?></td>
-  </tr>
-  <tr>
-    <td class="text">Billing Type</td>
-    <td class="text"><?php echo $common->cleanText( $data['billing_type'] ); ?></td>
   </tr>
   <tr>
     <td class="text">Default Fee</td>
-    <td class="text"><?php echo $country->getCountryData( $data['country'] )." ".number_format($data['default_fee'], 2);; ?></td>
+    <td class="text"><?php echo $country->getCountryData( $data['country'] )." ".number_format($data['fee'], 2);; ?></td>
   </tr>
   <tr>
     <td class="text">Status</td>
     <td class="text"><?php echo $data['status']; ?></td>
-  </tr>
-  <tr>
-    <td class="text">Payment Status</td>
-    <td class="text"><?php echo $common->cleanText( $data['payment_status'] ); ?></td>
   </tr>
   <tr>
     <td class="text">Created</td>
@@ -114,10 +92,6 @@ body,td,th {
   <tr>
     <td class="text">Last Modified</td>
     <td class="text"><?php echo $data['modify_time']; ?></td>
-  </tr>
-  <tr>
-    <td class="text">Tags</td>
-    <td class="text"><?php echo $common->getTagFromWord($data['tag'], "tag", "blank"); ?></td>
   </tr>
 </table>
     </td>

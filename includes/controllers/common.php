@@ -58,7 +58,25 @@
 			} else {
 				return false;
 			}
-        }
+		}
+		
+		function checkSize($file, $array=false) {
+			global $options;
+			if ($array == true) {
+				$data = $file;
+			} else {
+				$data[] = $file;
+			}
+			$error = false;
+			for ($i = 0; $i < count($data); $i++) {
+				$size = (int) (strlen(rtrim($data[$i], '=')) * 3 / 4);
+				if($size > $options->get("size")) {
+					$error = true;
+					break;
+				}
+			}
+			return $error;
+		}
 		
 		function hashPass($string) {
 			$count = strlen($string);
@@ -108,26 +126,25 @@
 				$link = implode("-", $urlLink);
 				
 				$result = URL."category/".$id."/".$link."/";
-			} else if ($type == "view") {
-				global $projects;
-				$row = $projects->listOne($id);
+			} else if ($type == "view") {		
+				global $category;
+				$row = $category->listOne($id);
 				$id = $row['ref'];
-				$name = trim(strtolower($row['project_name']));
+				$name = trim(strtolower($row['category_title']));
 				
 				$urlLink = explode(" ", $name);
-				$link = implode("-", $urlLink);
-				
-				$result = URL."listings/".$id."/".$link."/";
+				$link = implode("-", $urlLink);		
+				$result = URL."request/".$id."/".$link."/";
 			} else if ($type == "profile") {
-				global $projects;
-				$row = $projects->listOne($id);
+				global $users;
+				$row = $users->listOne($id);
 				$id = $row['ref'];
-				$name = trim(strtolower($row['project_name']));
+				$name = trim(strtolower($row['screen_name']));
 				
 				$urlLink = explode(" ", $name);
 				$link = implode("-", $urlLink);
 				
-				$result = URL."task/".$id."/".$link."/";
+				$result = URL."profile/request/".$id."/".$link."/";
 			} else {
 				
 				$result = URL."items/".$id."/";
@@ -440,7 +457,7 @@
 
 		function faIcons($tag) {
 			switch ($tag) {
-				case "project_messages":
+				case "post_messages":
 					return '<i class="fas fa-tasks"></i>';
 					break;
 				case "messages":
@@ -491,22 +508,18 @@
 			}
 		}
 
-		function googleDirection($lat, $long) {
+		function googleDirection($from, $to) {
 			global $country;
-			$data = $_SESSION['location'];
-            $latitude = $data['latitude'];
-			$longitude = $data['longitude'];
 			
-			$from = $latitude.",".$longitude;
-			$to = $lat.",".$long;
+			$from = $from['latitude'].",".$from['longitude'];
+			$to = $to['latitude'].",".$to['longitude'];
 
-			$locale = $data['code'];
+			$locale = @$from['code'];
 
 			$regionData = $country->getLoc($locale);
 
 			$url = "https://maps.googleapis.com/maps/api/directions/json?origin=".$from."&destination=".$to."&key=".GoogleAPI."&units=".$regionData['si_unit']."&region=".$locale;
 			$data = json_decode($this->curl_file_get_contents($url), true);
-
 			if (@$data['status'] == "OK") {
 				$result['distance']['text'] = @$data['routes'][0]['legs'][0]['distance']['text'];
 				$result['distance']['value'] = @round(($data['routes'][0]['legs'][0]['distance']['value']/1000), 2);
@@ -585,6 +598,10 @@
 				echo '</ul>';
 				echo '</nav>';
 			}
-        }
+		}
+		
+		public function splitURL($string) {
+			return explode("/", $string);
+		}
 	}
 ?>

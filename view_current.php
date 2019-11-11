@@ -29,7 +29,7 @@
     }
 
     if (isset($_POST['approve'])) {
-        $add = $projects->approve($_POST['project_id'], "approve", true);
+        $add = $projects->approve($_POST['post_id'], "approve", true);
 
         if ($add) {
             header("location: ".$common->seo($id, "profile")."?done=".urldecode("Task marked as Complete"));
@@ -37,7 +37,7 @@
             header("location: ".$common->seo($id, "profile")."?error=".urldecode("Could not mark this tax as complete"));
         }
     } else if (isset($_POST['request_approve'])) {
-        $add = $projects->approve($_POST['project_id'], "request_approve", true);
+        $add = $projects->approve($_POST['post_id'], "request_approve", true);
 
         if ($add) {
             header("location: ".$common->seo($id, "profile")."?done=".urldecode("Review request sent successfully"));

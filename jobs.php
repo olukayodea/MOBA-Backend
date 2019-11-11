@@ -13,7 +13,6 @@
 <meta charset="UTF-8">
 <?php $userHome->headMeta($cat_id); ?>
 <?php $pageHeader->headerFiles(); ?>
-<title>Home</title>
 </head>
 
 <body>

@@ -9,38 +9,64 @@
         $view = "active";
     }
     if (isset($_REQUEST['remove'])) {
-        $rem = $userPostedAds->removeDraft($_REQUEST['remove']);
+        $rem = $request->removeDraft($_REQUEST['id']);
 
         if ($rem) {
-            header("location: ".URL.$redirect."/".$view."?done=".urlencode("Draft ad removed successfully"));
+            header("location: ".URL.$redirect."/".$view."?done=".urlencode("Open request cancelled removed successfully"));
         } else {
-            header("location: ".URL.$redirect."/".$view."?error=".urlencode("Draft ad not removed successfully"));
-        }
-    } else if (isset($_REQUEST['removeSaved'])) {
-        $rem = $project_save->remove($_REQUEST['removeSaved']);
-
-        if ($rem) {
-            header("location: ".URL.$redirect."/".$view."?done=".urlencode("Saved ad removed successfully"));
-        } else {
-            header("location: ".URL.$redirect."/".$view."?error=".urlencode("Saved ad not removed successfully"));
+            header("location: ".URL.$redirect."/".$view."?error=".urlencode("Open request not cancelled successfully"));
         }
     }
 ?>
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8">
-<?php $pageHeader->headerFiles(); ?>
-<title>Posted Ads</title>
-</head>
+<!DOCTYPE html>
+<html lang="en">
 
-<body>
-<?php $pageHeader->loginStrip(true); ?>
-<?php $pageHeader->navigation(); ?>
-<?php $userPostedAds->navigationBar($redirect); ?>
-<div class="container-fluid">
-    <?php $userPostedAds->pageContent($ref, $view, $redirect); ?>
-</div>
-<?php $pageHeader->jsFooter(); ?>
-</body>
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <?php $pageHeader->headerFiles(); ?>
+    <title>Moba - Find the best artisans</title>
+	</head>
+
+  <body>
+	<section>
+    <?php $pageHeader->loginStrip(); ?>
+    <?php $pageHeader->navigation(); ?>
+		
+		<div class="moba-sban1">
+		<div class="container">
+			<div class="row">
+			
+				<div class="col-lg-6 py-5">
+						<h6><a href="<?php echo URL; ?>">Moba</a>  /  Requests</h6>
+				</div>
+				<div class="col-lg-6"></div>
+				
+			</div>
+		</div>
+		</div>
+		
+	</section>
+	<section class="moba-details">
+		<div class="container my-5">
+            <div class="row py-5">
+                <div class="col-lg-3">
+                    <?php $userHome->navigationBar($redirect); ?>
+                </div>
+                <div class="col-lg-9">
+                    <?php $userHome->requestPageContentpublic($ref, $view, $redirect); ?>
+                </div>
+            </div>
+		</div>
+	</section>
+	
+    <?php $pageHeader->footer(); ?>
+    <?php $pageHeader->jsFooter(); ?>
+
+  </body>
+
 </html>

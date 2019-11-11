@@ -5,7 +5,7 @@
             global $rating_comment;
             $postArray['user_id'] = $array['user_id'];
             $postArray['reviewed_by'] = $array['reviewed_by'];
-            $postArray['project_id'] = $array['project_id'];
+            $postArray['post_id'] = $array['post_id'];
 
             foreach ($array['rating'] as $key => $value) {
                 $postArray['question_id'] = $key;
@@ -20,9 +20,9 @@
             $rating_comment->create($postArray);
 
             if ($array['type'] == "user_id") {
-                $projects->updateOneRow( "user_rate", 1, $array['project_id'] );
+                $projects->updateOneRow( "user_rate", 1, $array['post_id'] );
             } else  if ($array['type'] == "client_id ") {
-                $projects->updateOneRow( "client_rate", 1, $array['project_id'] );
+                $projects->updateOneRow( "client_rate", 1, $array['post_id'] );
             }
 
             return true;
@@ -37,16 +37,18 @@
             }
         }
 
-        public function getRate($user) {
+        public function getRate($user, $question_id=false) {
             $query = "SELECT AVG(`review`) FROM `rating` WHERE `user_id` = :user";
+            if ($question_id !== false) {
+                $query .= " AND `question_id` = :question_id";
+                $prepare[':question_id'] = $question_id;
+            }
             $prepare[':user'] = $user;
             return  $this->query($query, $prepare, "getCol");
         }
 
         public function drawRate($rate) {
-            if ($rate == "") {
-                return "";
-            } else if ($rate >= 5) {
+            if ($rate >= 5) {
                 return '<i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i>';
             } else if ($rate > 4) {
                 return '<i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fa fa-star" aria-hidden="true" style="color:#F93"></i><i class="fas fa-star-half-alt" aria-hidden="true" style="color:#F93"></i>';
@@ -71,6 +73,28 @@
             }
         }
 
+        public function textRate($rate) {
+            if ($rate >= 5) {
+                return 'Excellent';
+            } else if ($rate > 4) {
+                return 'Very Good';
+            } else if ($rate == 4) {
+                return 'Good';
+            } else if ($rate > 3) {
+                return 'Above Average';
+            } else if ($rate == 3) {
+                return 'Average';
+            } else if ($rate > 2) {
+                return 'Below Average';
+            } else if ($rate == 2) {
+                return 'Bad';
+            } else if ($rate > 1) {
+                return 'Very Bad';
+            } else if ($rate == 0) {
+                return 'Unrated';
+            }
+        }
+
 
         function listOne($id, $tag="ref") {
             return $this->getOne("rating", $id, $tag);
@@ -92,7 +116,7 @@
                 `ref` INT NOT NULL AUTO_INCREMENT, 
                 `user_id` INT NOT NULL, 
                 `reviewed_by` INT NOT NULL, 
-                `project_id` INT NOT NULL, 
+                `post_id` INT NOT NULL, 
                 `question_id` INT NOT NULL, 
                 `review` INT NOT NULL,
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -119,6 +119,7 @@
             $user['name'] = $users->listOnValue($data['user_id'], "screen_name");
             $user['rating']['score'] = round($rating->getRate($data['user_id']), 2);
             $user['rating']['total'] = 5;
+            $user['rating']['remark'] = $rating->textRate(intval($rating->getRate($data['user_id'])));
             $data['user_id'] = $user;
             if ($data['status'] == 0) {
                 $data['status'] = "NEW";
@@ -127,6 +128,7 @@
             } else if ($data['status'] == 2) {
                 $data['status'] = "COMPLETED";
             }
+            $data['tx_id'] = $this->txid( $data['ref'] );
             //gateway data
             $data['gateway_data'] = unserialize($data['gateway_data']);
             

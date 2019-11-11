@@ -6,6 +6,7 @@
             $replace = array();
             $replace[] = "parent_id";
             $replace[] = "category_title";
+            $replace[] = "call_out_charge";
             $replace[] = "status";
             if ($array['ref'] == 0) {
                 unset($array['ref']);
@@ -58,11 +59,25 @@
             return $this->getSortedList($parent, "parent_id", "status", "ACTIVE", "country", $country);
         }
 
+        public function totalUsers($id) {
+            $query = "SELECT `user_id` FROM `usersCategory` WHERE `category_id` = :id";
+            $prepare[":id"] = $id;
+
+            return $this->run($query, $prepare, "list");
+
+        }
+
         public function getIcon($id) {
           $data = $this->getSingle($id, "image_url");
     
           if ($data != "") {
-            return URL."media/categories/".$data;
+            $file = URL."media/categories/".$data;
+            $file_headers = @get_headers($file);
+            if($file_headers[0] == 'HTTP/1.1 404 Not Found') {
+                return URL."media/categories/0.png";
+            } else {
+                return URL."media/categories/".$data;
+            }
           } else {
             return URL."media/categories/0.png";
           }
@@ -105,6 +120,7 @@
             for ($i = 0; $i < count($list); $i++) {
                 $result[$i]['ref'] = $list[$i]['ref'];
                 $result[$i]['title'] = $list[$i]['category_title'];
+                $result[$i]['call_out_charge'] = $list[$i]['call_out_charge'];
                 $result[$i]['icon'] = $this->getIcon($list[$i]['ref']);
                 $result[$i]['ad_count'] = $search->catSearch($location, $list[$i]['ref'], "count");
                 
@@ -113,6 +129,7 @@
                     for ($j = 0; $j < count($sub); $j++) {
                         $result[$i]['sub'][$j]['ref'] = $sub[$j]['ref'];
                         $result[$i]['sub'][$j]['title'] = $sub[$j]['category_title'];
+                        $result[$i]['sub'][$j]['call_out_charge'] = $sub[$j]['call_out_charge'];
                         $result[$i]['sub'][$j]['icon'] = $this->getIcon($sub[$j]['ref']);
                         $result[$i]['sub'][$j]['ad_count'] = $search->catSearch($location, $sub[$j]['ref'], "count");
                     }
@@ -130,6 +147,7 @@
                 `country` INT NOT NULL, 
                 `category_title` VARCHAR(50) NOT NULL,
                 `image_url` VARCHAR(500) NOT NULL,
+                `call_out_charge` DOUBLE NOT NULL, 
                 `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

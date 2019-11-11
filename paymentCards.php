@@ -50,22 +50,55 @@
         }
     }
 ?>
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8">
-<?php $pageHeader->headerFiles(); ?>
-<title>Manage Payment Cards</title>
-</head>
+<!DOCTYPE html>
+<html lang="en">
 
-<body>
-<?php $pageHeader->loginStrip(); ?>
-<?php $pageHeader->navigation(); ?>
+  <head>
 
-<div class="container-fluid">
-<?php $userPayment->navigationBar($redirect); ?>
-  <?php $userPayment->pageContent($redirect, $view, $edit); ?>
-</div>
-<?php $pageHeader->jsFooter(); ?>
-</body>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <?php $pageHeader->headerFiles(); ?>
+    <title>Manage Payment Cards</title>
+	</head>
+
+  <body>
+	<section>
+    <?php $pageHeader->loginStrip(); ?>
+    <?php $pageHeader->navigation(); ?>
+		
+		<div class="moba-sban1">
+		<div class="container">
+			<div class="row">
+			
+				<div class="col-lg-6 py-5">
+						<h6><a href="<?php echo URL; ?>">Moba</a>  /  Manage Payment Cards</h6>
+				</div>
+				<div class="col-lg-6"></div>
+				
+			</div>
+		</div>
+		</div>
+		
+	</section>
+	<section class="moba-details">
+		<div class="container my-5">
+            <div class="row py-5">
+                <div class="col-lg-3">
+                    <?php $userPayment->navigationBar($redirect); ?>
+                </div>
+                <div class="col-lg-9">
+                    <?php $userPayment->pageContent($redirect, $view, $edit); ?>
+                </div>
+            </div>
+		</div>
+	</section>
+	
+    <?php $pageHeader->footer(); ?>
+    <?php $pageHeader->jsFooter(); ?>
+
+  </body>
+
 </html>

@@ -24,7 +24,7 @@
             $list = $this->getList($start, $limit);
             $listCount = $this->getList(false, false, "last_name", "ASC", "count"); ?>
             <h2>Account Numbers</h2>
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -75,7 +75,7 @@
             $listCount = $transactions->getSortedListTrans($ref, "account", false, false, false, false, "ref", "DESC", "AND", false, false, "count"); ?>
             <a href="javascript:history.go(-1);">Back</a>
             <h2>Account Details</h2>
-            <table class="table">
+            <table class="table table-striped">
                 <tr>
                     <th width="25%">Account Name</th>
                     <td><?php echo $data['last_name']." ".$data['first_name']; ?></td>
@@ -113,7 +113,7 @@
                 </tr>
             </table>
             <h2>Transactions on Account</h2>
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -148,5 +148,9 @@
         
             <?php $this->pagination($page, $listCount);
         }
+
+        public function navigationBar() { ?>
+            <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL; ?>"><b>Home</b></a></p>
+       <?php }
     }
 ?>

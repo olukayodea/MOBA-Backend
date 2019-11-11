@@ -1,7 +1,9 @@
 <?php
     class adminRating extends rating_question {
         public function navigationBar($redirect) { ?>
-            <a href="<?php echo URL.$redirect; ?>">List All</a> | <a href="<?php echo URL.$redirect."/create"; ?>">Add New</a>
+            <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect; ?>"><b>List All</b></p>
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/create"; ?>"><b>Add New</b></a></p>	
         <?php }
 
         function pageContent($redirect, $view="list", $edit=0) {
@@ -19,8 +21,8 @@
               $tag2 = "Save Changes";
             } else {
               $data = false;
-              $tag = "Create Rating CAtegory";
-              $tag2 = "Create Rating CAtegory";
+              $tag = "Create Rating Category";
+              $tag2 = "Create Rating Category";
             }
             ?>
             <main class="col-12" role="main">
@@ -45,9 +47,9 @@
               </select>
             </div>
             <input type="hidden" name="ref" value="<?php echo $edit; ?>">
-            <button type="submit" name="submitRating" class="btn btn-primary"><?php echo $tag2; ?></button>
+            <button type="submit" name="submitRating" class="btn purple-bn1"><?php echo $tag2; ?></button>
             <?php if ($edit > 0) { ?>
-            <button type="button" class="btn btn-primary" onClick="location='<?php echo URL.$redirect; ?>'" >Cancel</button>
+            <button type="button" class="btn purple-bn1" onClick="location='<?php echo URL.$redirect; ?>'" >Cancel</button>
             <?php } ?>
             </form>
           </main>
@@ -70,7 +72,7 @@
             $list = $this->getList($start, $limit);
             $listCount = $this->getList(false, false, "count"); ?>
             <h2>List All Rating Questions</h2>
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">#</th>

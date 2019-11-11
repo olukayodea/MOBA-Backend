@@ -5,10 +5,12 @@
         public function create($array) {
             global $users;
             global $alerts;
-            $token = $this->bambora_get_token($array);
-            $array['token'] = $token;
-            $add_card = $this->bambora_create_profile($array);
-
+            //$token = $this->bambora_get_token($array);
+            //$array['token'] = $token;
+            //$add_card = $this->bambora_create_profile($array);
+            $add_card['code'] = 1;
+            $add_card['message'] = "Operation Successful";
+            $add_card['customer_code'] = rand();
             if (($add_card['code'] == 1) && ($add_card['message'] == "Operation Successful")) {
                 $get_count = count($this->getSortedList($array['user_id'], 'user_id'));
                 $data['user_id'] = $array['user_id'];
@@ -49,8 +51,8 @@
                     $alerts->sendEmail($mail);
                     $return = array('status' => 'OK', 'message' => 'Complete');
                 } else {
-                    $this->bambora_remove_profile($token);
-                    $return = array('status' => 'Error', 'message' => 'An error occured');
+                    //$this->bambora_remove_profile($token);
+                    //$return = array('status' => 'Error', 'message' => 'An error occured');
                 }
             } else {
                 $return = array('status' => 'Error', 'message' => $add_card['message']." ".$add_card['details'][0]['message']);
@@ -76,6 +78,10 @@
             $this->updateOne("payment_card", "is_default", 0, $getFormer, "ref");
             $this->updateOne("payment_card", "is_default", 1, $id, "ref");
             return true;
+        }
+
+        function getDefault($id) {
+            return $this->getSortedList($id, "user_id", "is_default", 1, false, false, "ref", "ASC", "AND", false, false, "getRow");
         }
 
         function remove($id, $user=false) {
@@ -161,7 +167,7 @@
                     $return['additional_message'] = "Account ref missing in URL";
                 }
             } else if ($type == "default") {
-                $data = $this->getSortedList($user, "user_id", "is_default", 1, false, false, "ref", "ASC", "AND", false, false, "getRow");
+                $data = $this->getDefault($user);
                 $return['status'] = "200";
                 $return['message'] = "OK";
                 $return['data'] = $data;

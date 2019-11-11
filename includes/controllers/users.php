@@ -2,15 +2,18 @@
 class users extends database {
     /*  create users
     */
-    public function create($array) {
+    public function create($array, $file=false) {
         if ($this->checkExixst("users", "email", $array['email']) < 1) {
             $data = $array;
             $categoryArray = array();
             $photo_file = $data['photo_file'];
             $id_file = $data['id_file'];
             $data['password'] = sha1($array['password']);
+            
             if ($array['category'] != "") {
                 $categoryArray = explode(",",$array['category']);
+            } else if ((count($array['category_select']) > 0) && (is_array($array['category_select']))) {
+                $categoryArray = $array['category'];
             }
             if ($array['user_type'] == 1) {
                 $address = urlencode($data['street']." ".$data['city']." ".$data['state']." ".$data['country']);
@@ -18,6 +21,7 @@ class users extends database {
                 $data['latitude'] = $addressData['latitude'];
                 $data['longitude'] = $addressData['longitude'];
             }
+            $data['screen_name'] = $this->confirmUnique($this->createUnique($array['last_name']));
             unset($data['category']);
             unset($data['photo_file']);
             unset($data['id_file']);
@@ -48,10 +52,14 @@ class users extends database {
 
                 if ($photo_file != "") {
                     $this->saveProfilePicture($create, $photo_file, "profile");
+                } else {
+                    $this->saveProfilePicture($create, $file['photo_file'], false, "profile");
                 }
 
                 if ($id_file != "") {
                     $this->saveProfilePicture($create, $photo_file, "gov_id");
+                } else {
+                    $this->saveProfilePicture($create, $file['id_file'], false, "gov_id");
                 }
                 $client = $array['last_name']." ".$array['other_names'];
                 $subjectToClient = "Welcome to MOBA";
@@ -145,7 +153,6 @@ class users extends database {
                 
                 global $alerts;
                 $alerts->sendEmail($mail);
-
                 return true;
             } else {
                 return false;
@@ -264,7 +271,7 @@ class users extends database {
         $data = $this->listOne($id);
         $image_Url = $data["image_url"];
         $screen_name = $data["screen_name"];
-        $login_type = $data["login_type"];
+        $login_type = $data["account_type"];
 
         if (trim($image_Url) != "") {
             if ($login_type == "local") { ?>
@@ -273,23 +280,20 @@ class users extends database {
             <img class="<?php echo $class; ?> profile" src="<?php echo $image_Url; ?>" alt="<?php echo $screen_name; ?>" height="<?php echo $width; ?>">
         <?php }
         } else { ?>
-            <img class="<?php echo $class; ?> main_img profile" data-name="<?php echo $screen_name; ?>" alt="<?php echo $screen_name; ?>">
-            <script src="<?php echo URL; ?>js/initial.js"></script>
-            <script type="text/javascript">
-            $(document).ready(function(){
-                $('.main_img').initial({
-                    width:<?php echo $width; ?>,
-                    charCount: 1,
-                    fontSize: <?php echo $width-10; ?>,
-                    fontWeight: 400,
-                    height:<?php echo $width; ?>
-                });
-            })
-            </script>
+            <img class="<?php echo $class; ?> main_img profile" data-name="<?php echo $screen_name; ?>" alt="<?php echo $screen_name; ?>" src="<?php echo $this->picURL($id, $width); ?>">
         <?php }
     }
 
-    function saveProfilePicture($id, $file, $api=false, $data=false) {
+    function picURL($id, $width=75) {
+        $data = $this->listOne($id);
+        if (@$data['image_Url'] == "") {
+             return "https://ui-avatars.com/api/?name=".urlencode(@$data['screen_name'])."&width=".$width;
+        } else if ((@$data['image_Url'] != "") && (@$data['account_type'] == "local")) {
+             return URL.@$data['image_Url'];
+        }
+    }
+
+    function saveProfilePicture($id, $file, $api=false, $data=false, $type="profile") {
         global $media;
         if ($api == false) {
             $upload = $media->uploadDP($id, $file);
@@ -299,9 +303,9 @@ class users extends database {
 
         if ($upload) {
             if ($upload['title'] == "OK") {
-                if ($api == "gov_id") {
+                if (($api == "gov_id") || ($type == "gov_id")) {
                     $t = "id_url";
-                } else if ($api == "profile") {
+                } else if (($api == "profile") || ($type == "profile")) {
                     $t = "image_url";
                 } else {
                     $t = "image_url";
@@ -348,11 +352,16 @@ class users extends database {
             $updateData = "INACTIVE";
 
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account Deactivated </strong><br><br>Please contact us to contest this action";
+            $tag .= ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
         } else if ($data['status'] == "INACTIVE") {
             $updateData = "ACTIVE";
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account Activated</strong>";
+            $tag .= ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+        } else if ($data['status'] == "NEW") {
+            $updateData = "DELETED";
+            $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account Cancellation</strong>";
         }
-        $tag .= ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+        
 
         if ($this->modifyUser("status", $updateData, $data['ref'], "ref")) {
             //send email
@@ -480,7 +489,6 @@ class users extends database {
     }
 
     private function clean($data) {
-        unset($data['user_type']);
         unset($data['password']);
         unset($data['account_type_token']);
         unset($data['token']);
@@ -555,10 +563,12 @@ class users extends database {
         global $usersCategory;
         global $category;
         $userCat = $usersCategory->getSortedListCat($user, "user_id");
-        for ($i = 0; $i < count($userCat); $i++) {
-            $return[$i] = $category->formatResult($category->listOne($userCat[$i]['category_id']), true);
+        if (count($userCat) > 0) {
+            $return['featured'] = $category->formatResult( $category->listOne( $userCat[array_rand($userCat, 1)]['category_id']), true );
+            for ($i = 0; $i < count($userCat); $i++) {
+                $return[$i] = $category->formatResult($category->listOne($userCat[$i]['category_id']), true);
+            }
         }
-
         return $return;
     }
     

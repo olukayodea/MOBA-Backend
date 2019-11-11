@@ -1,32 +1,36 @@
 <?php
 class post extends users {
-    private function clean($data) {
+    private function clean($data, $from) {
         global $users;
         global $rating;
-         //get user ID and name
+        global $rating_question;
+         
+        $checkRate = $rating_question->getSortedList("vendors", "question_type");
 
-        if ($data['image_url'] == "") {
-            $data['image_url'] = "https://ui-avatars.com/api/?name=".urlencode($data['screen_name']);
-        } else if (($data['image_url'] != "") && ($data['account_type'] == "local")) {
-            $data['image_url'] = URL.$data['image_url'];
-        }
-        $data['categories'] = $users->getCatList($data['ref']);
+        $data['image_url'] = $users->picURL(@$data['ref'], "75");
         
-        $data['rating']['score'] = round($rating->getRate($data['ref']), 2);
+        $data['categories'] = $users->getCatList(@$data['ref']);
+        
+        $data['rating']['score'] = round($rating->getRate(@$data['ref']), 2);
         $data['rating']['total'] = 5;
+        for ($i = 0; $i < count($checkRate); $i++) {
+            $data['rating']['data'][$i]['question'] = $checkRate[$i]['question'];
+            $data['rating']['data'][$i]['review'] = $rating->getRate($data['ref'], $checkRate[$i]['ref']);
+        }
+        $data['maps'] = $this->googleDirection($from, @$data);
 
         unset($data['account_type']);
         unset($data['total']);
         return $data;
     }
     
-    public function formatResult($data, $single=false) {
+    public function formatResult($data, $location, $single=false) {
         if ($single == false) {
             for ($i = 0; $i < count($data); $i++) {
-                $data[$i] = $this->clean($data[$i]);
+                $data[$i] = $this->clean($data[$i], $location);
             }
         } else {
-            $data = $this->clean($data);
+            $data = $this->clean($data, $location);
         }
         return $data;
     }
@@ -55,7 +59,7 @@ class post extends users {
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
             $return['category'] = $category->formatResult( $categoryData, true );
-            $return['data'] = $this->formatResult( $result['data'] );
+            $return['data'] = $this->formatResult( $result['data'], $location );
         } else if ($type == "search") {
             $result = $search->keywordSearchData($location, $ref, $start, $limit);
             $return['status'] = "200";
@@ -65,9 +69,10 @@ class post extends users {
             $return['counts']['rows_on_current_page'] = count($result['data']);
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
-            $return['data'] = $this->formatResult( $result['data'] );
+            $return['data'] = $this->formatResult( $result['data'], $location );
         } else if ($type == "featured") {
-            $result = $search->isFeaturedData($location, $start, $limit);
+            $result = $search->aroundMeData($location, $start, $limit);
+            //$result = $search->isFeaturedData($location, $start, $limit);
             $return['status'] = "200";
             $return['message'] = "OK";
             $return['counts']['current_page'] = $page;
@@ -75,7 +80,7 @@ class post extends users {
             $return['counts']['rows_on_current_page'] = count($result['data']);
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
-            $return['data'] = $this->formatResult( $result['data'] );
+            $return['data'] = $this->formatResult( $result['data'], $location );
         } else if ($type == "aroundme") {
             $result = $search->aroundMeData($location, $start, $limit);
             $return['status'] = "200";
@@ -85,7 +90,7 @@ class post extends users {
             $return['counts']['rows_on_current_page'] = count($result['data']);
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
-            $return['data'] = $this->formatResult( $result['data'] );
+            $return['data'] = $this->formatResult( $result['data'], $location );
         }
         return $return;
     }

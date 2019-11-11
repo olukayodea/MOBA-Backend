@@ -2,7 +2,7 @@
     include_once("../../functions.php");
 	$term = $common->get_prep($_REQUEST['term']);
 	
-	$data = $projects->searchMapHome($_SESSION['location'], $term);
+	$data = $search->keywordSearch($_SESSION['location'], $term);
 	
 	for ($i = 0; $i < count($data); $i++) {
 		$row['value'] = $data[$i]['project_name'];
