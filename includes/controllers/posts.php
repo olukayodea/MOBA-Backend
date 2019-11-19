@@ -1,6 +1,6 @@
 <?php
-class post extends users {
-    private function clean($data, $from) {
+class post extends database {
+    public function clean($data, $from) {
         global $users;
         global $rating;
         global $rating_question;
@@ -24,7 +24,7 @@ class post extends users {
         return $data;
     }
     
-    public function formatResult($data, $location, $single=false) {
+    public function formatResults($data, $location, $single=false) {
         if ($single == false) {
             for ($i = 0; $i < count($data); $i++) {
                 $data[$i] = $this->clean($data[$i], $location);
@@ -59,7 +59,7 @@ class post extends users {
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
             $return['category'] = $category->formatResult( $categoryData, true );
-            $return['data'] = $this->formatResult( $result['data'], $location );
+            $return['data'] = $this->formatResults( $result['data'], $location );
         } else if ($type == "search") {
             $result = $search->keywordSearchData($location, $ref, $start, $limit);
             $return['status'] = "200";
@@ -69,7 +69,7 @@ class post extends users {
             $return['counts']['rows_on_current_page'] = count($result['data']);
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
-            $return['data'] = $this->formatResult( $result['data'], $location );
+            $return['data'] = $this->formatResults( $result['data'], $location );
         } else if ($type == "featured") {
             $result = $search->aroundMeData($location, $start, $limit);
             //$result = $search->isFeaturedData($location, $start, $limit);
@@ -80,7 +80,7 @@ class post extends users {
             $return['counts']['rows_on_current_page'] = count($result['data']);
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
-            $return['data'] = $this->formatResult( $result['data'], $location );
+            $return['data'] = $this->formatResults( $result['data'], $location );
         } else if ($type == "aroundme") {
             $result = $search->aroundMeData($location, $start, $limit);
             $return['status'] = "200";
@@ -90,7 +90,7 @@ class post extends users {
             $return['counts']['rows_on_current_page'] = count($result['data']);
             $return['counts']['max_rows_per_page'] = $limit;
             $return['counts']['total_rows'] = $result['count'];
-            $return['data'] = $this->formatResult( $result['data'], $location );
+            $return['data'] = $this->formatResults( $result['data'], $location );
         }
         return $return;
     }

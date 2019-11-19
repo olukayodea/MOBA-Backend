@@ -94,7 +94,7 @@ class request extends database {
         } else if ($view == "running") {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'ACTIVE' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'ACTIVE' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
-            $return['tag'] = "All Open Request";
+            $return['tag'] = "All Active Request";
         } else if ($view == "current") {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )");
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )", "count"));
@@ -287,21 +287,446 @@ class request extends database {
         return ($options->get("service_charge")/100)*$amount;
     }
 
-    private function getFee($array) {
+    public function getFee($array) {
         global $request_negotiate;
         $data = $request_negotiate->getApproved($array);
         if ($data) {
             return $data['amount'];
         } else {
-            return $this->listOne($array['post_id'])['default_fee'];
+            return $this->listOne($array['post_id'])['fee'];
         }
     }
 
-    public function  apiApprove($array) {
-        $data = $this->listOne($array['post_id']);
-        echo $this->getFee($array);
+    private function getTransaction($id) {
+        global $wallet;
+        $data = $this->listOne($id);
 
-        print_r($data);
+        //get the wallet entry fot the post
+        $user_transaction = $wallet->getSortedListWallet($data['ref'], "ref_id", "tx_desc", "Work Payment", "status", "0");
+        
+        if ($this->updateOne("wallet", "status", 1, $user_transaction['ref'], "ref")) {
+            $tx_wallet['user_id'] = $data['client_id'];
+            $tx_wallet['tx_id'] = $data['tx_id'];
+            $tx_wallet['ref_id'] = $data['ref'];
+            $tx_wallet['tx_desc'] = "Settlement for Work";
+            $tx_wallet['tx_dir'] = "CR";
+            $tx_wallet['region'] = $data['region'];
+            $tx_wallet['amount'] = $user_transaction['amount'];
+            $tx_wallet['status'] = 1;
+            $wallet->createWallet($tx_wallet);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function approve($id, $action, $user, $admin=false) {
+        global $messages;
+        global $users;
+        global $options;
+        global $alerts;
+        global $notifications;
+        $data = $this->listOne($id);
+
+        if ($data['user_id'] == $user) {
+            $user_id = $data['user_id'];
+            $user_r_id = $data['client_id'];
+        } else if ($data['client_id'] == $user) {
+            $user_id = $data['client_id'];
+            $user_r_id = $data['user_id'];
+        } else if ($admin == true) {
+            $user_id = $data['user_id'];
+            $user_r_id = $data['client_id'];
+        }
+
+        if ((isset($user_id)) || ($admin == true)) {
+            if ($action == "approve") {
+                if ($this->getTransaction($id)) {
+                    $this->updateOneRow("review_status", 0, $data['ref']);
+                    $this->updateOneRow("review_status_time", NULL, $data['ref']);
+                    $this->updateOneRow("status", "COMPLETED", $data['ref']);
+
+                    $tag = "you have marked this task as done. Payment has been sent. <a href='".URL."ads\archive'>Sigin in</a> to your MOBA Account to learn more";
+
+                    $user_data = $users->listOne($data['user_id']);
+                    $client = $user_data['last_name']." ".$user_data['other_names'];
+                    $subjectToClient = "Job with ".$users->listOnValue($data['client_id'], "screen_name")." Completed";
+                    $contact = "MOBA <".replyMail.">";
+                    
+                    $fields = 'subject='.urlencode($subjectToClient).
+                        '&last_name='.urlencode($user_data['last_name']).
+                        '&other_names='.urlencode($user_data['other_names']).
+                        '&email='.urlencode($user_data['email']).
+                        '&tag='.urlencode(htmlentities($tag));
+                    $mailUrl = URL."includes/views/emails/notification.php?".$fields;
+                    $messageToClient = $this->curl_file_get_contents($mailUrl);
+                    
+                    $mail['from'] = $contact;
+                    $mail['to'] = $client." <".$user_data['email'].">";
+                    $mail['subject'] = $subjectToClient;
+                    $mail['body'] = $messageToClient;
+                    
+                    $alerts->sendEmail($mail);
+
+                    $notificationArray['event'] = "post_messages";
+                    $notificationArray['event_id'] = $data['ref'];
+                    $notificationArray['user_id'] = $data['user_id'];
+                    $notificationArray['user_r_id'] = $data['client_id'];
+                    $notificationArray['message'] = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
+                    $notificationArray['email'] = $tag;
+
+                    $notifications->create($notificationArray);
+
+                    $tag = "This task has been approve and the payment is now available in your wallet. <a href='".URL."ads\past'>Sigin in</a> to your MOBA Account to learn more";
+
+                    $user_data = $users->listOne($data['client_id']);
+                    $client = $user_data['last_name']." ".$user_data['other_names'];
+                    $subjectToClient = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
+                    $contact = "MOBA <".replyMail.">";
+                    
+                    $fields = 'subject='.urlencode($subjectToClient).
+                        '&last_name='.urlencode($user_data['last_name']).
+                        '&other_names='.urlencode($user_data['other_names']).
+                        '&email='.urlencode($user_data['email']).
+                        '&tag='.urlencode(htmlentities($tag));
+                    $mailUrl = URL."includes/views/emails/notification.php?".$fields;
+                    $messageToClient = $this->curl_file_get_contents($mailUrl);
+                    
+                    $mail['from'] = $contact;
+                    $mail['to'] = $client." <".$user_data['email'].">";
+                    $mail['subject'] = $subjectToClient;
+                    $mail['body'] = $messageToClient;
+                    
+                    $alerts->sendEmail($mail);
+
+                    $notificationArray['event'] = "post_messages";
+                    $notificationArray['event_id'] = $data['ref'];
+                    $notificationArray['user_id'] = $data['client_id'];
+                    $notificationArray['user_r_id'] = $data['user_id'];
+                    $notificationArray['message'] = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
+                    $notificationArray['email'] = $tag;
+
+                    $notifications->create($notificationArray);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if ($action == "request_approve") {
+                if ($this->updateOneRow("review_status", 1, $data['ref'])) {
+                    $this->updateOneRow("review_status_time", (time()+(60*60*24*$options->get("max_days_approve"))), $data['ref']);
+                    
+                    $tag = "Your attention is required in <strong>".$data['projec_name']."</strong>. This task as been marked as comleted and is awaiting your review. If no action is taken by you in ".$options->get("max_days_approve")." ".$this->addS("day", $options->get("max_days_approve")).", this task will be marked as completed and all outstanding payments will be released. <a href='".URL."ads/on-going'>Sigin in</a> to your MOBA Account to learn more";;
+
+                    $user_data = $users->listOne($data['user_id']);
+                    $client = $user_data['last_name']." ".$user_data['other_names'];
+                    $subjectToClient = "[ACTION REQUIRED]: ".$data['project_name'];
+                    $contact = "MOBA <".replyMail.">";
+                    
+                    $fields = 'subject='.urlencode($subjectToClient).
+                        '&last_name='.urlencode($user_data['last_name']).
+                        '&other_names='.urlencode($user_data['other_names']).
+                        '&email='.urlencode($user_data['email']).
+                        '&tag='.urlencode(htmlentities($tag));
+                    $mailUrl = URL."includes/views/emails/notification.php?".$fields;
+                    $messageToClient = $this->curl_file_get_contents($mailUrl);
+                    
+                    $mail['from'] = $contact;
+                    $mail['to'] = $client." <".$user_data['email'].">";
+                    $mail['subject'] = $subjectToClient;
+                    $mail['body'] = $messageToClient;
+                    
+                    global $alerts;
+                    $alerts->sendEmail($mail);
+
+                    $msg = "Your attention is required, i have marked this task as completed and it is awaiting your review";
+                    $msgArray['message']  = $msg;
+                    $msgArray['user_r_id']  = $user_r_id;
+                    $msgArray['user_id']  = $user_id;
+                    $msgArray['post_id']  = $data['ref'];
+                    $msgArray['m_type']  = "system";
+                    $messages->add($msgArray);
+
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    public function apiComplete($array, $action="complete") {
+        $data = $this->listOne($array['post_id']);
+        if ($data) {
+            $ref = $array['post_id'];
+
+            if ($action == "complete") {
+                if (($data['client_id'] == $array['user_id']) && ($data['status'] != "COMPLETED")) {
+                    $return['status'] = "501";
+                    $return['message'] = "Not Implemented";
+                    $return['additional_message'] = "You can not perform this action, you can only request that the ownser cofirms the job";
+                } else if (($data['user_id'] == $array['user_id']) && ($data['status'] != "COMPLETED")) {
+                    $add = $this->approve($ref, "approve", $data['user_id']);
+                    if ($add) {
+                        $return['status'] = "200";
+                        $return['message'] = "OK";
+                    } else {
+                        $return['status'] = "500";
+                        $return['message'] = "Internal Server Error";
+                    }
+                } else {
+                    $return['status'] = "501";
+                    $return['message'] = "Not Implemented";
+                    $return['additional_message'] = "You can not allowed to perform this action";
+                }
+            } else if ($action == "request") {
+                if (($data['user_id'] == $array['user_id']) && ($data['status'] != "COMPLETED")) {
+                    $return['status'] = "501";
+                    $return['message'] = "Not Implemented";
+                    $return['additional_message'] = "You can not perform this request, you can only approve the Job";
+                } else if (($data['client_id'] == $array['user_id']) && ($data['status'] != "COMPLETED")) {
+                        $add = $this->approve($ref, "request_approve", $data['client_id']);
+                        if ($add) {
+                            $return['status'] = "200";
+                            $return['message'] = "OK";
+                            $return['additional_message'] = "Approval request sent";
+                        } else {
+                            $return['status'] = "500";
+                            $return['message'] = "Internal Server Error";
+                        }
+                } else {
+                    $return['status'] = "501";
+                    $return['message'] = "Not Implemented";
+                    $return['additional_message'] = "You can not allowed to perform this action";
+                }
+            }
+        } else {
+            $return['status'] = "404";
+            $return['message'] = "Not Found";
+            $return['additional_message'] = "Invalid Ad or Posting";
+        }
+        return $return;
+    }
+
+    public function apiReview($array, $action) {
+        global $rating;
+        global $rating_question;
+        global $rating_comment;
+        $data = $this->listOne($array['post_id']);
+
+        if ($data) {
+            $allow = false;
+            if ($data['user_id'] == $array['user_id']) {
+                $tagline = "user_id";
+                $user_id = $data['client_id'];
+                $user_r_id = $data['user_id'];
+                $rateType = "vendors";
+                $allow = true;
+            } else {
+                $tagline = "client_id";
+                $user_id = $data['user_id'];
+                $user_r_id = $data['client_id'];
+                $rateType = "clients";
+                $allow = true;
+            }
+            if ($allow) {
+                if ($data['status'] == "COMPLETED") {
+                    if ($action == "list") {
+                        $rateQuestion = $rating_question->getSortedList($rateType, "question_type");
+                        for ($i = 0; $i < count($rateQuestion); $i++) {
+                            unset($rateQuestion[$i]['question_type']);
+                            unset($rateQuestion[$i]['status']);
+                            unset($rateQuestion[$i]['create_time']);
+                            unset($rateQuestion[$i]['modify_time']);
+                        }
+                        $return['status'] = "200";
+                        $return['message'] = "OK";
+                        $return['data'] = $rateQuestion;
+                    } else  if ($action == "get") {
+                        $checkRate = $rating->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $array['post_id']);
+                        $checkComment = $rating_comment->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $array['post_id'], "ref", "ASC", "AND", false, false, "getRow");
+                        if (count($checkRate) > 0) {
+                            for ($i = 0; $i < count($checkRate); $i++) {
+                                $returnData[$i]['question_ref'] = $checkRate[$i]['question_id'];
+                                $returnData[$i]['question'] = $rating_question->getSingle( $checkRate[$i]['question_id'] );
+                                $returnData[$i]['rate_score'] = $checkRate[$i]['review'];
+                                $returnData[$i]['total_score'] = 5;
+                            }
+                            $returnData['comment'] = $checkComment['comment'];
+                            $return['status'] = "200";
+                            $return['message'] = "OK";
+                            $return['data'] = $returnData;
+                        } else {
+                            $return['status'] = "404";
+                            $return['message'] = "Not Found";
+                            $return['additional_message'] = "No ratings and review for this Post yet";
+                        }
+                    }  else  if ($action == "post") {
+                        $checkRate = $rating->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $array['post_id']);
+                        if (count($checkRate) == 0) {
+                            for ($i = 0; $i < count($array['rating']); $i++) {
+                                $list['rating'][$array['rating'][$i]['question_id']] = $array['rating'][$i]['score'];
+                            }
+                            $list['user_id'] = $user_id;
+                            $list['reviewed_by'] = $user_r_id;
+                            $list['post_id'] = $array['post_id'];
+                            $list['type'] = $tagline;
+                            $list['comment'] = $array['comment'];
+
+                            $add = $rating->addRate($list);
+                            if ($add) {
+                                $return['status'] = "200";
+                                $return['message'] = "OK";
+                            } else {
+                                $return['status'] = "500";
+                                $return['message'] = "Internal Server Error";
+                            }
+                        } else {
+                            $return['status'] = "501";
+                            $return['message'] = "Not Implemented";
+                            $return['additional_message'] = "This post has been rated by you previously";
+                        }
+                    }
+                } else {
+                    $return['status'] = "501";
+                    $return['message'] = "Not Implemented";
+                    $return['additional_message'] = "You can not rate or view reviews for this Ad or Post at this time ";
+                }
+            } else {
+                $return['status'] = "501";
+                $return['message'] = "Not Implemented";
+                $return['additional_message'] = "This user does not have access to this project";
+            }
+        } else {
+            $return['status'] = "404";
+            $return['message'] = "Not Found";
+            $return['additional_message'] = "Invalid Ad or Posting";
+        }
+        return $return;
+    }
+
+    public function  apiApprove($array) {
+        global $wallet;
+        global $country;
+        global $notifications;
+        global $users;
+        $data = $this->listOne($array['post_id']);
+        $fee = $this->getFee($array);
+
+        $regionData = $country->getLoc($data['region'], "ref");
+
+        $trans = $wallet->getSortedListWallet($data['tx_id'], "tx_id", "tx_desc", "Work Payment", false, false, "ref", "DESC", "AND", false, false, "getRow");
+
+        $complete = false;
+        if ($fee != abs($trans['amount'])) {
+            $remainder = $fee - abs($trans['amount']);
+
+            if ($remainder > 0) {
+                $tax = $data['fee']*($regionData['tax']/100);
+                $fee = $remainder;
+                $list = $wallet->getSortedList($data['user_id'], "user_id");
+                $tx_pay['user_id'] = $data['user_id'];
+                $tx_pay['tx_type_id'] = $array['post_id'];
+                $tx_pay['tx_type'] = "request";
+                $tx_pay['tx_dir'] = "DR";
+                $tx_pay['card'] = 0;
+                $tx_pay['region'] = $data['region'];
+                $tx_pay['net_total'] = $fee;
+                $tx_pay['tax_total'] = $tax;
+                $tx_pay['gross_total'] = $fee+$tax;
+                $tx_id = $wallet->createTx($tx_pay);
+
+                $pay_gateway['gross_total'] = $remainder;
+                //try all the cards until one goes
+                for ($j = 0; $j < count($list); $j++) {
+                    $pay_gateway['card'] = $list[$j]['ref'];
+                    //get balance from gateway
+                    $makePayment = $wallet->bambora_pay($pay_gateway);
+                    $this->updateOne("transactions", "gateway_data", serialize($makePayment), $tx_id, "ref");
+                    $this->updateOne("transactions", "gateway_status", $makePayment['message'], $tx_id, "ref");
+                    if (($makePayment['approved'] == 1) && ($makePayment['message'] == "Approved")) {
+                        $this->updateOne("transactions", "status", 2, $tx_id, "ref");
+                        $tx_wallet['user_id'] = $data['user_id'];
+                        $tx_wallet['tx_id'] = $tx_id;
+                        $tx_wallet['ref_id'] = 0;
+                        $tx_wallet['tx_desc'] = "CR transaction in wallet";
+                        $tx_wallet['tx_dir'] = "CR";
+                        $tx_wallet['region'] = $data['region'];
+                        $tx_wallet['amount'] = 0-$fee;
+                        $tx_wallet['status'] = 1;
+                        $wallet->createWallet($tx_wallet);
+                        $this->updateOneRow("card", $pay_gateway['card'], $data['ref']);
+                        $complete = true;
+                        break;
+                    }
+                }
+
+                if ($complete == true) {
+                    $newAmt = 0-$fee;
+
+                    $wallet->updateOneRow("amount", $newAmt, $trans['ref']);
+                    $wallet->updateOneRow("ref_id", $data['ref'], $trans['ref']);
+                }
+
+            } else if ($remainder < 0) {
+                $newAmt = 0-$fee;
+                $wallet->updateOneRow("amount", $newAmt, $trans['ref']);
+                $wallet->updateOneRow("ref_id", $data['ref'], $trans['ref']);
+
+                $tx_pay['user_id'] = $data['user_id'];
+                $tx_pay['tx_type_id'] = $array['post_id'];
+                $tx_pay['tx_type'] = "request_refund";
+                $tx_pay['tx_dir'] = "CR";
+                $tx_pay['card'] = 0;
+                $tx_pay['status'] = 2;
+                $tx_pay['region'] = $data['region'];
+                $tx_pay['net_total'] = abs( $remainder );
+                $tx_pay['tax_total'] = 0;
+                $tx_pay['gross_total'] = abs( $remainder );
+                $tx_id = $wallet->createTx($tx_pay);
+
+
+                $tx_wallet['user_id'] = $data['user_id'];
+                $tx_wallet['tx_id'] = $tx_id;
+                $tx_wallet['ref_id'] = 0;
+                $tx_wallet['tx_desc'] = "CR transaction in wallet";
+                $tx_wallet['tx_dir'] = "CR";
+                $tx_wallet['region'] = $data['region'];
+                $tx_wallet['amount'] = abs( $remainder );
+                $tx_wallet['status'] = 2;
+                $wallet->createWallet($tx_wallet);
+
+                $complete = true;
+            }
+        } else {
+            $wallet->updateOneRow("ref_id", $data['ref'], $trans['ref']);
+        }
+
+        if ($complete === true) {
+            $this->updateOne("request", "start_date", time(), $data['ref'], "ref");
+            $this->updateOne("request", "status", "ACTIVE", $data['ref'], "ref");
+            $this->updateOne("request", "fee", $this->getFee($array), $data['ref'], "ref");
+            $this->updateOne("request", "client_id", $array['user_r_id'], $data['ref'], "ref");
+            
+            $notificationArray['event'] = "post_messages";
+            $notificationArray['event_id'] = $data['ref'];
+            $notificationArray['user_id'] = $data['user_id'];
+            $notificationArray['user_r_id'] = $array['user_r_id'];
+            $notificationArray['message'] = "Work approval";
+            $notificationArray['email'] = $users->listOnValue($data['user_id'], "screen_name")." have approved your work ";
+
+            $notifications->create($notificationArray);
+
+            $return['status'] = "200";
+            $return['message'] = "OK";
+            $return['additional_message'] = "Approved";
+            $return['request']['ID'] = $data['ref'];
+        } else {
+            $return['status'] = "501";
+            $return['message'] = "Not Implemented";
+            $return['additional_message'] = "Your wallet balance is not enough to  authorize this transaction. Please confirm your wallet and payment cards";
+        }
+
+        return $return;
     }
 
     public function apiMegotiate($array, $action="post") {
@@ -628,7 +1053,7 @@ class request extends database {
                             $return['counts']['rows_on_current_page'] = count($result['data']);
                             $return['counts']['max_rows_per_page'] = 29;
                             $return['counts']['total_rows'] = $result['count'];
-                            $return['data'] = $post->formatResult( $result['data'], $maps);
+                            $return['data'] = $post->formatResults( $result['data'], $maps);
                         } else if ($returnedData['status'] == "failed") {
                             $return['status'] = "406";
                             $return['message'] = "Not Acceptable";
@@ -864,6 +1289,12 @@ class request extends database {
             `tx_id` INT NOT NULL,
             `latitude` DOUBLE NOT NULL,
             `longitude` DOUBLE NOT NULL,
+            `start_date` VARCHAR(50) NOT NULL,
+            `end_date` VARCHAR(50) NOT NULL,
+            `review_status` INT NOT NULL,
+            `client_rate` INT NOT NULL,
+            `user_rate` INT NOT NULL,
+            `review_status_time` VARCHAR(50) NULL, 
             `status` varchar(20) NOT NULL DEFAULT 'OPEN',
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

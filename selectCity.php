@@ -50,7 +50,7 @@
                                 <div class="col-md-10">
                                 <input id="autocomplete" name="autocomplete" placeholder="Enter your address or city" onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value="<?php echo $data['address']; ?>" required/>
                                 </div>
-                                <button type="submit" name="setLocation" class="btn purple-bn1 mb-2"><i class="fa fa-location-arrow" aria-hidden="true"></i> </button>
+                                <button type="submit" name="setLocation" class="btn purple-bn1-home mb-2"><i class="fa fa-location-arrow" aria-hidden="true"></i> </button>
                                 
                             </div>
 

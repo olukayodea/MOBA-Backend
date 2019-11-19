@@ -67,6 +67,78 @@
             return $this->run($query, $prepare, "replace");
         }
 
+        /**
+		 * Get a row of items in a table based on the search criteria
+		 * @param string $table	    name of table to fetch from
+		 * @param string $tag	    the col to fetch from
+		 * @param string $id	    the row to fetch from
+		 * @param string $where     addition to the WHERE clause
+        *  @param integer $start    the first row to return
+        *  @param integer $limit	the number of returned row
+        *  @param string $order	    the sort row
+        *  @param string $dir		the ORDER direction
+        */
+        public function select($table, $col=false, $type="getRow", $where=false, $start=false, $limit=false, $order='ref', $dir='ASC') {
+            $select = "";
+            if ($col === false) {
+                $select = "*";
+            } else {
+                foreach  ($col as $key) {
+                    $select .= "`".$key."`,";
+                }
+
+                $select = trim(trim($select), ",");
+            }
+
+            if ($where !== false) {
+                $where = " WHERE ".$where;
+            } else {
+                $where = "";
+            }
+
+            $where .=" ORDER BY `".$order."` ".$dir;
+            if (($start != false ) AND ($limit != false )) {
+                $where .= " LIMIT ".$start.", ".$limit;
+            } else if ($limit != false ) {
+                $where .= " LIMIT ".$limit;
+            }
+
+            $query = "SELECT ".$select." FROM `".$table."` ".$where;
+            return $this->run($query, false, $type);
+        }
+
+        /**
+		 * Get a row of items in a table based on the search criteria
+		 * @param string $table	name of table to fetch from
+		 * @param string $tag	the col to fetch from
+		 * @param string $id	the row to fetch from
+		 * @param string $where	any addition to the WHERE clause
+        */
+        public function getOneMultiple($table, $id, $tag='ref', $tag2=false, $id2=false, $tag3=false, $id3=false, $logic="AND", $where="") {
+            if ($where !== false) {
+                $where = " ".$where;
+            } else {
+                $where = "";
+            }
+
+			$prepare = array(':'.$tag => $id);
+			if ($tag2 != false) {
+				$sqlTag = " ".$logic." `".$tag2."` = :".$tag2;
+				$prepare[':'.$tag2] = $id2;
+			} else {
+				$sqlTag = "";
+			}
+			if ($tag3 != false) {
+				$sqlTag .= " ".$logic." `".$tag3."` = :".$tag3;
+				$prepare[':'.$tag3] = $id3;
+			} else {
+				$sqlTag .= "";
+            }
+            
+            $query = "SELECT * FROM `".$table."` WHERE `".$tag."` = :".$tag.$sqlTag.$where." LIMIT 1";
+            return $this->run($query, $prepare, "getRow");
+        }
+        
         /*  Get a row of items in a table based on the search criteria
         *   $table: name of table to fetch from
         *   $tag: the col to fetch from

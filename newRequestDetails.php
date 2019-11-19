@@ -7,6 +7,10 @@
         $id = $_REQUEST['id'];
         $requestData = $request->listOne($id);
         $data = $category->listOne($requestData['category_id']);
+
+        if ($requestData['user_id'] != $_SESSION['users']['ref']) {
+          header("location: ".URL."ads?error=".urlencode("you can not view this page"));
+        }
     } else {
         header("location: ".URL."allCategories");
     }

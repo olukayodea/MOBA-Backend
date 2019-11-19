@@ -25,14 +25,14 @@ class request_negotiate extends database {
         } else {
           return false;
         }
-      }
+    }
   
     public function negotiateResponse($array) {
         global $messages;
         global $users;
         $this->updateOneRow("status", $array['status'], $array['ref']);
         $messages->updateOneRow("message", "You have a new fee negotiation request.", $array['message']);
-        $messages->updateOneRow("m_type", "text", $array['message']);
+        $messages->updateOneRow("m_type", "post_messages", $array['message']);
         $messages->updateOneRow("m_type_data", "", $array['message']);
         
         $messageData = $messages->listOne($array['message']);
@@ -87,6 +87,10 @@ class request_negotiate extends database {
         }
     }
 
+    public function remove($id) {
+        return $this->delete("request_negotiate", $id);
+    }
+
     public function updateOneRow($tag, $value, $id) {
         return $this->updateOne("request_negotiate", $tag, $value, $id, "ref");
     }
@@ -103,13 +107,13 @@ class request_negotiate extends database {
         return $this->sortAll("request_negotiate", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    public function checkCurrent($array) {
+    public function checkCurrent($array, $type="count") {
         $query = "SELECT * FROM `request_negotiate` WHERE `status` = 0 AND `post_id` = :post_id AND `user_id` = :user_id AND `user_r_id` = :user_r_id";
         $prepare[":post_id"] = $array['post_id'];
         $prepare[":user_id"] = $array['user'];
         $prepare[":user_r_id"] = $array['user_r'];
 
-        return $this->run($query, $prepare, "count");
+        return $this->run($query, $prepare, $type);
     }
 
     public function getApproved($array) {

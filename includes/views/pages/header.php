@@ -36,7 +36,7 @@
                                     <a class="dropdown-item" href="<?php echo URL; ?>transaction"> Transactions</a>
                                     <a class="dropdown-item" href="<?php echo URL; ?>wallet"> Wallets (<?php echo $regionData['currency_symbol'].number_format($wallet->balance($_SESSION['users']['ref'], $regionData['ref']), 2); ?>)</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>inbox">Messages <?php if ($msgCount > 0){ ?>  <span id="badge3"><?php echo $msgCount; ?></span><?php } ?></a></a>
+                                    <a class="dropdown-item" href="<?php echo URL; ?>notification/inbox">Messages <?php if ($msgCount > 0){ ?>  <span id="badge3"><?php echo $msgCount; ?></span><?php } ?></a></a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="<?php echo URL; ?>profile">Profile</a>
                                     <div class="dropdown-divider"></div>
@@ -82,6 +82,7 @@
                     <form method="get" class="form-inline my-2 my-lg-0" action="<?php echo URL."search"; ?>">
                         <?php if (isset($_SESSION['users'])) { ?>
                             <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications' ;?>'"><i class="fas fa-bell" style="color:#3e3e94"></i><span id="badge"></span></button>
+                            <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications/inbox' ;?>'"><i class="fas fa-envelope" style="color:#3e3e94"></i><span id="badge4"></span></button>
                         <?php } ?>
                         <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'selectCity' ;?>'"><i class="fas fa-location-arrow" style="color:#3e3e94"></i></button>
                         <div class="row ml-2">
@@ -197,6 +198,7 @@
     <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" async defer></script>
     <script type="text/javascript">
 	TweenLite.set('.right-img', {backgroundSize:"110%"});
 	TweenLite.to('.right-img', 1.3, {backgroundSize:"100%", ease:Power1.easeOut, delay: 0.7}); 
@@ -208,13 +210,6 @@
             if($('#content').length){
                 $( '#content' ).focus();
             }
-            $( "#autocomplete" ).autocomplete({
-                source: "<?php echo URL; ?>includes/views/scripts/homeCateList",
-                minLength: 2,
-                select: function( event, ui ) {
-                    window.location.href = ui.item.id;
-                }
-            });
 
             $( "#s" ).autocomplete({
                 source: "<?php echo URL; ?>includes/views/scripts/filterHome",
@@ -307,6 +302,8 @@
               data: dataString,
               cache: false,
               success: function(html){
+                  $('#badge4').html('');
+                  $(html).appendTo("#badge4");
                   $('#badge3').html('');
                   $(html).appendTo("#badge3");
               }
@@ -352,6 +349,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="<?php echo URL; ?>css/fileinput.css" media="all" rel="stylesheet" type="text/css" >
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
         <?php }
     }
 ?>

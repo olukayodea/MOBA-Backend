@@ -16,7 +16,9 @@
         <?php }
 
         public function navigationBarNotification($redirect) { ?>
-            <a href="<?php echo URL.$redirect; ?>">Notifications</a> | <a href="<?php echo URL."/inbox"; ?>">Messages</a> | <a href="<?php echo URL.$redirect."ads/saved"; ?>">Saved Ads</a>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect; ?>"><b>Notifications</b></a></p>
+            <div class="moba-line my-2"></div>
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/inbox"; ?>"><b>Messages</b></a></p>
         <?php }
 
         function requestPageContentpublic($ref, $view, $redirect, $data=false) {
@@ -24,8 +26,11 @@
           }
 
         public function pageContent($redirect, $id=false, $type=false) {
-            if ($redirect == "category") {
-                //$this->promoted();
+            if ($redirect == "homeSelect") {
+                $this->homeSelect();
+            } else if ($redirect == "homeList") {
+                $this->homeCatList();
+            } else if ($redirect == "category") {
                 $this->homeCategory();
             } else if ($redirect == "categoryHome") {
                 $this->categoryHomePage($id, $type);
@@ -45,12 +50,86 @@
                 $this->requestProfile($id);
             }
         }
+
+        private function homeSelect() {
+            global $pageHeader;
+            global $category;
+            global $country;
+            $loc = $country->getLoc($_SESSION['location']['code']);
+
+            $list = $category->categoryList($loc['ref'], 0);
+            $pageHeader->loginStrip(true); ?>
+            <div class="container-fluid p-0">
+                <div class="row jcontent no-gutters">
+                
+                    <div class="col-lg-6 left-bg py-5">
+                    
+                        <div class="pdd">
+                            <h2>FIND AND HIRE THE BEST PROFESSIONAL ARTISANS TODAY.</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, expedita, saepe, vero rerum deleniti beatae veniam harum neque nemo praesentium cum alias asperiores commodi.</p>
+                            <form method="post" name="sentMessage" id="contactForm" action="<?php echo URL; ?>newRequest">
+                                <div class="form-row">
+                                    <div class="col-md-10">
+                                        <select name="id" id="id" class="form-control" required>
+                                            <option value="">Select Category to Start</option>
+                                            <?php for ($i = 0; $i < count($list); $i++) { ?>  
+                                                <option value="<?php echo $list[$i]['ref']; ?>"><?php echo $list[$i]['category_title']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <button type="submit" name="setLocation" class="btn purple-bn1-home mb-2"><i class="fa fa-arrow-right" aria-hidden="true"></i> Go</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 right-img"></div>
+                </div>
+            </div>
+        <?php
+        }
+
+        private function homeCatList() { ?>
+            <div class="container">
+                <h4>HOW MOBA WORKS</h4>
+                <div class="row">
+                    <div class="col-lg-4 mt-3">
+                        <span>1</span><br><br>
+                        <h5 class="mt-3">Describe The Task</h5>
+                        <p>
+                            asdolor sit amet, consectetur adipisicing elit, sed 
+                            do eiusmodtempor incididunt ut labore etdolore 
+                            magna aliqua.
+                        </p>
+                    </div>
+                    <div class="col-lg-4">
+                        <span>2</span><br><br>
+                        <h5 class="mt-3">Get Matched</h5>
+                        <p>
+                            asdolor sit amet, consectetur adipisicing elit, sed 
+                            do eiusmodtempor incididunt ut labore etdolore 
+                            magna aliqua.
+                        </p>				
+                    </div>
+                    <div class="col-lg-4">
+                        <span>3</span><br><br>
+                        <h5 class="mt-3">Get It Done</h5>
+                        <p>
+                            asdolor sit amet, consectetur adipisicing elit, sed 
+                            do eiusmodtempor incididunt ut labore etdolore 
+                            magna aliqua.
+                        </p>				
+                    </div>
+                </div>
+                <div class="moba-line mt-5"></div>
+            </div>
+        <?php }
   
         public function showAll($ref, $view, $redirect) {
             global $request;
             global $options;
             global $country;
             global $category;
+            global $users;
 
             if (isset($_REQUEST['page'])) {
                 $page = $_REQUEST['page'];
@@ -60,7 +139,6 @@
             
             $limit = $options->get("result_per_page");
             $start = $page*$limit;
-
             $data = $request->listAllData($ref, $view, $start, $limit);
 
             $list = $data['list'];
@@ -74,7 +152,17 @@
                     <th scope="col">#</th>
                     <th scope="col">Service</th>
                     <th scope="col">Fee</th>
+                    <?php if ($view != "open") { ?>
+                    <th scope="col">Service Provider</th>
+                    <?php } ?>
+                    <?php if ($view == "running") { ?>
+                    <th scope="col">Start Time</th>
+                    <?php } else { ?>
                     <th scope="col">Request Time</th>
+                    <?php } ?>
+                    <?php if ($view == "past") { ?>
+                    <th scope="col">End Time</th>
+                    <?php } ?>
                     <th scope="col">Location</th>
                     <th scope="col">Created</th>
                     <th scope="col">Last Modified</th>
@@ -86,12 +174,22 @@
                         <tr>
                             <th scope="row"><?php echo $start+$i+1; ?></th>
                             <td><?php echo $category->getSingle( $list[$i]['category_id'] ); ?></td>
-                            <td><?php echo $country->getSingle( $list[$i]['region'], "currency_symbol")." ".number_format($list[$i]['fee'], 2); ?></td>
+                            <td><?php echo $country->getSingle( $list[$i]['region'], "currency_symbol").number_format($list[$i]['fee'], 2); ?></td>
+                            <?php if ($view != "open") { ?>
+                            <td><?php echo $users->listOnValue($list[$i]['client_id'], "screen_name"); ?></td>
+                            <?php } ?>
+                            <?php if ($view == "running") { ?>
+                            <td><?php echo date(' j-m-Y h:i A', $list[$i]['start_date']); ?></td>
+                            <?php } else { ?>
                             <td><?php echo date(' j-m-Y h:i A', $list[$i]['time']); ?></td>
+                            <?php } ?>
+                            <?php if ($view == "past") { ?>
+                            <td><?php echo date(' j-m-Y h:i A', $list[$i]['end_date']); ?></td>
+                            <?php } ?>
                             <td><a href="<?php echo "http://maps.google.com/maps?saddr=".$list[$i]['latitude'].",".$list[$i]['longitude']; ?>" target="_blank">Open in Maps</a></td>
                             <td><?php echo $this->get_time_stamp(strtotime($list[$i]['create_time'])); ?></td>
                             <td><?php echo $this->get_time_stamp(strtotime($list[$i]['modify_time'])); ?></td>
-                            <th scope="col"><?php echo $this->urlLink($list[$i]['ref'], $list[$i]['status'], $view, $redirect); ?></th>
+                            <th scope="col"><?php echo $this->urlLink($list[$i]['ref'], $list[$i]['status'], $view, $redirect, $$list[$i]['review_status']); ?></th>
                         </tr>
                     <?php } ?>
                 </tbody>
@@ -99,9 +197,11 @@
             <?php $this->pagination($page, $listCount);
         }
 
-        private function urlLink($id, $status, $view, $redirect) {
+        private function urlLink($id, $status, $view, $redirect, $review_status=false) {
             if ($status == "OPEN") {
                 return "<a href='".URL."newRequestDetails?id=".$id."' title='Continue'><i class='fas fa-forward'></i></a>&nbsp;<a href='".URL."".$redirect."/".$view."?remove&id=".$id."' onClick='return confirm(\"this action end this request, are you sure you want to continue ?\")' title='Remove'><i class='fas fa-trash-alt' style='color:red'></i></a>";
+            } else if ($status == "ACTIVE") {
+                return "<a href='".URL."requestDetails?id=".$id."' title='Review'><i class='fas fa-eye'></i></a>". ($review_status == 1 ? '<i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>' : '');
             }
         }
 
@@ -533,7 +633,7 @@
             <li class="media my-4">
             <img class="mr-3" style="width: 96px; height: 96px;" src="<?php echo $media->getCover($data[$i]['ref']); ?>" alt="Generic placeholder image">
             <div class="media-body">
-                <a href="<?php echo $this->seo($data[$i]['ref'], "view"); ?>""><h5 class="mt-0 mb-1"><?php echo $data[$i]['project_name']; ?></h5></a>
+                <a href="<?php echo $this->seo($data[$i]['ref'], "view"); ?>"><h5 class="mt-0 mb-1"><?php echo $data[$i]['project_name']; ?></h5></a>
                 <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;&nbsp;<?php echo $this->truncate( $data[$i]['project_dec'], 250); ?><br>
                 <i class="fa fa-map-marker" aria-hidden="true"></i>&nbsp;&nbsp;<?php echo $data[$i]['address']; ?><br>
                 <i class="fa fa-car" aria-hidden="true"></i>&nbsp;&nbsp;<?php echo $mapData['distance']['text']." in ".$mapData['duration']['text']; ?><br>
@@ -647,10 +747,6 @@
         private function homeCategory() {
             global $country;
             global $category;
-
-            $location['latitude'] = $_SESSION['location']['latitude'];
-            $location['longitude'] = $_SESSION['location']['longitude'];
-
             $loc = $country->getLoc($_SESSION['location']['code']);
 
             $list = $category->categoryList($loc['ref'], 0);
@@ -674,6 +770,7 @@
             global $users;
             global $wallet;
             $data = $category->listOne($id);
+            $userData = $users->listOne(trim($_SESSION['users']['ref']));
             $countryData = $country->listOne($data['country'], "ref");
             $usersData = $category->totalUsers($id);
             ?>
@@ -694,75 +791,79 @@
                 <div class="col-lg-8">			
                     <h5><?php echo $data['category_title']; ?></h5>
                     <div class="moba-line mb-3"></div>
-                    <?php if ($type === false) { ?>
-                    <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" novalidate>
-                        <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
-                        <div class="control-group form-group my-5">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <button type="submit" class="btn purple-bn pd" id="sendMessageButton">Request Service </button>
-                            </div>
+                    <?php if ($userData['user_type'] == 1) { ?>
+                        <div class="alert alert-warning" role="alert">
+                            <strong>You can not request for a service with a service provider account</strong>
                         </div>
-                        </div>
-                    </form>
-                    <?php } else {
-                        $check = $wallet->getDefault($_SESSION['users']['ref']);
-                        if ($check) { ?>
-                    <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" enctype="multipart/form-data">
-                        <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
-
-                        <div class="form-group">
-                            <input id="autocomplete" name="autocomplete" placeholder="Enter your address" required onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value=""/>
-                            <input type="text" name="city" id="locality" value="">
-                            <input type="text" name="state" id="administrative_area_level_1" value="">
-                            <input type="text" name="postal_code" id="postal_code" value="">
-                            <input type="text" name="country" id="country" value="">
-                            <input type="text" name="lat" id="lat" value="">
-                            <input type="text" name="country_code" id="country_code" value="">
-                            <input type="text" name="lng" id="lng" value="">
-                            <small id="autocomplete_help" class="form-text text-muted">This will be the location where the service is required.</small>
-                        </div>
-						<div class="form-group">
-                            <input type="number" name="fee" id="fee" class="form-control" placeholder="Price Range" min="<?php echo $data['call_out_charge']; ?>" required>
-                            <small id="autocomplete_help" class="form-text text-muted">This amount must be greater than or equal to <?php echo $countryData['currency_symbol']." ".number_format($data['call_out_charge'], 2); ?>.</small>
-						</div>
-						<div class="form-group">
-                            <select name="time" id="time" class="form-control" required>
-                                <option value="">Select One</option>
-                                <option value="60">Within an Hour</option>
-                                <option value="180">1 to 3 Hours</option>
-                                <option value="240">3 Hours or more</option>
-                            </select>
-                            <small id="autocomplete_help" class="form-text text-muted">How soon do you want this service done.</small>
-						</div>
-						<div class="form-group">
-                            <textarea name="description" id="description" required class="form-control" placeholder="Job Description"></textarea>
-                            <small id="autocomplete_help" class="form-text text-muted">Tesll us what you want to get done.</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="uploadFile">Include pictures with as much details as you will prefer. You can upload a maximum of 10 media with a maximum fike size of 2MB. (Optional)</label>
-                            <div class="row">
-                                <div class="col-sm-2 imgUp">
-                                    <div class="imagePreview"></div>
-                                    <label class="btn btn-primary">
-                                    Select File<input type="file" name="uploadFile[]" id="uploadFile" class="uploadFile img" value="Upload Photo" accept="image/*" style="width: 0px;height: 0px;overflow: hidden;" onchange="checkFileSize(event)">
-                                    </label>
-                                </div><!-- col-2 -->
-                                <i class="fa fa-plus imgAdd"></i>
-                            </div><!-- row -->
-                        </div>
-                        
-                        <div class="col-lg-12">
-                            <button type="submit" class="btn purple-bn pd"  name="sendMessageButton" id="sendMessageButton">Request Service </button>
-                        </div>
-					</form>
-                        </div>
-                    </form>
                     <?php } else { ?>
-                        <div class="alert alert-danger" role="alert">
-                        <strong>You must have at least one payment card saved to make a request. <a href="">Click here to add your payment card</a> then come back to create the request again</strong>
-                        </div>
-                    <?php } ?>
+                        <?php if ($type === false) { ?>
+                        <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" novalidate>
+                            <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
+                            <div class="control-group form-group my-5">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="btn purple-bn pd" id="sendMessageButton">Request Service </button>
+                                </div>
+                            </div>
+                            </div>
+                        </form>
+                        <?php } else {
+                            $check = $wallet->getDefault($_SESSION['users']['ref']);
+                            if ($check) { ?>
+                                <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" enctype="multipart/form-data">
+                                    <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
+
+                                    <div class="form-group">
+                                        <input id="autocomplete" name="autocomplete" placeholder="Enter your address" required onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value=""/>
+                                        <input type="hidden" name="city" id="locality" value="">
+                                        <input type="hidden" name="state" id="administrative_area_level_1" value="">
+                                        <input type="hidden" name="postal_code" id="postal_code" value="">
+                                        <input type="hidden" name="country" id="country" value="">
+                                        <input type="hidden" name="lat" id="lat" value="">
+                                        <input type="hidden" name="country_code" id="country_code" value="">
+                                        <input type="hidden" name="lng" id="lng" value="">
+                                        <small id="autocomplete_help" class="form-text text-muted">This will be the location where the service is required.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="number" name="fee" id="fee" class="form-control" placeholder="Price Range" min="<?php echo $data['call_out_charge']; ?>" required>
+                                        <small id="autocomplete_help" class="form-text text-muted">This amount must be greater than or equal to <?php echo $countryData['currency_symbol']." ".number_format($data['call_out_charge'], 2); ?>.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <select name="time" id="time" class="form-control" required>
+                                            <option value="">Select One</option>
+                                            <option value="60">Within an Hour</option>
+                                            <option value="180">1 to 3 Hours</option>
+                                            <option value="240">3 Hours or more</option>
+                                        </select>
+                                        <small id="autocomplete_help" class="form-text text-muted">How soon do you want this service done.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea name="description" id="description" required class="form-control" placeholder="Job Description"></textarea>
+                                        <small id="autocomplete_help" class="form-text text-muted">Tesll us what you want to get done.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="uploadFile">Include pictures with as much details as you will prefer. You can upload a maximum of 10 media with a maximum fike size of 2MB. (Optional)</label>
+                                        <div class="row">
+                                            <div class="col-sm-2 imgUp">
+                                                <div class="imagePreview"></div>
+                                                <label class="btn btn-primary">
+                                                Select File<input type="file" name="uploadFile[]" id="uploadFile" class="uploadFile img" value="Upload Photo" accept="image/*" style="width: 0px;height: 0px;overflow: hidden;" onchange="checkFileSize(event)">
+                                                </label>
+                                            </div><!-- col-2 -->
+                                            <i class="fa fa-plus imgAdd"></i>
+                                        </div><!-- row -->
+                                    </div>
+                                    
+                                    <div class="col-lg-12">
+                                        <button type="submit" class="btn purple-bn pd"  name="sendMessageButton" id="sendMessageButton">Request Service </button>
+                                    </div>
+                                </form>
+                            <?php } else { ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <strong>You must have at least one payment card saved to make a request. <a href="">Click here to add your payment card</a> then come back to create the request again</strong>
+                                </div>
+                            <?php } ?>
+                        <?php } ?>
                     <?php } ?>
                     <div class="control-group form-group my-5">
                     <h5>Popular Service Providers</h5>
@@ -772,7 +873,7 @@
                         <?php for ($i = 0; $i < count($usersData); $i++) { ?>
                             <div class="col-lg-4">
                                 <div class="moba-content__img">
-                                    <img src="users/av1.jpg" class="mr-3 float-left"/>
+                                    <?php $users->getProfileImage($usersData[$i]['user_id'], "mr-3 float-left"); ?>
                                     <small><?php echo $users->listOnValue($usersData[$i]['user_id'], "screen_name"); ?></small><br>
                                     <?php echo $rating->drawRate(intval($rating->getRate($usersData[$i]['user_id']))); ?>
                                 </div>
@@ -876,16 +977,22 @@
 
         private function requestProfile($array) {
             global $request;
+            global $request_negotiate;
             global $category;
             global $country;
             global $rating;
             global $users;
             global $rating_question;
             global $messages;
+            global $media;
             $data = $request->listOne($array[2]);
             $categoryData = $category->listOne($data['category_id']);
             $countryData = $country->listOne($data['region'], "ref");
             $usersData = $users->listOne($array[0]);
+            $userData = $users->listOne(trim($_SESSION['users']['ref']));
+
+            $getAlbum = $media->getAlbum($data['ref']);
+            //if ($_SESSION['users']['ref'] == )
             $user_r_id = $usersData['ref'];
             $user_id = trim($_SESSION['users']['ref']);
             $loc = $this->googleGeoLocation($data['longitude'], $data['latitude']);
@@ -898,6 +1005,16 @@
             $addressData['country'] = $loc['country'];
 
             $checkRate = $rating_question->getSortedList("vendors", "question_type");
+            //respond to a request
+            $checkCurrentRequest = $request_negotiate->checkCurrent(array("post_id" => $data['ref'], "user" => $user_r_id, "user_r" => $user_id));
+            $currentData = $request_negotiate->checkCurrent(array("post_id" => $data['ref'], "user" => $user_r_id, "user_r" => $user_id), "getRow");
+            //sent a request
+            $checkRequest = $request_negotiate->checkCurrent(array("post_id" => $data['ref'], "user" => $user_id, "user_r" => $user_r_id));
+            $requestData = $request_negotiate->checkCurrent(array("post_id" => $data['ref'], "user" => $user_id, "user_r" => $user_r_id), "getRow");
+            
+            if (isset ($_REQUEST['respond'])) {
+                $requestData = $request_negotiate->listOne($_REQUEST['respond']);
+            }
             // echo "<pre>";
             // print_r($usersData);
             ?>
@@ -907,23 +1024,72 @@
                     <img class="card-img-top my-3" src="<?php echo $users->picURL( $usersData['ref'], 250 ); ?>" alt="<?php echo $usersData['screen_name']; ?>">
                     <i class="fa fa-map-marker"></i> <?php echo $loc['address']; ?>
                     <div class="moba-line my-3"></div>
+                    <?php if (count($getAlbum) > 0) {
+                        for ($i = 0; $i < count($getAlbum); $i++) { ?>
+                            <a data-fancybox="gallery" href="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>"><img src="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>" alt="<?php echo $data['project_name']; ?>" class="img-thumbnail" style="width:auto; height:70px;"></a>
+                        <?php }
+                    } ?>
                     <p><b>Job Category:</b> <?php echo $categoryData['category_title']; ?></p>	
                     <p><b>Description:</b> <?php echo $data['description']; ?></p>
                     <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
                     <p><b>Callout Charge:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
-                    <p><a href="<?php echo URL."ads/all?remove&id=".$data['ref']; ?>" class="btn purple-bn pd" onClick='return confirm("this action end this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Negotiate Fees</a></p>
-                    <?php if ($array[3] == "view") { ?>
-                    <p><a href="<?php echo $this->seo($usersData['ref'], "profile")."/".$data['ref']."/message"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-comments"></i>&nbsp;&nbsp;Message</a></p>
+                    <?php if ($user_id != $usersData['ref']) { ?>
+                        <?php if ($data['status'] == "OPEN") { ?>
+                            <?php if ($checkCurrentRequest == 1) { ?>
+                                <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?respond=".$currentData['ref']; ?>" class="btn purple-bn pd" title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p>
+                            <?php } else if (($userData['user_type'] == "1") && ($checkRequest == 1)) { ?>
+                                <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?cancel=".$requestData['ref']; ?>" class="btn red-bn pd"  onClick='return confirm("this action cancel this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Cancel Negotiation Request</a></p>
+                            <?php } else if ($userData['user_type'] == "1") { ?>
+                                <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate"; ?>" class="btn purple-bn pd" onClick='' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Negotiate Fee</a></p>
+                            <?php } ?>
+                        <?php } ?>
+                        
+                        <?php if ($array[3] == "view") { ?>
+                        <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/message"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-comments"></i>&nbsp;&nbsp;Message</a></p>
+                        <?php } else { ?>
+                        <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/view"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-eye"></i>&nbsp;&nbsp;View Profile</a></p>
+                        <?php } ?>
+                        <?php if ($data['status'] == "OPEN") { ?>
+                            <?php if ($data['user_id'] == $user_id) { ?>
+                                <p><a href="<?php echo URL."newRequestDetails?id=".$data['ref']; ?>" class="btn red-bn pd" title='Go Back'><i class="fas fa-backward"></i>&nbsp;&nbsp;Back To Request Result</a></p>
+                                <p><a href="<?php echo URL."ads/all?remove&id=".$data['ref']; ?>" class="btn red-bn pd" onClick='return confirm("this action end this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete</a></p>
+                                <p><a id="approve_ad" class="btn purple-bn pd" title='Message'><i class="fas fa-play"></i>&nbsp;&nbsp;Approve Request</a></p>
+                                <small>Click twice. By clicking twice, you inidcate that you have agreed to the terms and conditions as outlined in our terms and conditions document</small>
+                            <?php } ?>
+                        <?php } ?>
                     <?php } else { ?>
-                    <p><a href="<?php echo $this->seo($usersData['ref'], "profile")."/".$data['ref']."/view"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-eye"></i>&nbsp;&nbsp;View Profile</a></p>
-                    <?php } ?>
-                    <?php if ($data['status'] == "OPEN") { ?>
-                        <p><a href="<?php echo URL."ads/all?remove&id=".$data['ref']; ?>" class="btn red-bn pd" onClick='return confirm("this action end this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete</a></p>
+                        <p><a href="<?php echo URL."ad"; ?>" class="btn red-bn pd" title='Go Back'><i class="fas fa-backward"></i>&nbsp;&nbsp;Back To Requests</a></p>
                     <?php } ?>
                     
                 </div>
                 <div class="col-lg-8">
-                    <?php if ($array[3] == "view") { ?>
+                    <?php if ($array[3] == "negotiate") { ?>
+                        <h5>Negotiate Payment</h5>
+                        <form  method="post" name="form" action="">
+                            <?php if (isset ($_REQUEST['respond'])) { ?>
+                                <p><?php echo $users->listOnValue($requestData['user_id'], "screen_name");  ?> wants to review the fees for this service</p>
+                                <p>Current Fee<br>
+                                <strong><?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></strong>
+                                </p>
+                                <p>Proposed Fee<br>
+                                <strong><?php echo $countryData['currency_symbol']." ".number_format($requestData['amount'], 2); ?></strong>
+                                </p>
+                                <input type="button" value="Approve"  id="negotiate" class="btn purple-bn1" onclick='location="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?n_answer=y&approve=".$requestData['ref']; ?>"' name="negotiate"/>
+                                <input type="button" value="Reject"  id="negotiate" class="btn red-bn1" onclick='location="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?n_answer=n&approve=".$requestData['ref']; ?>"'/>
+                            <?php } else { ?>
+                                <div class="form-group">
+                                    <input type='number' step="0.01" name="negotiated_fee" id="negotiated_fee" class="form-control input-lg" value="<?php echo $request->getFee(array("post_id" => $data['ref'], "user" => $user_id, "user_r" => $user_r_id)); ?>" required min="<?php echo  $categoryData['call_out_charge']; ?>"/>
+                                    <input type='hidden' name="user_r_id" id="user_r_id" value="<?php echo $user_r_id; ?>" />
+                                    
+                                    <input type='hidden' name="user_id" id="user_id" value="<?php echo $user_id; ?>" />
+                                    <input type='hidden' name="post_id" id="post_id" value="<?php echo $data['ref']; ?>" />
+                                    
+                                    <input type='hidden' name="m_type" id="m_type_2" value="negotiate_charges" />
+                                </div>
+                                <input type="submit" disabled value="Negotiate"  id="negotiate" class="btn purple-bn1" name="negotiate"/>
+                            <?php } ?>
+                        </form>
+                    <?php } elseif ($array[3] == "view") { ?>
                         <h5><?php echo $usersData['screen_name']; ?></h5>
                         <div class="moba-line mb-3"></div>
                         <p><?php echo $usersData['about_me']; ?></p>
@@ -946,7 +1112,6 @@
                             <?php } ?>
                         </div>
                     <?php } else {
-                        
                         $messages->markRead($_SESSION['users']['ref'], $data['ref']);
                         $initialComment = $messages->getPage($data['ref'], $user_r_id, $user_id); ?>     			
                         <h5><a name="messages"></a>Messages with <?php echo $users->listOnValue($user_r_id, "screen_name"); ?></h5>
@@ -964,7 +1129,7 @@
                                 <p class="mt-0">
                                 <?php if ($initialComment[$i]['m_type'] == "negotiate_charges" ) {
                                     $m_type_data = explode("_", $initialComment[$i]['m_type_data'] ) ?>
-                                    <i class="fa fa-handshake" aria-hidden="true"></i><br><?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>You have a <?php } ?>new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['country'] )." " .$m_type_data[0]; ?></strong>
+                                    <i class="fa fa-handshake" aria-hidden="true"></i><br><?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>You have a <?php } ?>new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" )." " .$m_type_data[0]; ?></strong>
                                 <?php } else if ($initialComment[$i]['m_type'] == "system" ) {
                                     echo "<i class='fa fa-exclamation' aria-hidden='true'></i>".$initialComment[$i]['message'];
                                 } else {
@@ -1017,7 +1182,7 @@
                                         if (data.m_type == "system") {
                                             var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'><i class='fa fa-exclamation' aria-hidden='true'></i>     "+data.msg+"</p></div></li>";
                                         } else if (data.m_type == "negotiate_charges") {
-                                            var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'] ); ?>'+data.data_1+'</strong>'
+                                            var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
 
                                             var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+msg+"</p></div></li>";
                                         } else {
@@ -1092,6 +1257,24 @@
                 </div>
             </div>
             </div>
+            <script type="text/javascript">
+                $('#negotiated_fee').on('keyup keypress blur change', function() {
+                    var current = <?php echo $data['fee']; ?>;
+                    if ($(this).val() != current) {
+                        $("#negotiate").prop('disabled', false);
+                    } else {
+                        $("#negotiate").prop('disabled', true);
+                    }
+                });
+                $('#approve_ad').click(function() {
+                    $(this).confirm({
+                    text: "Once you confirm this action, this request becomes unavailable to others and assigned to you. You are bound by the MOBA terms and conditions. Are you sure you want to continue?",
+                    confirm: function(button) {
+                        window.location='<?php echo URL."__approveApp?post_id=".$data['ref']."&user_r_id=".$user_r_id."&user_id=".$data['user_id']; ?>';
+                    },
+                    });
+                });
+            </script>
         <?php 
         }
 
@@ -1202,16 +1385,17 @@
             </div>
         <?php }
 
-        public function listNotification($view) {
+        private function listNotification($view) {
             if ($view == "all") {
                 return $this->notifyList();
-            } else if ($view == "messages") {  
+            } else if ($view == "inbox") {  
                 return $this->messages();
             }
         }
 
         function messages() {
             global $options;
+            global $users;
 
             if (isset($_REQUEST['page'])) {
               $page = $_REQUEST['page'];
@@ -1222,8 +1406,8 @@
             $limit = $options->get("result_per_page");
             $start = $page*$limit;
             global $notifications;
-            $notificationList = $notifications->getSortedList($_SESSION['users']['ref'], "user_id", "event", "messages", false, false, "ref", "DESC", "AND", $start, $limit); 
-            $notificationListCount = $notifications->getSortedList($_SESSION['users']['ref'], "user_id", "event", "messages", false, false, "ref", "DESC", "AND", false, false, "count"); 
+            $notificationList = $notifications->getSortedList($_SESSION['users']['ref'], "user_id", "event", "post_messages", false, false, "ref", "DESC", "AND", $start, $limit); 
+            $notificationListCount = $notifications->getSortedList($_SESSION['users']['ref'], "user_id", "event", "post_messages", false, false, "ref", "DESC", "AND", false, false, "count"); 
             ?>
             <h2>Message Inbox</h2>
           <table class="table table-striped">
@@ -1240,8 +1424,8 @@
                 <?php for ($i = 0; $i < count($notificationList); $i++) { ?>
                 <tr <?php if ($notificationList[$i]['status'] == 0) { ?>class="table-active"<?php } ?>>
                 <th scope="row"><?php echo $start+$i+1; ?></th>
-                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id']); ?></td>
-                <td><?php echo $notificationList[$i]['message']; ?></td>
+                <td><?php $users->getProfileImage( $notificationList[$i]['user_id'] ); ?></td>
+                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id'], $notificationList[$i]['message'], $notificationList[$i]['user_r_id']); ?></td>
                 <td><?php echo $notificationList[$i]['create_time']; ?></td>
                 <td><?php echo $notificationList[$i]['modify_time']; ?></td>
               </tr>
@@ -1274,22 +1458,19 @@
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Event</th>
                 <th scope="col">Message</th>
                 <th scope="col">Created</th>
                 <th scope="col">Last Modified</th>
-                <th scope="col">&nbsp;</th>
               </tr>
             </thead>
             <tbody>
-                <?php for ($i = 0; $i < count($notificationList); $i++) { ?>
+                <?php for ($i = 0; $i < count($notificationList); $i++) {
+                    $notifications->markReadOne($notificationList[$i]['ref']); ?>
                 <tr <?php if ($notificationList[$i]['status'] == 0) { ?>class="table-active"<?php } ?>>
                 <th scope="row"><?php echo $start+$i+1; ?></th>
-                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id']); ?></td>
-                <td><?php echo $notificationList[$i]['message']; ?></td>
+                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id'], $notificationList[$i]['message'], $notificationList[$i]['user_r_id']); ?></td>
                 <td><?php echo $notificationList[$i]['create_time']; ?></td>
                 <td><?php echo $notificationList[$i]['modify_time']; ?></td>
-                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id'], true); ?></td>
               </tr>
                 <?php } ?>
             </tbody>
@@ -1297,16 +1478,13 @@
           <?php $this->pagination($page, $notificationListCounut);
         }
 
-        private function url($text, $id, $link=false) {
-            global $projects;
-            global $media;
-            if ($text == "post_messages") {
-                if ($link) {
-                    $show = "Open";
-                } else {
-                    $show = '<img src="'.$media->getCover($id).'" alt="'.$projects->getSingle($id).'" class="img-thumbnail" style="width:auto;height:75px;" height="50px">';
-                }
-                return '<a href="'.$this->seo($id, "view").'#messages">'.$show.'</a>';
+        private function url($text, $id, $Label, $user_id=0) {
+            if ($text == "system") {
+                return '<a href="'.$this->seo($user_id, "profile")."/".$id."/message".'">System Notification: '.$Label.'</a>';
+            } else if ($text == "post_messages") {
+                return '<a href="'.$this->seo($user_id, "profile").$id."/message".'">'.$Label.'</a>';
+            } else if ($text == "negotiate_charges") {
+                return '<a href="'.$this->seo($user_id, "profile").$id."/message".'">Negotiation Request</a>';
             }
         }
 

@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    $u = "http://127.0.0.1/MOBA-Backend/";
-    $token = "111HEVQ38JEOKVNB1EJ";
-    // $u = "https://dev.moba.com.ng/";
+    // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNB1EJ";
+    $u = "https://dev.moba.com.ng/";
+    $token = "111HEVQ38JEOKVNB1EJ";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     //common factors
@@ -103,7 +103,7 @@
     //posts::aroundme
     $url = $u."api/posts/aroundMe/1";
     echo get($header, $url);*/
-  
+/*  
     //Request
     //request::create
     $array['fee']  = "250.00";
@@ -117,11 +117,11 @@
 
     $url = $u."api/request/create";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+    echo post($header, $url, $json_data);*/
 /*
     //request::hire
     $array['user_r_id'] = "2";
-    $array['post_id'] = "1";
+    $array['post_id'] = "2";
 
     $url = $u."api/request/hire";
     $json_data = json_encode($array);
@@ -171,9 +171,9 @@
 /*
     $url = $u."api/request/get/27/2";
     echo get($header, $url);*/
-/*
+
     $url = $u."api/request/delete/1";
-    echo delete($header, $url);*/
+    echo delete($header, $url);
 /*
     //request messages
     $url = $u."api/request/messages/1/2"; //post ID
@@ -395,98 +395,22 @@
     $url = $u."api/advert/featured/26";
     echo get($header, $url);*/
 /*
-    //propose hours
-    $array['hours'] = "100";
-    $array['project_id'] = "25";
-    $array['user_r_id'] = "2"; //if the user is the ad owner, this is the id of the responder
-    $url = $u."api/advert/hours";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data); */
-/*
-    //get hour status
-    $url = $u."api/advert/hours/25"; //2 is he ID  of the responder if user is the ad owner
-    echo get($header, $url, $json_data);*/
-/*
-    //respond to hour request
-    $array['reponse'] = "y"; //y for yes, n for no
-    $array['hour_request_id'] = "13";
-    $array['project_id'] = "27";
-    $array['user_r_id'] = "2"; //if the user is the ad owner, this is the id of the responder
-    $array['comment'] = "Rejection comment"; //this is compulsary for rejection
-    $url = $u."api/advert/hours/respond";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
-/*
-    //Approve hours
-    $array['duration'] = 1;
-    $array['hour_request_id'] = "14";
-    $array['project_id'] = "23";
-    $url = $u."api/advert/hours/approve";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
-/*
-    //propose milestone
-    $array['content'][0]['data'] = "milestone 1 API";
-    $array['content'][0]['duration'] = "1";
-    $array['content'][0]['duration_lenght'] = "Hour"; //Minute, Hour, Day, Week, Month
-    $array['content'][1]['data'] = "milestone 2 API";
-    $array['content'][1]['duration'] = "1";
-    $array['content'][1]['duration_lenght'] = "Day"; //Minute, Hour, Day, Week, Month
-    $array['content'][2]['data'] = "milestone 3 API";
-    $array['content'][2]['duration'] = "1";
-    $array['content'][2]['duration_lenght'] = "Week"; //Minute, Hour, Day, Week, Month
-    $array['project_id'] = "27";
-    $array['user_r_id'] = "2"; //if the user is the ad owner, this is the id of the responder
-    $url = $u."api/advert/milestone";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
-/*
-    //get milestone status
-    $url = $u."api/advert/milestone/27/2"; //2 is he ID  of the responder if user is the ad owner
-    echo get($header, $url);*/
-/*
-    //respond to milestone request
-    $array['reponse'] = "y"; //y for yes, n for no
-    $array['milestone_request_id'] = "17";
-    $array['project_id'] = "27";
-    $array['user_r_id'] = "2"; //if the user is the ad owner, this is the id of the responder
-    $array['comment'] = "Rejection comment"; //this is compulsary for rejection
-    $url = $u."api/advert/milestone/respond";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
-/*
-    //request approval for milestone
-    $array['milestone_index'] = 1;
-    $array['milestone_request_id'] = "15";
-    $array['project_id'] = "27";
-    $url = $u."api/advert/milestone/request";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
-/*
-    //Approve milestone
-    $array['milestone_index'] = 1;
-    $array['milestone_request_id'] = "15";
-    $array['project_id'] = "27";
-    $url = $u."api/advert/milestone/approve";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);*/
-/*
     //mark ad as complete
-    $url = $u."api/advert/complete/28";
+    $url = $u."api/request/complete/28";
     echo get($header, $url);*/
 /*
     //request ad as complete
-    $url = $u."api/advert/request/28";
+    $url = $u."api/request/alert/28";
     echo get($header, $url);*/
 /*
     //review criteria
-    $url = $u."api/advert/review/parameters/28";
+    $url = $u."api/request/review/parameters/28";
     echo get($header, $url);*/
 /*
     //get review
-    $url = $u."api/advert/review/28";
+    $url = $u."api/request/review/28";
     echo get($header, $url);*/
-/*
+
     //post review
     $array['project_id'] = 28;
     $array['comment'] = "No Comment Via API";
@@ -500,7 +424,7 @@
     $array['rating'][3]['score'] = 3;
     $url = $u."api/advert/review";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    echo post($header, $url, $json_data);
 /*
     //messages
     //send
@@ -555,55 +479,55 @@
     echo $url;
 
     function get($header,$url) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
+        // return $output;
     }
 
     function post($header,$url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
         
-        return $output;
+        // return $output;
     }
     
     function put($header,$url, $data) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
         
-        return $output;
+        // return $output;
     }
 
     function delete($header,$url) {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $output = curl_exec($ch);
+        // curl_close($ch);
+        // return $output;
     }
 ?>

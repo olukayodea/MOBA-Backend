@@ -46,8 +46,12 @@
             return $this->sortAll("notifications", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit, $type);
         }
 
-        public function getCount($id) {
+        public function getCount($id, $type="fall") {
             $query = "SELECT SUM(`count`) FROM `notifications` WHERE `status` = 0 AND `user_id` = ".$id;
+
+            if ($type == "post_messages") {
+                $query .= " AND `event` = 'post_messages'";
+            }
 
             return $this->run($query, false, "getCol");
         }
@@ -157,6 +161,7 @@
                 `event` VARCHAR(50) NOT NULL,
                 `event_id` INT NOT NULL, 
                 `user_id` INT NOT NULL, 
+                `user_r_id` INT NOT NULL, 
                 `message` VARCHAR(50) NOT NULL,
                 `email` VARCHAR(500) NOT NULL,
                 `timestamp` VARCHAR(50) NOT NULL,

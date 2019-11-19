@@ -1,14 +1,14 @@
 <?php
-$redirect = ltrim($_SERVER['REQUEST_URI'], "/");
+$redirect = "requestDetails";
 include_once("includes/functions.php");
 include_once("includes/sessionUser.php");
 
 if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
-    $data = $category->listOne($id);
 } else {
-    header("location: ".URL."allCategories");
+    header("location: ".URL."/ads");
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,9 +17,9 @@ if (isset($_REQUEST['id'])) {
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <?php $userHome->headMeta($id); ?>
 
     <?php $pageHeader->headerFiles(); ?>
+    <?php $userHome->headMeta($requestData['category_id']); ?>
 	</head>
 
   <body>
@@ -31,7 +31,7 @@ if (isset($_REQUEST['id'])) {
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 py-5">
-                            <h6><a href="<?php echo URL; ?>">Home</a> / <a href="<?php echo URL; ?>allCategories">All Categories</a>  /  <?php echo $data['category_title']; ?> </h6>
+                            <h6><a href="<?php echo URL; ?>">Home</a> / <a href="<?php echo URL; ?>allCategories">All Categories</a>  / <?php echo $category->getSingle($data['category_id']); ?></h6>
                     </div>
                     <div class="col-lg-6"></div>
                 </div>
@@ -41,7 +41,7 @@ if (isset($_REQUEST['id'])) {
 	</section>
 	
 	<section class="moba-details">
-		<?php $userHome->pageContent("categoryHome", $id); ?>
+		<?php $userHome->pageContent("requestDetails", $id); ?>
 	</section>
     <?php $pageHeader->footer(); ?>
     <?php $pageHeader->jsFooter(); ?>

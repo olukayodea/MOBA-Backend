@@ -1,6 +1,7 @@
 <?php
 	session_start();
 	date_default_timezone_set("America/Toronto");
+	error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 	
 	$pageUR1      = $_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
@@ -118,15 +119,5 @@
 
   if (($curdomain == "dev.moba.com.ng/") || ($curdomain == "dev.moba.com.ng")) {
 		$common->http2https();
-  }
-
-  if (isset($_REQUEST['filter'])) {
-    if ($_REQUEST['filter'] == "all") {
-      unset($_SESSION['filter']);
-    } else {
-      $_SESSION['filter'] = $_REQUEST['filter'];
-    }
-
-    header("location: ".$_SERVER['HTTP_REFERER'] );
   }
 ?>

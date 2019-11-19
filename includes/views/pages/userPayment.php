@@ -197,9 +197,10 @@
               $page = 0;
             }
             
+            $loc = $country->getLoc($region)['ref'];
             $limit = $options->get("result_per_page");
             $start = $page*$limit;
-            $data = $this->listAllWalletData($ref, $region, $start, $limit);        
+            $data = $this->listAllWalletData($ref, $loc, $start, $limit);        
             
             $list = $data['list'];
             $listCount = $data['listCount']; ?>

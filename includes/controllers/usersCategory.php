@@ -1,5 +1,5 @@
 <?php
-class usersCategory extends users {
+class usersCategory extends database {
     /*  create users track
     */
     public function create($array, $file=false) {
@@ -10,6 +10,22 @@ class usersCategory extends users {
         } else {
             return false;
         }
+    }
+
+    public function findMe($id, $category) {
+        return $this->getSortedListCat(
+            $id,
+            "user_id",
+            "category_id",
+            $category,
+            false,
+            false,
+            "ref",
+            "ASC",
+            "AND",
+            false,
+            false,
+            "count");
     }
 
     function getSortedListCat($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {

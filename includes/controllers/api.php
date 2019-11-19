@@ -10,7 +10,6 @@
             global $userPayment;
             global $country;
             global $inbox;
-            global $media;
             global $notifications;
             global $banks;
             global $identity;
@@ -189,22 +188,14 @@
                         $returnedData['user_id'] = $userData['ref'];
                         $returnedData['ref'] = intval($string);
                         $return = $request->apiDelete($returnedData);
-                    } else if (($mode == "advert") && ($action == "get")&& ($string == "counter")) {
-                        $return = $projects->apiCounter($page);
                     } else if (($mode == "request") && ($action == "get")) {
                         $return = $request->apiGetList($string, $page, $userData['ref'], $page);
-                    } else if (($mode == "advert") && (($action == "complete") || ($action == "request"))) {
+                    } else if (($mode == "request") && (($action == "complete") || ($action == "alert"))) {
                         //$returnedData['user_id'] = $userData['ref'];
                         $returnedData['user_id'] = 2;
                         $returnedData['post_id'] = intval($string);
-                        $return = $projects->apiComplete($returnedData, $action);
-                    } else if (($mode == "advert") && ($action == "approve")) {
-                        $returnedData['user_id'] = $userData['ref'];
-                        //$returnedData['user_id'] = 2;
-                        $returnedData['post_id'] = intval($string);
-                        $returnedData['user_r_id'] = intval($page);
-                        $return = $projects->apiAPI($returnedData);
-                    } else if (($mode == "advert") && ($action == "review")) {
+                        $return = $request->apiComplete($returnedData, $action);
+                    } else if (($mode == "request") && ($action == "review")) {
                         $returnedData['user_id'] = $userData['ref'];
                         //$returnedData['user_id'] = 2;
                         if ($string == "parameters") {
@@ -217,7 +208,7 @@
                             $act = "post";
                         }
                         
-                        $return = $projects->apiReview($returnedData, $act);                
+                        $return = $request->apiReview($returnedData, $act);                
                     } else if (($mode == "users") && ($action == "get") && ($string == "contact")) {
                         $return = $users->apiGetList("contact", $userData['ref'], $page);
                     } else if (($mode == "users") && ($action == "profile")) {
@@ -601,11 +592,6 @@
             $array = array();
             if ($method == "POST") {
                 $array[] = "advert:featured";
-                $array[] = "advert:hours";
-                $array[] = "advert:messages";
-                $array[] = "advert:milestone";
-                $array[] = "advert:review";
-                $array[] = "advert:post";
                 $array[] = "users:join";
                 $array[] = "users:login";
                 $array[] = "account:add";
@@ -614,6 +600,7 @@
                 $array[] = "request:messages";
                 $array[] = "request:negotiate";
                 $array[] = "request:hire";
+                $array[] = "request:review";
                 $array[] = "wallet:deposit";
                 $array[] = "wallet:withdraw";
                 $array[] = "messages:send";
@@ -642,6 +629,9 @@
                 $array[] = "request:newmessages";
                 $array[] = "request:negotiate";
                 $array[] = "request:get";
+                $array[] = "request:complete";
+                $array[] = "request:alert";
+                $array[] = "request:review";
                 $array[] = "transaction:get";
                 $array[] = "wallet:get";
                 $array[] = "messages:get";

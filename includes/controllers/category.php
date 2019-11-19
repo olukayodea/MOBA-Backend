@@ -60,7 +60,7 @@
         }
 
         public function totalUsers($id) {
-            $query = "SELECT `user_id` FROM `usersCategory` WHERE `category_id` = :id";
+            $query = "SELECT `user_id` FROM `usersCategory`, `users` WHERE `users`.`ref` = `usersCategory`.`user_id` AND `usersCategory`.`category_id` = :id AND `users`.`user_type` = 1 GROUP BY `user_id`";
             $prepare[":id"] = $id;
 
             return $this->run($query, $prepare, "list");
