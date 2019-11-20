@@ -22,11 +22,9 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
-                        <?php if ($_SESSION['users']['user_type'] != 1) { ?>
-                            <li class="nav-item">
-                                <a class="<?php echo $nav; ?>" href="<?php echo URL."allCategories"; ?>">ALL SERVICES</a>
-                            </li>
-                        <?php } ?>
+                        <li class="nav-item">
+                            <a class="<?php echo $nav; ?>" href="<?php echo URL."allCategories"; ?>">ALL SERVICES</a>
+                        </li>
                         <?php if (isset($_SESSION['users'])) { ?>
                             <li class="nav-item dropdown">
                                 <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo strtoupper($_SESSION['users']['screen_name']); ?></a>
