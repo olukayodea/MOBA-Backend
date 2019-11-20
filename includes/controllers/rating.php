@@ -1,7 +1,7 @@
 <?php
     class rating extends database {
         public function addRate($array) {
-            global $projects;
+            global $request;
             global $rating_comment;
             $postArray['user_id'] = $array['user_id'];
             $postArray['reviewed_by'] = $array['reviewed_by'];
@@ -20,9 +20,9 @@
             $rating_comment->create($postArray);
 
             if ($array['type'] == "user_id") {
-                $projects->updateOneRow( "user_rate", 1, $array['post_id'] );
+                $request->updateOneRow( "user_rate", 1, $array['post_id'] );
             } else  if ($array['type'] == "client_id ") {
-                $projects->updateOneRow( "client_rate", 1, $array['post_id'] );
+                $request->updateOneRow( "client_rate", 1, $array['post_id'] );
             }
 
             return true;

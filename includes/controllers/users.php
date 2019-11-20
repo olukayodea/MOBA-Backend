@@ -559,17 +559,36 @@ class users extends database {
         return $return;
     }
 
-    public function getCatList($user) {
+    public function getCatList($user, $feature=true) {
         global $usersCategory;
         global $category;
         $userCat = $usersCategory->getSortedListCat($user, "user_id");
         if (count($userCat) > 0) {
-            $return['featured'] = $category->formatResult( $category->listOne( $userCat[array_rand($userCat, 1)]['category_id']), true );
+            if ($feature == true) {
+                $return['featured'] = $category->formatResult( $category->listOne( $userCat[array_rand($userCat, 1)]['category_id']), true );
+            }
             for ($i = 0; $i < count($userCat); $i++) {
                 $return[$i] = $category->formatResult($category->listOne($userCat[$i]['category_id']), true);
             }
         }
         return $return;
+    }
+
+    public function getCatNameList($user, $name=true) {
+        global $usersCategory;
+        global $category;
+        $return = "";
+        $userCat = $usersCategory->getSortedListCat($user, "user_id");
+        if (count($userCat) > 0) {
+            for ($i = 0; $i < count($userCat); $i++) {
+                if ($name == true) {
+                    $return .= $category->getSingle($userCat[$i]['category_id']).", ";
+                } else {
+                    $return .= $userCat[$i]['category_id'].", ";
+                }
+            }
+        }
+        return trim(trim($return), ",");
     }
     
     function createUnique($username) {

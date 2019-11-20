@@ -13,7 +13,9 @@ if (isset($_REQUEST['view'])) {
 
         $r = $request->listOne($request_id);
         
-        if (($r['status'] == "ACTIVE") && ($r['client_id'] == $ref)) {
+        if (($r['status'] == "ACTIVE") && (($r['client_id'] == $ref) || ($r['user_id'] == $ref))) {
+            header("location: ".URL."requestDetails?id=".$request_id);
+        } else if (($r['status'] != "OPEN") && (($r['client_id'] == $ref) || ($r['user_id'] == $ref))) {
             header("location: ".URL."requestDetails?id=".$request_id);
         } else if ($usersCategory->findMe($ref, $r['category_id']) == 0) {
             header("location: ".URL."ads?error=".urldecode("You are not authorized to view this request"));

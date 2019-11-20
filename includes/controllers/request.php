@@ -69,8 +69,8 @@ class request extends database {
         return $this->getOne("request", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
-        return $this->sortAll("request", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
+    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false, $type="list") {
+        return $this->sortAll("request", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit, $type);
     }
 
     function getList($start=false, $limit=false, $order="project_name", $dir="ASC", $where=false, $type="list") {
@@ -84,6 +84,10 @@ class request extends database {
     public function findRequest($location, $post_id) {
         global $search;
         return $search->catSearchData($location, $post_id, 0, 20);
+    }
+
+    public function taskCompleted($id, $type="client_id") {
+        return $this->getSortedList($id, $type, "status", "COMPLETED", false, false, "ref", "ASC", "AND", false, false, "count");
     }
 
     public function listAllData($ref, $view, $start, $limit) {
@@ -103,15 +107,11 @@ class request extends database {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
             $return['tag'] = "All Completed Request";
-        } else if ($view == "all") {
+        } else {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", " (`user_id` = ".$ref." OR `client_id` = ".$ref.") AND `status` != 'DELETED'");
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", " (`user_id` = ".$ref." OR `client_id` = ".$ref.") AND `status` != 'DELETED'", "count"));
             $return['tag'] = "All Requests";
-        } else {
-            $return['list'] = $this->getSortedList("ACTIVE", "status", "user_id", $ref, false, false,"ref", "ASC", "AND", $start, $limit);
-            $return['listCount'] = intval($this->getSortedList("ACTIVE", "status", "user_id", $ref, false, false,"ref", "ASC", "AND", false, false, "count"));
-            $return['tag'] = "All Active Ads";
-          }
+        }
 
         return $return;
     }
@@ -301,9 +301,10 @@ class request extends database {
         global $wallet;
         $data = $this->listOne($id);
 
+        echo "<pre>";
         //get the wallet entry fot the post
-        $user_transaction = $wallet->getSortedListWallet($data['ref'], "ref_id", "tx_desc", "Work Payment", "status", "0");
-        
+        $user_transaction = $wallet->getSortedListWallet($data['ref'], "ref_id", "tx_desc", "Work Payment", "status", "0", "ref", "DESC", "AND", false, false, "getRow");
+
         if ($this->updateOne("wallet", "status", 1, $user_transaction['ref'], "ref")) {
             $tx_wallet['user_id'] = $data['client_id'];
             $tx_wallet['tx_id'] = $data['tx_id'];
@@ -311,7 +312,7 @@ class request extends database {
             $tx_wallet['tx_desc'] = "Settlement for Work";
             $tx_wallet['tx_dir'] = "CR";
             $tx_wallet['region'] = $data['region'];
-            $tx_wallet['amount'] = $user_transaction['amount'];
+            $tx_wallet['amount'] = abs($user_transaction['amount']);
             $tx_wallet['status'] = 1;
             $wallet->createWallet($tx_wallet);
             return true;
@@ -345,6 +346,7 @@ class request extends database {
                     $this->updateOneRow("review_status", 0, $data['ref']);
                     $this->updateOneRow("review_status_time", NULL, $data['ref']);
                     $this->updateOneRow("status", "COMPLETED", $data['ref']);
+                    $this->updateOneRow("end_date", time(), $data['ref']);
 
                     $tag = "you have marked this task as done. Payment has been sent. <a href='".URL."ads\archive'>Sigin in</a> to your MOBA Account to learn more";
 
@@ -1031,7 +1033,6 @@ class request extends database {
                 $call_out_charge = $category->getSingle($array['category_id'], "call_out_charge");
                 if (floatval($call_out_charge) <= floatval($array['fee'])) {
                     if ($this->checkSize($array['media'], true) === false) {
-                        unset($array['address']);
                         $returnedData = $this->create($array);
                         if ($returnedData['status'] == "ok") {
                             $post_id = $returnedData['id'];
@@ -1283,6 +1284,7 @@ class request extends database {
             `category_id` INT NOT NULL, 
             `fee` DOUBLE NOT NULL, 
             `time` VARCHAR(50) NOT NULL,
+            `address` VARCHAR(500) NOT NULL,
             `description` VARCHAR(500) NOT NULL,
             `region` INT NOT NULL, 
             `card` INT NOT NULL, 

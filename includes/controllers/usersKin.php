@@ -25,7 +25,7 @@ class usersKin extends users {
         return $this->getOneField("usersKin", $name, $ref, $tag);
     }
 
-    function listOne($id, $ref="user_id") {
+    function listOneKin($id, $ref="user_id") {
         return $this->getOne("usersKin", $id, $ref);
     }
 

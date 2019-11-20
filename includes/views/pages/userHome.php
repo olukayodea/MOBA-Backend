@@ -26,7 +26,9 @@
           }
 
         public function pageContent($redirect, $id=false, $type=false) {
-            if ($redirect == "homeSelect") {
+            if ($redirect == "requestDetails") {
+                $this->requestDetails($id);
+            } else if ($redirect == "homeSelect") {
                 $this->homeSelect();
             } else if ($redirect == "homeList") {
                 $this->homeCatList();
@@ -202,6 +204,8 @@
                 return "<a href='".URL."newRequestDetails?id=".$id."' title='Continue'><i class='fas fa-forward'></i></a>&nbsp;<a href='".URL."".$redirect."/".$view."?remove&id=".$id."' onClick='return confirm(\"this action end this request, are you sure you want to continue ?\")' title='Remove'><i class='fas fa-trash-alt' style='color:red'></i></a>";
             } else if ($status == "ACTIVE") {
                 return "<a href='".URL."requestDetails?id=".$id."' title='Review'><i class='fas fa-eye'></i></a>". ($review_status == 1 ? '<i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>' : '');
+            } else if ($status == "COMPLETED") {
+                return "<a href='".URL."requestDetails?id=".$id."' title='Review'><i class='fas fa-eye'></i></a>". ($review_status == 1 ? '<i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>' : '');
             }
         }
 
@@ -224,37 +228,48 @@
         }
 
         private function editImagePage() {
+            global $request;
             global $users;
+            global $rating;
             $ref = trim($_SESSION['users']['ref']);
             $data = $users->listOne($ref);
             ?>
-
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
                     <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
-                    <?php if ($data['image_url'] != "") { ?>
-                        <div class="card-body">
-                            <a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')" class="card-link">Remove Display Image</a>
-                        </div>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <div class="card-footer">
-                        <button onclick="location='<?php echo URL; ?>profile'" class="btn purple-bn1">Done Editing</button>
-                    </div>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <?php if ($data['image_url'] != "") { ?>
+                        <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
+                    <?php } ?>
+                    <p><a href="<?php echo URL."profile"; ?>" class="btn purple-bn pd">Done Editing</a></p>
                 </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                    <div class="card-body">
-                        <h5 class="card-title">Modify Display Picture</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">Drag and Drop a file or select one<br>
-                        Click on the Upload Button to upload the image<br>
-                        Or remoe the selected file by clicking on the 'Remove' or 'cancel' Button</h6>
-                        <form enctype="multipart/form-data" method="post">
-                            <div class="form-group">
-                                <input id="file-3" type="file">
-                            </div>
-                        </form>
-                    </div>
+                <div class="col-lg-8">
+                    <h5>Update Display <Picture></Picture></h5>
+                    <div class="moba-line mb-3"></div>
+                    <p>Drag and Drop a file or select one<br>
+                    Click on the Upload Button to upload the image<br>
+                    Or remoe the selected file by clicking on the 'Remove' or 'cancel' Button</p>
+                    <form enctype="multipart/form-data" method="post">
+                        <div class="form-group">
+                            <input id="file-3" type="file">
+                        </div>
+                    </form>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-            </div> 
+            </div>
+            </div>
             <script src="<?php echo URL; ?>js/fileinput.min.js" type="text/javascript"></script>
             <script src="<?php echo URL; ?>js/fileinput.theme.min.js" type="text/javascript"></script>
             <script type="text/javascript">
@@ -262,7 +277,7 @@
                 $("#file-3").fileinput({
                     theme: "fa",
                     showCaption: false,
-                    browseClass: "btn btn-secondary",
+                    browseClass: "btn purple-bn pd",
                     fileType: "any",
                     uploadUrl: '<?php echo URL; ?>/includes/views/scripts/imageUpload.php',
                     uploadExtraData: {id: user_id},
@@ -279,25 +294,40 @@
         }
         
         private function editIdPage() {
+            global $request;
             global $users;
+            global $rating;
             $ref = trim($_SESSION['users']['ref']);
             $data = $users->listOne($ref);
             ?>
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
                     <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
-                    <div class="card-footer">
-                        <button onclick="location='<?php echo URL; ?>profile'" class="btn purple-bn1">Done Editing</button>
-                    </div>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
+                    <?php } ?>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <?php if ($data['image_url'] != "") { ?>
+                        <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
+                    <?php } ?>
+                    <p><a href="<?php echo URL."profile"; ?>" class="btn purple-bn pd">Done Editing</a></p>
                 </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                    <div class="card-body">
-                        <h5 class="card-title">Upload Government ID</h5>
-                        <?php if ($data['verified'] == 2) { ?>
-                            <p>Your account has been verified</p>
-                        <?php } else if ($data['verified'] == 1) { ?>
-                            <p>Your uploaded ID is currently being verified your account will be fully active once verified</p>
-                        <?php } else { ?>
+                <div class="col-lg-8">
+                    <h5>Upload Government ID</h5>
+                    <div class="moba-line mb-3"></div>
+                    <?php if ($data['verified'] == 2) { ?>
+                        <p>Your account has been verified</p>
+                    <?php } else if ($data['verified'] == 1) { ?>
+                        <p>Your uploaded ID is currently being verified your account will be fully active once verified</p>
+                    <?php } else { ?>
                         <h6 class="card-subtitle mb-2 text-muted">Drag and Drop a file or select one<br>
                         Click on the Upload Button to upload the image<br>
                         Or remoe the selected file by clicking on the 'Remove' or 'cancel' Button</h6>
@@ -306,10 +336,12 @@
                                 <input id="file-3" type="file" accept="png, .jpg, .jpeg, .pdf">
                             </div>
                         </form>
-                        <?php } ?>
-                    </div>
+                    <?php } ?>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-            </div> 
+            </div>
+            </div>
             <script src="<?php echo URL; ?>js/fileinput.min.js" type="text/javascript"></script>
             <script src="<?php echo URL; ?>js/fileinput.theme.min.js" type="text/javascript"></script>
             <script type="text/javascript">
@@ -317,7 +349,7 @@
                 $("#file-3").fileinput({
                     theme: "fa",
                     showCaption: false,
-                    browseClass: "btn btn-secondary",
+                    browseClass: "btn purple-bn pd",
                     fileType: "any",
                     uploadUrl: '<?php echo URL; ?>/includes/views/scripts/idUpload.php',
                     uploadExtraData: {id: user_id},
@@ -334,39 +366,56 @@
         }
 
         private function editScreenname() {
+            global $request;
             global $users;
+            global $rating;
             $ref = trim($_SESSION['users']['ref']);
             $data = $users->listOne($ref);
             ?>
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
                     <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
-                    <div class="card-footer">
-                        <button onclick="location='<?php echo URL; ?>profile'" class="btn purple-bn1">Done Editing</button>
-                    </div>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
+                    <?php } ?>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <?php if ($data['image_url'] != "") { ?>
+                        <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
+                    <?php } ?>
+                    <p><a href="<?php echo URL."profile"; ?>" class="btn purple-bn pd">Done Editing</a></p>
                 </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                    <div class="card-body">
-                        <h5 class="card-title">Update Username</h5>
+                <div class="col-lg-8">
+                    <h5>Update Username</h5>
+                    <div class="moba-line mb-3"></div>
 
-                        <form enctype="multipart/form-data" method="post">
-                            <div class="form-group row">
-                                <label for="screen_name" class="col-sm-2 col-form-label">Username</label>
-                                <div class="col-sm-10">
-                                <input type="text" class="form-control" id="screen_name" name="screen_name" value="<?php echo $data['screen_name']; ?>" aria-describedby="usernameHelp" required placeholder="Enter a new username">
-                                </div>
-                                <small id="usernameHelp">You can only change your username once.</small>
+                    <form enctype="multipart/form-data" method="post">
+                        <div class="form-group row">
+                            <label for="screen_name" class="col-sm-2 col-form-label">Username</label>
+                            <div class="col-sm-10">
+                            <input type="text" class="form-control" id="screen_name" name="screen_name" value="<?php echo $data['screen_name']; ?>" aria-describedby="usernameHelp" required placeholder="Enter a new username">
                             </div>
-                            <?php if ($data['screen_name_cam_change'] == 0) { ?>
-                                <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>">
-                                <button type="submit" name="updateUsername" disabled class="btn purple-bn1">Update Username</button>
-                            <?php } else { ?>
-                                <p class="vendor">You can only modify your username once</p>
-                            <?php } ?>
-                        </form>
-                    </div>
+                            <small id="usernameHelp">You can only change your username once.</small>
+                        </div>
+                        <?php if ($data['screen_name_cam_change'] == 0) { ?>
+                            <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>">
+                            <button type="submit" name="updateUsername" disabled class="btn purple-bn1">Update Username</button>
+                        <?php } else { ?>
+                            <p class="vendor">You can only modify your username once</p>
+                        <?php } ?>
+                    </form>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-            </div> 
+            </div>
+            </div>
             <script type="text/javascript">
                 $( "#screen_name" ).on('keyup keypress blur change', function() {
                     var val = $( "#screen_name" ).val();
@@ -390,99 +439,185 @@
         }
 
         private function editProfilePage() {
+            global $request;
             global $users;
+            global $rating;
+            global $category;
+            global $usersKin;
+            global $country;
+            
             $ref = trim($_SESSION['users']['ref']);
             $data = $users->listOne($ref);
+            $loc = $country->getLoc($_SESSION['location']['code']);
+            $list = $category->categoryList($loc['ref'], 0);
+            $myList = explode(",", $users->getCatNameList($ref, false));
+            $getKin = $usersKin->listOneKin($ref);
             ?>
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
                     <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
-                    <?php if ($data['image_url'] != "") { ?>
-                        <div class="card-body">
-                            <a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')" class="card-link">Remove Display Image</a>
-                        </div>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <div class="card-footer">
-                        <button onclick="location='<?php echo URL; ?>profile'" class="btn purple-bn1">Done Editing</button>
-                    </div>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <?php if ($data['image_url'] != "") { ?>
+                        <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
+                    <?php } ?>
+                    <p><a href="<?php echo URL."profile"; ?>" class="btn purple-bn pd">Done Editing</a></p>
                 </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                    <div class="card-body">
-                        <h5 class="card-title">Update Profile</h5>
+                <div class="col-lg-8">
+                    <h5>Update Profile</h5>
+                    <div class="moba-line mb-3"></div>
 
-                        <form enctype="multipart/form-data" method="post">
+                    <form enctype="multipart/form-data" method="post">
+                        <div class="form-group row">
+                            <label for="other_names" class="col-sm-2 col-form-label">First Name</label>
+                            <div class="col-sm-10">
+                            <input type="text" class="form-control" id="other_names" name="other_names" value="<?php echo $data['other_names']; ?>" required placeholder="Enter FIrst name and any other names">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="last_name" class="col-sm-2 col-form-label">Last Name</label>
+                            <div class="col-sm-10">
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $data['last_name']; ?>" required placeholder="Enter Last name">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2 col-form-label">Email Name</label>
+                            <div class="col-sm-10">
+                            <input type="text" class="form-control" id="email" name="email" disabled value="<?php echo $data['email']; ?>">
+                            </div>
+                        </div>
+                        <?php if ($data['user_type'] == 1) { ?>
                             <div class="form-group row">
-                                <label for="other_names" class="col-sm-2 col-form-label">First Name</label>
+                                <label for="mobile_number" class="col-sm-2 col-form-label">Mobile number</label>
                                 <div class="col-sm-10">
-                                <input type="text" class="form-control" id="other_names" name="other_names" value="<?php echo $data['other_names']; ?>" required placeholder="Enter FIrst name and any other names">
+                                <input type="text" class="form-control" id="mobile_number" name="mobile_number" value="<?php echo $data['mobile_number']; ?>" required placeholder="Enter Mobile Number">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="last_name" class="col-sm-2 col-form-label">Last Name</label>
+                                <label for="street" class="col-sm-2 col-form-label">Street Address</label>
                                 <div class="col-sm-10">
-                                <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $data['last_name']; ?>" required placeholder="Enter Last name">
+                                <input type="text" class="form-control" id="street" name="street" value="<?php echo $data['street']; ?>" required placeholder="Enter street address">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="screen_name" class="col-sm-2 col-form-label">Screen Name</label>
+                                <label for="city" class="col-sm-2 col-form-label">City</label>
                                 <div class="col-sm-10">
-                                <input type="text" class="form-control" id="screen_name" name="screen_name" value="<?php echo $data['screen_name']; ?>" required placeholder="Enter Screen name">
+                                <input type="text" class="form-control" id="city" name="city" value="<?php echo $data['city']; ?>" required placeholder="Enter city eg. Ikeja">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="email" class="col-sm-2 col-form-label">Email Name</label>
+                                <label for="state" class="col-sm-2 col-form-label">State</label>
                                 <div class="col-sm-10">
-                                <input type="text" class="form-control" id="email" name="email" disabled value="<?php echo $data['email']; ?>">
+                                <input type="text" class="form-control" id="state" name="state" value="<?php echo $data['state']; ?>" required placeholder="Enter your state Eg. Lagos">
                                 </div>
                             </div>
-                            <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>">
-                            <button type="submit" name="updateProfile" class="btn purple-bn1">Update Profile</button>
-                        </form>
-                    </div>
+                            <div class="form-group row">
+                                <label for="last_name" class="col-sm-2 col-form-label">Selected Services</label>
+                                <div class="col-sm-10">
+                                <select class="form-control" id="category_select" name="category_select[]" required multiple>
+                                    <?php for ($i = 0; $i < count($list); $i++) { ?>
+                                    <option <?php if (in_array($list[$i]['ref'], $myList)) { ?>selected<?php } ?> value="<?php echo $list[$i]['ref']; ?>"><?php echo ucfirst(strtolower($list[$i]['category_title'])); ?></option>
+                                    <?php } ?>
+                                </select>
+                                </div>
+                            </div>
+                            <h5>Next of Kin</h3>
+                            <div class="form-group row">
+                                <label for="kin_name" class="col-sm-2 col-form-label">Name</label>
+                                <div class="col-sm-10">
+                                <input type="text" class="form-control" id="kin_name" name="kin_name" value="<?php echo $getKin['kin_name']; ?>" required placeholder="Enter Last name">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="kin_email" class="col-sm-2 col-form-label">Email Address</label>
+                                <div class="col-sm-10">
+                                <input type="email" class="form-control" id="kin_email" name="kin_email" value="<?php echo $getKin['kin_email']; ?>" required placeholder="Enter Last name">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="kin_phone" class="col-sm-2 col-form-label">Phone Number</label>
+                                <div class="col-sm-10">
+                                <input type="text" class="form-control" id="kin_phone" name="kin_phone" value="<?php echo $getKin['kin_phone']; ?>" required placeholder="Enter Last name">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="kin_relationship" class="col-sm-2 col-form-label">Relationship</label>
+                                <div class="col-sm-10">
+                                <input type="text" class="form-control" id="kin_relationship" name="kin_relationship" value="<?php echo $getKin['kin_relationship']; ?>" required placeholder="Enter Last name">
+                                </div>
+                            </div>
+                        <?php } ?>
+                        <input type="hidden" id="country" name="country" readonly value="<?php echo $data['country']; ?>">
+                        <input type="hidden" id="screen_name" name="screen_name" readonly value="<?php echo $data['screen_name']; ?>">
+                        <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>">
+                        <button type="submit" name="updateProfile" class="btn purple-bn1">Update Profile</button>
+                    </form>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-            </div> 
+            </div>
+            </div>
             <?php
         }
 
         private function editPasswordPage() {
             global $users;
+            global $rating;
+            global $request;
             $ref = trim($_SESSION['users']['ref']);
             $data = $users->listOne($ref);
             ?>
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
-                    <?php if ($data['image_url'] != "") { ?>
-                        <div class="card-body">
-                            <a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')" class="card-link">Remove Display Image</a>
-                        </div>
-                    <?php } ?>
-                    <div class="card-footer">
-                        <button onclick="location='<?php echo URL; ?>profile'" class="btn purple-bn1">Done Editing</button>
-                    </div>
-                </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                    <div class="card-body">
-                        <h5 class="card-title">Update Password</h5>
 
-                        <form enctype="multipart/form-data" method="post">
-                            <div class="form-group row">
-                                <label for="old_password" class="col-sm-2 col-form-label">Old Password</label>
-                                <div class="col-sm-10"><span id="sprytextfield1">
-                                  <input type="password" class="form-control" id="old_password" name="old_password" value="" placeholder="Enter current Password" required />
-                                <span class="textfieldRequiredMsg">A value is required.</span></span></div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="new_password" class="col-sm-2 col-form-label">Last New Password</label>
-                                <div class="col-sm-10"><span id="sprypassword1">
-                                <input type="password" class="form-control" id="new_password" name="new_password" value="" placeholder="Enter new Password" required />
-                                <span class="passwordRequiredMsg">A value is required.</span><span class="passwordInvalidStrengthMsg">The password doesn't meet the specified strength.</span></span></div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="confirm_new" class="col-sm-2 col-form-label">Confirm New Password</label>
-                                <div class="col-sm-10"><span id="spryconfirm1">
-                                  <input type="password" class="form-control" id="confirm_new" name="confirm_new" value="" placeholder="Confirm New Password" required />
-                                <span class="confirmRequiredMsg">A value is required.</span><span class="confirmInvalidMsg">The values don't match.</span></span>
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
+                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
+                    <?php } ?>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <?php if ($data['image_url'] != "") { ?>
+                        <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
+                    <?php } ?>
+                    <p><a href="<?php echo URL."profile"; ?>" class="btn purple-bn pd">Done Editing</a></p>
+                </div>
+                <div class="col-lg-8">
+                    <h5>Update Password</h5>
+                    <div class="moba-line mb-3"></div>
+                    <form enctype="multipart/form-data" method="post">
+                        <div class="form-group row">
+                            <label for="old_password" class="col-sm-2 col-form-label">Old Password</label>
+                            <div class="col-sm-10"><span id="sprytextfield1">
+                                <input type="password" class="form-control" id="old_password" name="old_password" value="" placeholder="Enter current Password" required />
+                            <span class="textfieldRequiredMsg">A value is required.</span></span></div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="new_password" class="col-sm-2 col-form-label">Last New Password</label>
+                            <div class="col-sm-10">
+                                <span id="sprypassword1">
+                                    <input type="password" class="form-control" id="new_password" name="new_password" value="" placeholder="Enter new Password" required />
+                                    <span class="passwordRequiredMsg">A value is required.
+                                    </span>
+                                    <span class="passwordInvalidStrengthMsg">The password doesn't meet the specified strength.</span>
+                                </span>
+
                                 <div id="pswd_info">
                                     Password requirements:
                                     <ul>
@@ -493,78 +628,86 @@
                                     </ul>
                                 </div>
                             </div>
-                            <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>">
-                            <button type="submit" name="updatePassword" class="btn purple-bn1">Update Password</button>
-                        </form>
-                    </div>
+                            
+                        </div>
+                        <div class="form-group row">
+                            <label for="confirm_new" class="col-sm-2 col-form-label">Confirm New Password</label>
+                            <div class="col-sm-10"><span id="spryconfirm1">
+                                <input type="password" class="form-control" id="confirm_new" name="confirm_new" value="" placeholder="Confirm New Password" required />
+                            <span class="confirmRequiredMsg">A value is required.</span><span class="confirmInvalidMsg">The values don't match.</span></span>
+                        </div>
+                        <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>">
+                        <button type="submit" name="updatePassword" class="btn purple-bn1">Update Password</button>
+                    </form>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-            </div> 
+            </div>
+            </div>
             
             <script type="text/javascript">
-            var sprytextfield1 = new Spry.Widget.ValidationTextField("sprytextfield1");
-            var sprypassword1 = new Spry.Widget.ValidationPassword("sprypassword1", {minAlphaChars:1, minNumbers:1, minUpperAlphaChars:1, validateOn:["change"]});
-            var spryconfirm1 = new Spry.Widget.ValidationConfirm("spryconfirm1", "new_password");
+                var sprytextfield1 = new Spry.Widget.ValidationTextField("sprytextfield1");
+                var sprypassword1 = new Spry.Widget.ValidationPassword("sprypassword1", {minAlphaChars:1, minNumbers:1, minUpperAlphaChars:1, validateOn:["change"]});
+                var spryconfirm1 = new Spry.Widget.ValidationConfirm("spryconfirm1", "new_password");
 
-            $(document).ready(function() {
-            $('#pswd_info').css('display', 'none');
-                $('#new_password').keyup(function() {
-                // keyup code here
-                var pswd = $(this).val();
-                var c_lenght = false;
-                var c_char = false;
-                var c_upper = false;
-                var c_number = false;
-                //validate the length
-                if ( pswd.length < 6 ) {
-                $('#length').removeClass('valid').addClass('invalid');
-                c_lenght = false;
-                } else {
-                $('#length').removeClass('invalid').addClass('valid');
-                c_lenght = true;
-                }
+                $(document).ready(function() {
+                    $('#new_password').keyup(function() {
+                    // keyup code here
+                    var pswd = $(this).val();
+                    var c_lenght = false;
+                    var c_char = false;
+                    var c_upper = false;
+                    var c_number = false;
+                    //validate the length
+                    if ( pswd.length < 6 ) {
+                    $('#length').removeClass('valid').addClass('invalid');
+                    c_lenght = false;
+                    } else {
+                    $('#length').removeClass('invalid').addClass('valid');
+                    c_lenght = true;
+                    }
 
-                //validate letter
-                if ( pswd.match(/[A-Za-z]/) ) {
-                $('#letter').removeClass('invalid').addClass('valid');
-                c_char = true;
-                } else {
-                $('#letter').removeClass('valid').addClass('invalid');
-                c_char = false;
-                }
+                    //validate letter
+                    if ( pswd.match(/[A-Za-z]/) ) {
+                    $('#letter').removeClass('invalid').addClass('valid');
+                    c_char = true;
+                    } else {
+                    $('#letter').removeClass('valid').addClass('invalid');
+                    c_char = false;
+                    }
 
-                //validate capital letter
-                if ( pswd.match(/[A-Z]/) ) {
-                $('#capital').removeClass('invalid').addClass('valid');
-                c_upper = true;
-                } else {
-                $('#capital').removeClass('valid').addClass('invalid');
-                c_upper = false;
-                }
+                    //validate capital letter
+                    if ( pswd.match(/[A-Z]/) ) {
+                    $('#capital').removeClass('invalid').addClass('valid');
+                    c_upper = true;
+                    } else {
+                    $('#capital').removeClass('valid').addClass('invalid');
+                    c_upper = false;
+                    }
 
-                //validate number
-                if ( pswd.match(/\d/) ) {
-                $('#number').removeClass('invalid').addClass('valid');
-                c_number = true;
-                } else {
-                $('#number').removeClass('valid').addClass('invalid');
-                c_number = false;
-                }
+                    //validate number
+                    if ( pswd.match(/\d/) ) {
+                    $('#number').removeClass('invalid').addClass('valid');
+                    c_number = true;
+                    } else {
+                    $('#number').removeClass('valid').addClass('invalid');
+                    c_number = false;
+                    }
 
-                if ((c_number == true) && (c_upper == true) && (c_char == true) && (c_lenght == true)) {
-                $('input[type=submit]').prop( "disabled", false );
-                } else {
-                $('input[type=submit]').prop( "disabled", true );
-                }
+                    if ((c_number == true) && (c_upper == true) && (c_char == true) && (c_lenght == true)) {
+                    $('input[type=submit]').prop( "disabled", false );
+                    } else {
+                    $('input[type=submit]').prop( "disabled", true );
+                    }
 
-                }).focus(function() {
-                    $('#pswd_info').show();
-                }).blur(function() {
-                    $('#pswd_info').hide();
+                    }).focus(function() {
+                        $('#pswd_info').show();
+                    }).blur(function() {
+                        $('#pswd_info').hide();
+                    });
                 });
-            });
-        </script>
+            </script>
             <?php
-            
         }
 
         public function updateProfile($array) {
@@ -703,47 +846,6 @@
             <?php }
         }
 
-        private function promoted($id=false) {
-            global $projects;
-            global $media;
-            global $users;
-            global $country;
-            global $rating;
-            
-            $latitude = $_SESSION['location']['latitude'];
-            $longitude = $_SESSION['location']['longitude'];
-
-            $list = $projects->promotedData($id, $longitude, $latitude);
-            if (count($list) > 0) {
-             ?>
-             <H4> Featured Ads in <?php  echo ucwords(strtolower($_SESSION['location']['city'])); ?></H4>
-            <div class="row">
-                <?php for ($i = 0; $i < count($list); $i++) {
-                    if ($list[$i]['project_type'] == "client") {
-                        $project_type = "+";
-                    } else {
-                        $project_type = "-";
-                    } ?>
-            <div class="card" style="width: 21rem;">
-            <img class="card-img-top" src="<?php echo $media->getCover($list[$i]['ref']); ?>" alt="<?php echo $list[$i]['project_name']; ?>">
-            
-            <div class="card-body">
-                <h5 class="card-title"><?php echo $list[$i]['project_name']; ?></h5>
-                <p class="card-text"><i class="fa fa-map-marker" aria-hidden="true"></i>&nbsp;&nbsp;<?php echo $list[$i]['address']; ?></p>
-                <p class="card-text"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;&nbsp;<a href="<?php echo URL."profile/".$users->listOnValue($list[$i]['user_id'], "screen_name"); ?>" target="_blank"><?php echo $users->listOnValue($list[$i]['user_id'], "screen_name"); ?>&nbsp;<?php echo $rating->drawRate($rating->getRate($list[$i]['user_id'])); ?></a></p>
-                <p class="card-text <?php echo $list[$i]['project_type']; ?>"><i class="fa fa-money" aria-hidden="true"></i>&nbsp;&nbsp;<?php echo $project_type." ".$country->getCountryData( $list[$i]['country'] )." ".number_format($list[$i]['default_fee'], 2)." ".$this->cleanText($list[$i]['billing_type']); ?></p>
-            </div>
-            <div class="card-footer">
-                <a href="<?php echo $this->seo($list[$i]['ref'], "view"); ?>" class="btn purple-bn1">Open</a>
-                
-            </div>
-            </div>
-                <?php } ?>
-
-                </div>
-            <?php }
-        }
-
         private function homeCategory() {
             global $country;
             global $category;
@@ -761,6 +863,279 @@
 					</div>
 				</div>
             <?php }
+        }
+        
+        private function requestDetails($id) {
+            global $request;
+            global $category;
+            global $country;
+            global $rating;
+            global $rating_comment;
+            global $rating_question;
+            global $users;
+            global $messages;
+            global $media;
+            $data = $request->listOne($id);
+            $getAlbum = $media->getAlbum($data['ref']);
+            $categoryData = $category->listOne($data['category_id']);
+            $countryData = $country->listOne($data['region'], "ref");
+
+            if ($_SESSION['users']['ref'] == $data['user_id']) {
+                $tagline = "client_id";
+                $user_r_id = $data['client_id'];
+                $user_id = $data['user_id'];
+                $rateType = "vendors";
+            } else {
+                $tagline = "user_id";
+                $user_r_id = $data['user_id'];
+                $user_id = $data['client_id'];
+                $rateType = "clients";
+            }
+            $initialComment = $messages->getPage($data['ref'], $user_r_id, $user_id);
+
+
+            if ($data['status'] == "COMPLETED") {
+                $checkRate = $rating->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $data['ref']);
+                $checkComment = $rating_comment->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $data['ref'], "ref", "ASC", "AND", false, false, "getRow");
+
+                $rateQuestion = $rating_question->getSortedList($rateType, "question_type");
+            }
+            ?>
+            <div class="container my-5">
+                <div class="row py-5">	
+                    <div class="col-lg-4">
+                        <img class="card-img-top my-3" src="<?php echo $category->getIcon( $categoryData['ref'] ); ?>" alt="">
+                        <?php if (count($getAlbum) > 0) {
+                            for ($i = 0; $i < count($getAlbum); $i++) { ?>
+                                <a data-fancybox="gallery" href="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>"><img src="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>" alt="<?php echo $data['project_name']; ?>" class="img-thumbnail" style="width:auto; height:70px;"></a>
+                            <?php }
+                        } ?>
+                        <div class="moba-line my-3"></div>
+                        <p><?php echo $data['description']; ?></p>
+                        <p><b>Started:</b><?php echo $this->get_time_stamp( $data['start_date'] ); ?></p>
+                        <?php if ($data['status'] == "COMPLETED") { ?>
+                            <p><b>Ended:</b><?php echo $this->get_time_stamp( $data['end_date'] ); ?></p>
+                        <?php } ?>
+                        <p><b>Client:</b> <?php echo $users->listOnValue($data['user_id'], "screen_name"); ?></p>
+                        <p><b>Service Provider:</b> <?php echo $users->listOnValue($data['client_id'], "screen_name"); ?></p>
+                        <p><b>Address:</b> <?php echo $data['address']; ?></p>
+                        <p><b>Aount Charged:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
+                        <?php if ($data['status'] != "COMPLETED") { ?>
+                            <?php if ($data['client_id'] == $_SESSION['users']['ref']) {
+                                if ($data['review_status'] == 1) { ?>
+                                    <p>You requested a review <?php echo $this->get_time_stamp($data['review_status_time']); ?></p>
+                                <?php } else { ?>
+                                    <p><a href="<?php echo URL."requestDetails?id=".$data['ref']."&request_approve"; ?>" id="approve_ad" class="btn purple-bn pd" title='Request Review'><i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>&nbsp;<i class="fas fa-clipboard-check"></i>&nbsp;&nbsp;Request Review</a></p>
+                                <?php } ?>
+                            <?php } ?>
+                            <?php if ($data['review_status'] == 1) { ?>
+                                <p><i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>&nbsp;Your attention is needed, please check your messages</p>
+                            <?php } ?>
+                            <?php if ($data['user_id'] == $_SESSION['users']['ref']) { ?>
+                                <p><a href="<?php echo URL."requestDetails?id=".$data['ref']."&approve"; ?>" id="approve_ad" class="btn purple-bn pd" title='Mark as Completed'><i class="fas fa-clipboard-check"></i>&nbsp;&nbsp;Mark as Completed</a></p>
+                            <?php } ?>
+                            <p><a href="<?php echo URL."ads/all?remove&id=".$data['ref']; ?>" class="btn red-bn pd" onClick='return confirm("this task will be flagged, do you want to continue ?")' title='Report'><i class="fas fa-bell"></i>&nbsp;&nbsp;Report</a></p>
+                        <?php } ?>
+                    </div>
+                    <div class="col-lg-8">			
+                        <h5><?php echo $category->getSingle( $data['category_id'] ); ?></h5>
+                        <div class="moba-line mb-3"></div>
+                        <?php if ($data['status'] == "COMPLETED") { ?>
+                            <h2>Review And Comment</h2>
+                            <?php if (count($checkRate) > 0) { ?>
+                                <?php for ($i = 0; $i < count($checkRate); $i++) { ?>
+                                    <strong><?php echo $rating_question->getSingle( $checkRate[$i]['question_id'] ); ?></strong><br>
+                                    <?php echo $rating->drawRate($checkRate[$i]['review']); ?><br><br>
+                                <?php } ?>
+                                <p><strong>Comments</strong><br>
+                                <?php echo $checkComment['comment']; ?><p>
+                            <?php } else { ?>
+                                <p>Kindly rate <?php echo $users->listOnValue($user_id, "screen_name"); ?> performance on the following headings:</p>
+                                <form method="post" action="<?php echo URL."requestDetails?id=".$data['ref']; ?>">
+                                    <input name="user_id" type="hidden" value="<?php echo $user_id; ?>">
+                                    <input name="reviewed_by" type="hidden" value="<?php echo $user_r_id; ?>">
+                                    <input name="post_id" type="hidden" value="<?php echo $data['ref']; ?>">
+                                    <?php for ($i = 0; $i < count($rateQuestion); $i++) { ?>
+                                    <p>
+                                    <strong><?php echo $rateQuestion[$i]['question']; ?></strong><br>
+                                    <fieldset class="rating form-group">
+                                    <input type="radio" id="star5<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="5" /><label for="star5<?php echo $rateQuestion[$i]['ref']; ?>" title="Rocks!">5 stars</label>
+                                    <input type="radio" id="star4<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="4" /><label for="star4<?php echo $rateQuestion[$i]['ref']; ?>" title="Pretty good">4 stars</label>
+                                    <input type="radio" id="star3<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="3" /><label for="star3<?php echo $rateQuestion[$i]['ref']; ?>" title="Meh">3 stars</label>
+                                    <input type="radio" id="star2<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="2" /><label for="star2<?php echo $rateQuestion[$i]['ref']; ?>" title="Kinda bad">2 stars</label>
+                                    <input type="radio" id="star1<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="1" /><label for="star1<?php echo $rateQuestion[$i]['ref']; ?>" title="Sucks big time">1 star</label>
+                                    </fieldset>
+                                    <br><br>
+                                    </p>
+                                    <?php } ?>
+                                    <div class="form-group">
+                                    <label for="comment">Comments</label>
+                                    <small>Optional</small>
+                                    <textarea name="comment" id="comment" class="form-control" placeholder="Optional comment"></textarea>
+                                    </div>
+                                    <input type="hidden" name="type" value="<?php echo $tagline; ?>">
+                                    <button type="submit" name="saveRate" class="purple-bn">Rate</button>
+                                </form>
+                            <?php } ?>
+                        <?php } ?>
+
+                        <div class="moba-line mb-3"></div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="map" style="height:500px;width:100%;"></div><br<br>
+                            </div>
+                        </div>
+                        <div class="moba-line m-3"></div>
+                        <h5><a name="messages"></a>Messages with <?php echo $users->listOnValue($user_r_id, "screen_name"); ?></h5>
+                        <div class="moba-line mb-3"></div>
+                        <div class="row">
+                            <ol id="update" >
+                            <?php for ($i = 0; $i < count($initialComment); $i++) { ?>
+                                <li class="media" id='<?php echo $initialComment[$i]['ref']; ?>'>
+                                    <?php $users->getProfileImage($initialComment[$i]['user_id'], "mr-3", "50"); ?>
+                                    <div class="media-body">
+                                        <small class="time"><i class="fa fa-clock-o"></i> <?php echo $this->get_time_stamp(strtotime($initialComment[$i]['create_time'])); ?></small>
+                                        <p class="mt-0">
+                                            <?php if ($initialComment[$i]['m_type'] == "negotiate_charges" ) {
+                                                $m_type_data = explode("_", $initialComment[$i]['m_type_data'] ) ?>
+                                                <i class="fa fa-handshake" aria-hidden="true"></i><br><?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>You have a <?php } ?>new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" )." " .$m_type_data[0]; ?></strong>
+                                            <?php } else if ($initialComment[$i]['m_type'] == "system" ) {
+                                                echo "<i class='fa fa-exclamation' aria-hidden='true'></i>".$initialComment[$i]['message'];
+                                            } else {
+                                                echo $initialComment[$i]['message'];
+                                            } ?>
+                                        </p>
+                                    </div>
+                                </li>
+                            <?php } ?>
+                            </ol>
+                            <div id="flash"></div>
+                        </div>
+                        <?php if ($data['status'] != "COMPLETED") { ?>
+                            <div class="row with-margin">
+                                <div class="col-lg-12">
+                                <form  method="post" name="form" action="">
+                                    <div class="input-group input-group-lg">
+                                    <?php $users->getProfileImage($user_id, "50"); ?> 
+                                    <input type='text' name="content" id="content" class="form-control input-lg" placeholder="Enter your message here..." />
+                                    <input type='hidden' name="user_r_id" id="user_r_id" value="<?php echo $user_r_id; ?>" />
+                                    <input type='hidden' name="user_id" id="user_id" value="<?php echo $user_id; ?>" />
+                                    <input type='hidden' name="post_id" id="post_id" value="<?php echo $data['ref']; ?>" />
+                                    <input type='hidden' name="m_type" id="m_type" value="text" />
+                                    <span class="input-group-btn">
+
+                                    <input type="button" value="Post"  id="post" class="btn purple-bn pd btn-lg" name="post"/>
+                                    </span>
+                                    </div><!-- /input-group -->
+                                </form>
+                                </div><!-- /.col-lg-6 -->
+                            </div><!-- /.row -->
+                        <?php } ?>
+
+                        <script type="text/javascript">
+                            var ref='<?php echo $data['ref'];?>';
+                            var user_id='<?php echo $user_id;?>';
+                            var user_r_id='<?php echo $user_r_id;?>';
+                            var auto_refresh = setInterval(function () {
+                            var b=$("ol#update li:last").attr("id");
+                            $.getJSON("<?php echo URL; ?>includes/views/scripts/chat_json?post_id="+ref+"&user_id="+user_id+"&user_r_id="+user_r_id,function(data) {
+                                $.each(data.posts, function(i,data) {
+                                if(b != data.id) {
+                                    var dataString = 'id='+ data.user;
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "<?php echo URL; ?>includes/views/scripts/draw",
+                                        data: dataString,
+                                        cache: false,
+                                        success: function(html){
+                                        if (data.m_type == "system") {
+                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'><i class='fa fa-exclamation' aria-hidden='true'></i>     "+data.msg+"</p></div></li>";
+                                        } else if (data.m_type == "negotiate_charges") {
+                                            var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
+
+                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+msg+"</p></div></li>";
+                                        } else {
+                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+data.msg+"</p></div></li>";
+                                        }
+                                        $(div_data).appendTo("ol#update");
+                                        }
+                                    });
+                                }
+                                });
+                            });
+                            }, 2000);	
+
+                            $(document).ready(function() {
+                                $('#post').click(function() {
+                                    post();
+                                });
+                                $('#content').focus(function() {
+                                    var user_id = $("#user_id").val();
+                                    var post_id = $("#post_id").val();
+                                    var dataString = 'user_id='+ user_id+"&post_id="+post_id;
+                                    $.ajax({
+                                    type: "POST",
+                                    url: "<?php echo URL; ?>includes/views/scripts/markRead",
+                                    data: dataString,
+                                    cache: false
+                                    });
+                                });
+                            });
+
+                            function post() {
+                                var boxval = $("#content").val();
+                                var user_r_id = $("#user_r_id").val();
+                                var user_id = $("#user_id").val();
+                                var post_id = $("#post_id").val();
+                                var m_type = $("#m_type").val();
+                                var dataString = 'user_id='+ user_id + '&user_r_id=' + user_r_id + '&post_id=' + post_id + '&m_type=' + m_type + '&content=' + boxval;
+
+                                if(boxval.length > 0) {
+                                    $("#flash").show();
+                                    $("#flash").fadeIn(400).html('<img src="<?php echo URL."img/loading.gif"; ?>" align="absmiddle">&nbsp;<span class="loading">Loading Update...</span>');
+                                    $.ajax({
+                                    type: "POST",
+                                    url: "<?php echo URL; ?>includes/views/scripts/chatajax",
+                                    data: dataString,
+                                    cache: false,
+                                    success: function(html){
+                                        $("ol#update").append(html);
+
+                                        $('#content').val('');
+                                        $('#content').focus();
+                                        $("#flash").hide();
+                                    }
+
+                                    });
+                                }
+                                return false;
+                            }
+
+                            $(document).on('keypress', 'form input[type="text"]', function(e) {
+                                if(e.which == 13) {
+                                    e.preventDefault();
+                                    post();
+                                    return false;
+                                }
+                            });
+                        </script>
+                    </div>
+                    
+                </div>
+            </div>
+            <script type="text/javascript" src="<?php echo URL; ?>js/imageUpload.js"></script>
+            <script type="text/javascript" src="<?php echo URL; ?>js/places.js"></script>
+            
+            <script type="text/javascript">
+                function initMap() {
+                var marker = {lat: <?php echo $data['latitude']; ?>, lng: <?php echo $data['longitude']; ?>};
+                var map = new google.maps.Map(
+                    document.getElementById('map'), {zoom: 15, center: marker});
+                var marker = new google.maps.Marker({position: marker, map: map});
+                }
+            </script>
+            <script async defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo GoogleAPI; ?>&callback=initMap"></script>
+        <?php
         }
 
         private function categoryHomePage($id, $type) {
@@ -860,7 +1235,7 @@
                                 </form>
                             <?php } else { ?>
                                 <div class="alert alert-danger" role="alert">
-                                    <strong>You must have at least one payment card saved to make a request. <a href="">Click here to add your payment card</a> then come back to create the request again</strong>
+                                    <strong>You must have at least one payment card saved to make a request. <a href="<?php echo URL."paymentCards"; ?>">Click here to add your payment card</a> then come back to create the request again</strong>
                                 </div>
                             <?php } ?>
                         <?php } ?>
@@ -929,7 +1304,7 @@
             <div class="row py-5">	
                 <div class="col-lg-4">
                     <img class="card-img-top my-3" src="<?php echo $category->getIcon( $categoryData['ref'] ); ?>" alt="">
-                    <i class="fa fa-map-marker"></i> <?php echo $loc['address']; ?>
+                    <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?>
                     <div class="moba-line my-3"></div>
                     <p><b>Job Category:</b> <?php echo $categoryData['category_title']; ?></p>	
                     <p><b>Description:</b> <?php echo $data['description']; ?></p>
@@ -995,14 +1370,6 @@
             //if ($_SESSION['users']['ref'] == )
             $user_r_id = $usersData['ref'];
             $user_id = trim($_SESSION['users']['ref']);
-            $loc = $this->googleGeoLocation($data['longitude'], $data['latitude']);
-
-            $addressData['latitude'] = $data['latitude'];
-            $addressData['longitude'] = $data['longitude'];
-            $addressData['state_code'] = $loc['province_code'];
-            $addressData['state'] = $loc['province'];
-            $addressData['code'] = $loc['country_code'];
-            $addressData['country'] = $loc['country'];
 
             $checkRate = $rating_question->getSortedList("vendors", "question_type");
             //respond to a request
@@ -1022,7 +1389,7 @@
             <div class="row py-5">	
                 <div class="col-lg-4">
                     <img class="card-img-top my-3" src="<?php echo $users->picURL( $usersData['ref'], 250 ); ?>" alt="<?php echo $usersData['screen_name']; ?>">
-                    <i class="fa fa-map-marker"></i> <?php echo $loc['address']; ?>
+                    <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?>
                     <div class="moba-line my-3"></div>
                     <?php if (count($getAlbum) > 0) {
                         for ($i = 0; $i < count($getAlbum); $i++) { ?>
@@ -1280,57 +1647,73 @@
 
         public function profileHome() {
             global $users;
-            global $projects;
-            global $media;
-            global $country;
-            global $wallet; 
+            global $rating;
+            global $request;
+            global $usersKin;
 
-            $regionData = $country->getLoc($_SESSION['location']['code']);
             $ref = trim($_SESSION['users']['ref']);
             $data = $users->listOne($ref);
-
-            $jobs = $projects->getSortedList("ACTIVE", "status", "user_id", $ref, false, false, "ref", "DESC", "AND", 0, 10);
-             ?>
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                <?php $users->getProfileImage($ref, "card-img-top", "25"); ?>
-                <div class="card-body">
-                    <a href="<?php echo URL."edit/Image"; ?>" class="card-link">Modify Display Picture</a>
+            $getCatList = $users->getCatNameList($ref);
+            $getKin = $usersKin->listOneKin($ref);
+            ?>
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", "25"); ?>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
+                    <?php } ?>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <?php if ($data['screen_name_cam_change'] == 0) { ?>
+                        <p><a href="<?php echo URL."edit/ScreenName"; ?>" class="btn purple-bn pd">Edit Username</a></p>
+                    <?php } ?>
                 </div>
-                </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                <div class="card-body">
-                    <h5 class="card-title"><?php echo $data['last_name']." ".$data['other_names']; ?>&nbsp;&nbsp;<?php if ( $data['verified'] == 2) { ?><i class="fas fa-user-check"></i>&nbsp;<?php } if ( $data['badge'] == 1) {?><i class="fas fa-award"></i><?php } ?></h5>
-                    <h6 class="card-subtitle mb-2 text-muted"><?php echo $data['screen_name']; if ($data['screen_name_cam_change'] == 0) { ?> (<a href="<?php echo URL."edit/ScreenName"; ?>" class="card-link">edit username</a>)<?php } ?><br>
-                    <small><a href="<?php echo URL."profile/".$data['screen_name']; ?>" target="_blank"><?php echo URL."profile/".$data['screen_name']; ?></a></small></h6>
-                    <p class="card-text">Email<br>
+                <div class="col-lg-8">
+                    <h5><?php echo $data['last_name']." ".$data['other_names']." <strong>'".$data['screen_name']."'</strong>"; ?></h5>
+                    <div class="moba-line mb-3"></div>
+                    <p>Public Profile URL<br>
+                    <a href="<?php echo URL."profile/".$data['screen_name']; ?>" target="_blank"><?php echo URL."profile/".$data['screen_name']; ?></a></p>
+                    <p>Email<br>
                     <strong><?php echo $data['email']; ?></strong></p>
-                    <p class="card-text">Wallet Balance<br>
-                    <p><i class="fas fa-piggy-bank"></i></i>&nbsp;Current Balance:&nbsp;<?php echo $regionData['currency_symbol']." ".number_format($wallet->balance($ref, $regionData['ref'], true), 2); ?></p>
-                    <p><i class="fas fa-piggy-bank"></i></i>&nbsp;Available Balance:&nbsp;<?php echo $regionData['currency_symbol']." ".number_format($wallet->balance($ref, $regionData['ref']), 2); ?></p>
-                    <a href="<?php echo URL."wallet"; ?>" class="card-link">View Wallet</a></p>
-                    <a href="<?php echo URL."edit/Profile"; ?>" class="card-link">Update Profile</a>
-                    <a href="<?php echo URL."edit/Password"; ?>" class="card-link">Update Password</a>
-                    <a href="<?php echo URL."edit/IDs"; ?>" class="card-link">Upload IDs</a>
+                    <?php if ($data['user_type'] == 1) { ?>
+                        <p>Phone Number<br>
+                        <strong><?php echo $data['mobile_number']; ?></strong></p>
+                        <p>Primary Address<br>
+                        <strong><?php echo $data['street']." ".$data['city']." ".$data['state']." ".$data['country']; ?></strong></p>
+                        <h5>Services</h5>
+                        <p><?php echo $getCatList; ?></p>
+                        <h5>Next of Kin</h5>
+                        <p>Name<br>
+                        <strong><?php echo $getKin['kin_name']; ?></strong></p>
+                        <p>Email Address<br>
+                        <strong><?php echo $getKin['kin_email']; ?></strong></p>
+                        <p>Phone Number<br>
+                        <strong><?php echo $getKin['kin_phone']; ?></strong></p>
+                        <p>Relationship<br>
+                        <strong><?php echo $getKin['kin_relationship']; ?></strong></p>
+                    <?php } ?>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <a href="<?php echo URL."edit/Profile"; ?>" class="btn purple-bn pd">Update Profile</a>
+                        </div>
+                        <div class="col-lg-4">
+                            <a href="<?php echo URL."edit/Password"; ?>" class="btn purple-bn pd">Update Password</a>
+                        </div>
+                        <div class="col-lg-4">
+                            <a href="<?php echo URL."edit/IDs"; ?>" class="btn purple-bn pd">Upload IDs</a>
+                        </div>
+                    </div>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-                </div>
             </div>
-            <h4>Active Jobs</h4>
-            <div class="row">
-                <?php for ($i = 0; $i < count($jobs); $i++) { ?>
-            <div class="card" style="width: 20rem;">
-            <img class="card-img-top" src="<?php echo $media->getCover($jobs[$i]['ref']); ?>" alt="<?php echo $jobs[$i]['project_name']; ?>">
-            
-            <div class="card-body">
-                <h5 class="card-title"><?php echo $jobs[$i]['project_name']; ?></h5>
-            </div>
-            <div class="card-footer">
-                <a href="<?php echo $this->seo($jobs[$i]['ref'], "view"); ?>" class="btn purple-bn1">Open</a>
-                
-            </div>
-            </div>
-                <?php } ?>
-
             </div>
         <?php }
 
@@ -1338,21 +1721,31 @@
             global $users;
             global $rating_comment;
             global $rating; 
-
+            global $request;
             $data = $users->listOne($view, "screen_name");
             $ratingDataVendor = $rating->publicPage($data['ref'], "vendors");
             $ratingDataClients = $rating->publicPage($data['ref'], "clients");
             $comments = $rating_comment->getSortedList($data['ref'], "user_id");
             ?>
-            <div class="row">
-                <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                    <?php $users->getProfileImage($data['ref'], "card-img-top", "25"); ?>
+
+            <div class="container my-5">
+            <div class="row py-5">	
+                <div class="col-lg-4">
+                    <?php $users->getProfileImage($data['ref'], "card-img-top my-3", "25"); ?>
+                    <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
+                    <div class="moba-line my-3"></div>
+                    <p><?php echo $data['about_me']; ?></p>
+                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <?php if ($data['user_type'] == 1) { ?>
+                    <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
+                    <?php } else if ($data['user_type'] != 1) { ?>
+                    <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
+                    <?php } ?>
+                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
                 </div>
-                <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                <div class="card-body">
-                    <h5 class="card-title"><?php echo $data['last_name']." ".$data['other_names']; ?>&nbsp;&nbsp;<?php if ( $data['verified'] == 2) { ?><i class="fas fa-user-check"></i>&nbsp;<?php } if ( $data['badge'] == 1) {?><i class="fas fa-award"></i><?php } ?></h5>
-                    <p><?php  echo $rating->drawRate($rating->getRate($data['ref'])); ?></p>
-                    <h6 class="card-subtitle mb-2 text-muted"><?php echo $data['screen_name']; ?></h6>
+                <div class="col-lg-8">
+                    <h5><?php echo $data['last_name']." ".$data['other_names']." <strong>'".$data['screen_name']."'</strong>"; ?></h5>
+                    <div class="moba-line mb-3"></div>
                     <p> User since <?php echo $this->get_time_stamp( strtotime( $data['create_time'] ) ); ?></p>
                     <h4>Ratings for Posted Jobs Offered</h4>
                     <?php if (count($ratingDataClients) > 0) { ?>
@@ -1362,7 +1755,7 @@
                     <?php } else { ?>
                         <p>Not rated yet</p>
                     <?php } ?>
-                    <h4>Ratings for Posted Services Provided</h4>
+                    <h5>Ratings for Posted Services Provided</h5>
                     <?php if (count($ratingDataVendor) > 0) { ?>
                         <p><?php for ($i = 0; $i < count($ratingDataVendor); $i++) {
                             echo "<strong>".$ratingDataVendor[$i]['question']."</strong>: ".$rating->drawRate($ratingDataVendor[$i]['val'])."<br>";
@@ -1370,7 +1763,7 @@
                     <?php } else { ?>
                         <p>Not rated yet</p>
                     <?php } ?>
-                    <h4>Comments</h4>
+                    <h5>Comments</h5>
                     <?php if (count($comments) > 0) { ?>
                         <p><?php for ($i = 0; $i < count($comments); $i++) {
                             if ($comments[$i]['comment'] != "") {
@@ -1380,8 +1773,10 @@
                     <?php } else { ?>
                         <p>Not rated yet</p>
                     <?php } ?>
+                    <div class="moba-line m-3"></div>
+                        
                 </div>
-                </div>
+            </div>
             </div>
         <?php }
 

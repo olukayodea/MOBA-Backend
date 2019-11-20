@@ -51,12 +51,19 @@
             return $this->getOne("category", $id, "ref");
         }
 
-        function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'category_title', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
-            return $this->sortAll("category", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
+        function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'category_title', $dir = "ASC", $logic = "AND", $start = false, $limit = false, $type="list") {
+            return $this->sortAll("category", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit, $type);
         }
 
-        function categoryList($country, $parent = 0) {
-            return $this->getSortedList($parent, "parent_id", "status", "ACTIVE", "country", $country);
+        public function categoryListPages($country, $start, $limit) {
+            $return['data'] = $this->categoryList($country, 0, "list", $start, $limit);
+            $return['count'] = $this->categoryList($country, 0, "count");
+
+            return $return;
+        }
+
+        function categoryList($country, $parent = 0, $type="list", $start=false, $limit=false) {
+            return $this->getSortedList($parent, "parent_id", "status", "ACTIVE", "country", $country, "category_title", "ASC", "AND", $start,$limit, $type);
         }
 
         public function totalUsers($id) {
