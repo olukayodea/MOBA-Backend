@@ -389,15 +389,13 @@ $(document).ready(function() {
     //this.files[0].size gets the size of your file.
 
     var photo_file =  document.getElementById("photo_file").files[0].size;
-    alert(photo_file);
     var id_file =  document.getElementById("id_file").files[0].size;
-    alert(id_file);
 
-    if (photo_file > 2) {
+    if (photo_file > 2048) {
       alert("the profile picture is greater than the allowed size of 2MB");
       $('#photo_file').focus();
       return false;
-    } else if (id_file > 2) {
+    } else if (id_file > 2048) {
       alert("the photo ID picture is greater than the allowed size of 2MB");
       $('#id_file').focus();
       return false;

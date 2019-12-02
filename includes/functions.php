@@ -49,7 +49,7 @@
   define("search_radius_me", 200);
 
   //google APIs
-  define("GoogleAPI", "AIzaSyAMCoTIoeIbfVpr5jwfTUw_jEHmZjmU8CY");
+  define("GoogleAPI", "AIzaSyCteLRexI48vsfoxMXMMmKWv-Ns6Qc3e80");
   define("GoogleClientId", "81126587091-oo8egmh31gasnrq7jeof9oou8829iq3b.apps.googleusercontent.com");
   define("GoogleSecret", "2pV-S4uN-7sdz9-LmeGYMiOW");
 

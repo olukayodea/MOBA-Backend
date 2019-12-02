@@ -9,6 +9,7 @@ class users extends database {
             $photo_file = $data['photo_file'];
             $id_file = $data['id_file'];
             $data['password'] = sha1($array['password']);
+            $data['id_expiry'] = $data['id_expiry_mm'].$data['id_expiry_yy'];
             
             if ($array['category'] != "") {
                 $categoryArray = explode(",",$array['category']);
@@ -22,6 +23,7 @@ class users extends database {
                 $data['longitude'] = $addressData['longitude'];
             }
             $data['screen_name'] = $this->confirmUnique($this->createUnique($array['last_name']));
+            unset($data['category_select']);
             unset($data['category']);
             unset($data['photo_file']);
             unset($data['id_file']);
@@ -29,6 +31,8 @@ class users extends database {
             unset($data['kin_email']);
             unset($data['kin_phone']);
             unset($data['kin_relationship']);
+            unset($data['id_expiry_mm']);
+            unset($data['id_expiry_yy']);
             $create = $this->insert("users", $data);
 
             if ($create) {

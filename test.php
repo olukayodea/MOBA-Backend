@@ -118,6 +118,7 @@
     $url = $u."api/request/create";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
+
 /*
     //request::hire
     $array['user_r_id'] = "2";
@@ -171,9 +172,9 @@
 /*
     $url = $u."api/request/get/27/2";
     echo get($header, $url);*/
-
+/*
     $url = $u."api/request/delete/1";
-    echo delete($header, $url);
+    echo delete($header, $url);*/
 /*
     //request messages
     $url = $u."api/request/messages/1/2"; //post ID
@@ -392,7 +393,7 @@
     echo post($header, $url, $json_data);*/
 /*
     //get status
-    $url = $u."api/advert/featured/26";
+    $url = $u."api/advert/featured/26";Fr
     echo get($header, $url);*/
 /*
     //mark ad as complete

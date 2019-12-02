@@ -301,7 +301,6 @@ class request extends database {
         global $wallet;
         $data = $this->listOne($id);
 
-        echo "<pre>";
         //get the wallet entry fot the post
         $user_transaction = $wallet->getSortedListWallet($data['ref'], "ref_id", "tx_desc", "Work Payment", "status", "0", "ref", "DESC", "AND", false, false, "getRow");
 
@@ -819,17 +818,17 @@ class request extends database {
         return $return;
     }
 
-    private function formatResult($data, $user=false, $type="list", $view=false) {
+    private function formatResult($data, $user=false, $type="list", $view=false, $location=false) {
         global $messages;
         if ($data) {
             if ($type == "list") {
                 for ($i = 0; $i < count($data); $i++) {
-                    $data[$i] = $this->clear($data[$i]);
+                    $data[$i] = $this->clear($data[$i], false, false, $location);
                 }
             } else {
                 if ((($data['user_id'] == $user) || ($data['client_id'] == $user)) || ($data['status'] == "ACTIVE")) {
                     $messages->markRead($user, $data['ref']);
-                    $data = $this->clear($data, $user, $view);
+                    $data = $this->clear($data, $user, $view, $location);
                 } else {
                     $data['error'] = true;
                     $data['error_msg'] = "This post is not available";
@@ -839,23 +838,18 @@ class request extends database {
         return $data;
     }
 
-    private function clear($data, $owner=false, $view=false) {
+    private function clear($data, $owner=false, $view=false, $location) {
         global $users;
         global $country;
         global $category;
         global $rating;
         global $messages;
         global $wallet;
+        global $post;
         //get individual property
         $show = false;
 
         if ($owner == $data['user_id']) {
-            if ($data['client_id'] == 0) {
-                $user_id = $view;
-            } else {
-                $user_id = $data['client_id'];
-            }
-            $user_r_id = $data['user_id'];
             if ($owner != false) {
                 $response = $messages->getResponse($data['ref'], $data['user_id']);
                 for ($i = 0; $i < count($response); $i++) {
@@ -901,6 +895,29 @@ class request extends database {
         $f_data['tax'] = $regionData['tax']/100;
         $f_data['currency'] = $regionData['currency'];
         $f_data['currency_symbol'] = $regionData['currency_symbol'];
+
+        if ($data['status'] == "OPEN") {
+            $addressData['latitude'] = $data['latitude'];
+            $addressData['longitude'] = $data['longitude'];
+            $addressData['state_code'] = $location['state_code'];
+            $addressData['state'] = $location['state'];
+            $addressData['code'] = $location['code'];
+            $addressData['country'] = $location['country'];
+
+            $maps['latitude'] = $addressData['latitude'];
+            $maps['code'] = $addressData['code'];
+            $maps['longitude'] = $addressData['longitude'];
+            
+            $result = $this->findRequest($addressData, $data['category_id']);
+            $data['service_provider']['counts']['current_page'] = 1;
+            $data['service_provider']['counts']['total_page'] = ceil($result['count']/20);
+            $data['service_provider']['counts']['rows_on_current_page'] = count($result['data']);
+            $data['service_provider']['counts']['max_rows_per_page'] = 29;
+            $data['service_provider']['counts']['total_rows'] = $result['count'];
+
+            $data['service_provider']['data'] = $post->formatResults( $result['data'], $maps);
+        }
+        
         unset($data['region']);
 
 
@@ -923,7 +940,7 @@ class request extends database {
         return $data;
     }
     
-    public function apiGetList($type, $page=1, $user=false, $ref=false) {
+    public function apiGetList($type, $page=1, $user=false, $ref=false, $location) {
         global $options;
         if (intval($page) == 0) {
             $page = 1;
@@ -944,9 +961,9 @@ class request extends database {
             $data['counts']['rows_on_current_page'] = count($result['list']);
             $data['counts']['max_rows_per_page'] = $limit;
             $data['counts']['total_rows'] = $result['listCount'];
-            $data['data'] = $this->formatResult( $result['list'] );
+            $data['data'] = $this->formatResult( $result['list'], false, "list", false, $location );
         } else {
-            $data = $this->formatResult( $this->listOne($type), $user, "single", $ref );
+            $data = $this->formatResult( $this->listOne($type), $user, "single", $ref, $location );
 
             if ($data == false) {
                 $data['error'] = true;

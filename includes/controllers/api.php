@@ -189,7 +189,7 @@
                         $returnedData['ref'] = intval($string);
                         $return = $request->apiDelete($returnedData);
                     } else if (($mode == "request") && ($action == "get")) {
-                        $return = $request->apiGetList($string, $page, $userData['ref'], $page);
+                        $return = $request->apiGetList($string, $page, $userData['ref'], $page, $location);
                     } else if (($mode == "request") && (($action == "complete") || ($action == "alert"))) {
                         //$returnedData['user_id'] = $userData['ref'];
                         $returnedData['user_id'] = 2;
