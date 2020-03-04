@@ -25,8 +25,8 @@
       $limit = $options->get("result_per_page");
       $start = $page*$limit;
 
-      $list = $this->getSortedList("1", "verified", false, false, false, false, "ref", "ASC", "AND", $start, $limit);
-      $listCount = $this->getSortedList("1", "verified", false, false, false, false, "ref", "DESC", "AND", false, false, "count"); ?>
+      $list = $this->getSortedList("1", "verified", "status", "ACTIVE", "user_type", 1, "ref", "ASC", "AND", $start, $limit);
+      $listCount = $this->getSortedList("1", "verified", "status", "ACTIVE", "user_type", 1, "ref", "DESC", "AND", false, false, "count"); ?>
       <h2>List All Pending Verification (<?php echo count($list); ?>)</h2>
 <table class="table table-striped">
   <thead>
@@ -94,10 +94,10 @@
     } ?>
     <a href="javascript:history.go(-1);">Back</a>
     <div class="row">
-      <div class="card col-xs-12 col-sm-12 col-md-3 col-lg-3">
-      <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+      <div class="card col-xs-12 col-sm-12 col-md-4 col-lg-4">
+      <?php $users->getProfileImage($ref, "", "10", false); ?>
       </div>
-      <div class="card col-xs-12 col-sm-12 col-md-9 col-lg-9">
+      <div class="card col-xs-12 col-sm-12 col-md-8 col-lg-8">
       <div class="card-body">
         <h5 class="card-title"><?php echo $data['last_name']." ".$data['other_names']; ?></h5>
         <h6 class="card-subtitle mb-2 text-muted"><?php echo $data['screen_name']; ?></h6>

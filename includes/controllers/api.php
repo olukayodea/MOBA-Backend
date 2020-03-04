@@ -1,5 +1,23 @@
 <?php
     class api extends database {
+        protected $user_id;
+        protected $user_type;
+		function dumpData($data, $output) {
+            // error_log(json_encode($data));
+            // error_log(json_encode($output));
+			/*global $db;
+			try {
+				$sql = $db->prepare("INSERT INTO `dump` (`url`, `data`, `output`) VALUES (:url, :data, :output)");
+				$sql->execute(
+					array(	':url' => $_SERVER['REQUEST_URI'],
+							':data' => $data,
+							':output' => $output)
+						);
+			} catch(PDOException $ex) {
+				echo "An Error occured! ".$ex->getMessage(); 
+			}*/
+        }
+        
         public function prep($header, $postPequest, $data) {
             global $users;
             global $post;
@@ -13,6 +31,7 @@
             global $notifications;
             global $banks;
             global $identity;
+            global $options;
 
             $requestData = explode("/", $postPequest);
             $mode = @strtolower($requestData[0]);
@@ -34,15 +53,18 @@
             $location['country'] = $loc['country'];
             $location['address'] = $loc['address'];
 
+			$this->dumpData($header, json_encode($requestData));
+
             $returnedData = json_decode($data, true);
             if ($this->methodCheck($header['method'], $mode.":".$action)) {
                 if ($mode == "data") {
-                    $return['status'] = "200";
+                    $return['status'] = 200;
                     $return['message'] = "OK";
                     $return['data']['id_type'] = $identity->apiGetList($location);
                     $return['data']['country'] = $country->countryAPI();
                     $return['data']['banks'] = $banks->apiGetList($location);
                     $return['data']['category'] = $category->apiGetList($location);
+                    $return['data']['censored_words'] = explode( ",", $options->get("text_filter") );
                 } else if (($mode == "users") && ($action == "join")) {
                     //registeration 
                     $register = $users->create($returnedData);
@@ -59,7 +81,7 @@
                         } else {
                             $token = $this->getToken();
                             $userData = $users->apiGetList("getOne", $register);
-                            $return['status'] = "200";
+                            $return['status'] = 200;
                             $return['message'] = "OK";
                             $return['additional_message'] = "account created successfully";
                             $return['token'] = $token;
@@ -73,7 +95,7 @@
                     //recover password
                     $add = $users->validateAcc($string);
                     if ($add) {
-                        $return['status'] = "200";
+                        $return['status'] = 200;
                         $return['message'] = "OK";
                         $return['additional_message'] = "A link has been sent to ".$string.". Click on the Link to continue. This Link expires in 24 hours. Ignore the email if you change your mind at any time";
                     } else {
@@ -86,54 +108,62 @@
                     $login = $users->login($returnedData);
 
                     if ($login) {
+                        $this->user_id = $login['ref'];
+                        $this->user_type = $login['user_type'];
                         $token = $this->getToken();
-                        $userData = $users->apiGetList("getOne", $_SESSION['users']['ref']);
+                        $userData = $users->apiGetList("getOne", $login['ref']);
 
-                        if ($_SESSION['users']['status'] == "NEW") {
+                        if ($login['status'] == "NEW") {
                             $return['status'] = "403";
                             $return['message'] = "Forbidden";
                             $return['additional_message'] = "Your account is inactive, you will not be able to perform major functions on this site until you activate your account. Click on the activation link in the Welcome E-Mail sent to you to activate this account<";
-                        } else if ($_SESSION['users']['status'] == "INACTIVE") {
+                        } else if ($login['status'] == "INACTIVE") {
                             $return['status'] = "403";
                             $return['message'] = "Forbidden";
                             $return['additional_message'] = "Your account has been deadivated.<br>Please contact us to resolve this issue";
                         } else {
-                            $return['status'] = "200";
+                            $return['status'] = 200;
                             $return['message'] = "OK";
                             $return['additional_message'] = "Login complete";
                             $return['token'] = $token;
                             $return['data'] = $userData['data'];
-                            $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $_SESSION['users']['ref'])['data'];
-                            $return['bank_accounts'] =  $bank_account->listAllUserData($_SESSION['users']['ref'], 0, 20)['list'];
-                            $return['bank_cards'] = $wallet->listAllUserData($_SESSION['users']['ref'], 0, 20)['list'];
+                            $return['wallet'] = $wallet->apiGetWalletList("balance", $location['ref'], $login['ref'])['data'];
+                            $return['bank_accounts'] =  $bank_account->listAllUserData($login['ref'], 0, 20)['list'];
+                            $return['bank_cards'] = $wallet->listAllUserData($login['ref'], 0, 20)['list'];
                         }
                     } else {
                         $return['status'] = "404";
                         $return['message'] = "Not Found";
                         $return['additional_message'] = "email and password combination is not correct";
                     }
+                } else if (($mode == "category") && ($action == "questionnaire")) {
+                    //list all parent category
+                    $list = $category->apiGetQustions($string);
+                    $return['status'] = 200;
+                    $return['message'] = "OK";
+                    $return['questionnaire'] = $list;
                 } else if (($mode == "category") && ($action == "listparent")) {
                     //list all parent category
                     $list = $category->apiGetList($location,"parent");
-                    $return['status'] = "200";
+                    $return['status'] = 200;
                     $return['message'] = "OK";
                     $return['data'] = $list;
                 } else if (($mode == "category") && ($action == "listsub")) {
                     //list all sub category
                     $list = $category->apiGetList($location, $string);
-                    $return['status'] = "200";
+                    $return['status'] = 200;
                     $return['message'] = "OK";
                     $return['data'] = $list;
                 } else if (($mode == "category") && ($action == "list")) {
                     //list all 
                     $list = $category->apiGetList($location, "all");
-                    $return['status'] = "200";
+                    $return['status'] = 200;
                     $return['message'] = "OK";
                     $return['data'] = $list;
                 } else if ($mode == "banks") {
                     //list all 
                     $list = $banks->apiGetList($regionData);
-                    $return['status'] = "200";
+                    $return['status'] = 200;
                     $return['message'] = "OK";
                     $return['data'] = $list;
                 } else if (($mode == "posts") && (($action == "category") || ($action == "search") || ($action == "featured") || ($action == "aroundme"))) {
@@ -173,17 +203,17 @@
                             
                             $act = "respond";
                         }
-                        //$returnedData['user_id'] = $userData['ref'];
-                        $returnedData['user_id'] = 2;
+                        $returnedData['user_id'] = $userData['ref'];
+                        //$returnedData['user_id'] = 2;
                         $return = $request->apiMegotiate($returnedData, $act);
                     } else if (($mode == "advert") && ($action == "featured")) {
-                        $act = "post";
-                        if (is_numeric($string)) {
-                            $returnedData['post_id'] = $string;
-                            $act = "check";
-                        }
-                        $returnedData['user_id'] = $userData['ref'];
-                        $return = $projects->apiFeatured($returnedData, $act);
+                        // $act = "post";
+                        // if (is_numeric($string)) {
+                        //     $returnedData['post_id'] = $string;
+                        //     $act = "check";
+                        // }
+                        // $returnedData['user_id'] = $userData['ref'];
+                        // $return = $projects->apiFeatured($returnedData, $act);
                     } else if (($mode == "request") && ($action == "delete")) {
                         $returnedData['user_id'] = $userData['ref'];
                         $returnedData['ref'] = intval($string);
@@ -191,8 +221,8 @@
                     } else if (($mode == "request") && ($action == "get")) {
                         $return = $request->apiGetList($string, $page, $userData['ref'], $page, $location);
                     } else if (($mode == "request") && (($action == "complete") || ($action == "alert"))) {
-                        //$returnedData['user_id'] = $userData['ref'];
-                        $returnedData['user_id'] = 2;
+                        $returnedData['user_id'] = $userData['ref'];
+                        //$returnedData['user_id'] = 2;
                         $returnedData['post_id'] = intval($string);
                         $return = $request->apiComplete($returnedData, $action);
                     } else if (($mode == "request") && ($action == "review")) {
@@ -240,7 +270,7 @@
                                     $return['message'] = "Not Acceptable";
                                     $return['additional_message'] = $add['desc'];
                                 } else {
-                                    $return['status'] = "200";
+                                    $return['status'] = 200;
                                     $return['message'] = "OK";
                                     $return['path'] = URL.$add['desc'];
                                 }
@@ -258,7 +288,7 @@
                                     $return['message'] = "Not Acceptable";
                                     $return['additional_message'] = $add['desc'];
                                 } else {
-                                    $return['status'] = "200";
+                                    $return['status'] = 200;
                                     $return['message'] = "OK";
                                 }
                             } else {
@@ -279,7 +309,7 @@
                                 $return['message'] = "Not Acceptable";
                                 $return['additional_message'] = $add['desc'];
                             } else {
-                                $return['status'] = "200";
+                                $return['status'] = 200;
                                 $return['message'] = "OK";
                                 $return['path'] = URL.$add['desc'];
                             }
@@ -298,7 +328,7 @@
                                 $return['message'] = "Not Acceptable";
                                 $return['additional_message'] = "Invalid current password. Password not updated";
                             } else {
-                                $return['status'] = "200";
+                                $return['status'] = 200;
                                 $return['message'] = "OK";
                             }
                             
@@ -364,7 +394,7 @@
                                 $return['status'] = "403";
                                 $return['message'] = "Forbidden";
                             } else {
-                                $return['status'] = "200";
+                                $return['status'] = 200;
                                 $return['message'] = "OK";
                             }
                         } else {
@@ -375,7 +405,7 @@
                     } else if (($mode == "account") && ($action == "changestatus")) {
                         $add = $bank_account->toggleStatus($returnedData['ref']);
                         if ($add) {
-                            $return['status'] = "200";
+                            $return['status'] = 200;
                             $return['message'] = "OK";
                         } else {
                             $return['status'] = "501";
@@ -391,13 +421,49 @@
                     } else if (($mode == "cards") && ($action == "get")) {
                         //get one row
                         $return = $wallet->apiGetList("getOne", $userData['ref'], $string);
+                    } else if (($mode == "cards") && ($action == "verify")) {
+                        $returnedData['user_id'] = $userData['ref'];
+                        $add = $wallet->verifyPayment($returnedData);
+                        
+                        if ($add) {
+                            if ($add['status'] == "OK") {
+                                if ($add['message'] == "incomplete") {
+                                    $return['status'] = 100;
+                                    $return['message'] = "Continue";
+                                    $return['url'] = URL."api/cards/verify";
+                                    $return['additional_message'] = $add['additional_message'];
+                                    $return['card_id'] = $add['card_id'];
+                                    $return['required_fields'] = $add['fields'];
+                                } else {
+                                    $return['status'] = "201";
+                                    $return['message'] = "Created";
+                                }
+                            } else {
+                                $return['status'] = "501";
+                                $return['message'] = "Not Implemented";
+                                $return['additional_message'] = $add['message'];
+                            }
+                        } else {
+                            $return['status'] = "501";
+                            $return['message'] = "Not Implemented";
+                            $return['additional_message'] = "An error occured while creating this payment card";
+                        }
                     } else if (($mode == "cards") && ($action == "add")) {
                         $returnedData['user_id'] = $userData['ref'];
                         $add = $wallet->create($returnedData);
                         if ($add) {
                             if ($add['status'] == "OK") {
-                                $return['status'] = "201";
-                                $return['message'] = "Created";
+                                if ($add['message'] == "incomplete") {
+                                    $return['status'] = 100;
+                                    $return['message'] = "Continue";
+                                    $return['url'] = URL."api/cards/verify";
+                                    $return['additional_message'] = $add['additional_message'];
+                                    $return['card_id'] = $add['card_id'];
+                                    $return['required_fields'] = $add['fields'];
+                                } else {
+                                    $return['status'] = "201";
+                                    $return['message'] = "Created";
+                                }
                             } else {
                                 $return['status'] = "501";
                                 $return['message'] = "Not Implemented";
@@ -425,7 +491,7 @@
                                 $return['status'] = "403";
                                 $return['message'] = "Forbidden";
                             } else {
-                                $return['status'] = "200";
+                                $return['status'] = 200;
                                 $return['message'] = "OK";
                             }
                         } else {
@@ -436,7 +502,7 @@
                     } else if (($mode == "cards") && ($action == "changestatus")) {
                         $add = $wallet->toggleStatus($returnedData['ref']);
                         if ($add) {
-                            $return['status'] = "200";
+                            $return['status'] = 200;
                             $return['message'] = "OK";
                         } else {
                             $return['status'] = "501";
@@ -561,9 +627,15 @@
 
         private function getToken () {
             global $users;
-            $token = $_SESSION['users']['ref'].$_SESSION['users']['ref'].$_SESSION['users']['user_type'].$this->createRandomPassword(15);
-            $users->modifyUser("token", $token, $_SESSION['users']['ref'], "ref");
-            return $token;
+            $userData = $users->listOne($this->user_id, "ref");
+
+            if ($userData['token'] != "") {
+                return $userData['token'];
+            } else {
+                $token = substr( $this->user_id.rand().time().$this->createRandomPassword(15).rand(), 0, 32);
+                $users->modifyUser("token", $token, $this->user_id, "ref");
+                return $token;
+            }
         }
 
         private function authenticatedUser($authToken) {
@@ -619,6 +691,7 @@
                 $array[] = "category:listparent";
                 $array[] = "category:listsub";
                 $array[] = "category:list";
+                $array[] = "category:questionnaire";
                 $array[] = "account:get";
                 $array[] = "cards:get";
                 $array[] = "posts:category";
@@ -645,6 +718,7 @@
                 $array[] = "account:edit";
                 $array[] = "account:makedefault";
                 $array[] = "account:changestatus";
+                $array[] = "cards:verify";
                 $array[] = "cards:makedefault";
                 $array[] = "cards:changestatus";
                 $array[] = "request:negotiate";
@@ -680,7 +754,7 @@
         
 		private function convert_to_json($data) {
 			header('Content-type: application/json');
-			echo json_encode($data);
+			echo json_encode($data, JSON_PRETTY_PRINT);
 		}
     }
 ?>

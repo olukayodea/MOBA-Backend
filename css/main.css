@@ -51,6 +51,14 @@ h1,h2,h3,h4,h5 {font-family: 'Montserrat', sans-serif;}
 	font-weight: 400;
 }
 
+.icon_color_light {
+	color: #fff;
+}
+
+.icon_color_dark {
+	color: #333;
+}
+
 .form-control {
     padding: 15px 20px ! important;
 }
@@ -328,13 +336,33 @@ h1,h2,h3,h4,h5 {font-family: 'Montserrat', sans-serif;}
   background-color: #f1f1f1;
   padding-left: 8px;
 }
+@media all and (max-width: 768px) {
+	/* put your css styles in here */
+	.opaque-navbar {
+		background-color: #41488E;
+		box-shadow: 0 2px 2px 5px rgba(0,0,0,.2);
+	}
+
+	.form-control {
+		padding: 0px 20px ! important;
+	}
+}
 
 @media screen and (max-width: 414px) {
 	.pdd{padding: 5em 2em;}
 	.right-img{display: none;}
 	.navbg{
 		background: #343b7b;
-	}	
+	}
+
+	.opaque-navbar {
+		background-color: #41488E;
+		box-shadow: 0 2px 2px 5px rgba(0,0,0,.2);
+	}
+
+	.form-control {
+		padding: 0px 20px ! important;
+	}
 }
 .ui-menu .ui-menu-item-with-icon a {
 	padding-left: 20px;

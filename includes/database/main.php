@@ -181,7 +181,7 @@
             return $this->run($query, false, $type);
         }
 
-        public function sortAll($table, $id, $tag, $tag2=false, $id2=false, $tag3=false, $id3=false, $order='ref', $dir="ASC", $logic="AND", $start=false, $limit=false, $type="list") {
+        public function sortAll($table, $id, $tag, $tag2=false, $id2=false, $tag3=false, $id3=false, $order='ref', $dir="ASC", $logic="AND", $start=false, $limit=false, $type="list", $extraConditions = false) {
 			$prepare = array(':'.$tag => $id);
 			if ($tag2 != false) {
 				$sqlTag = " ".$logic." `".$tag2."` = :".$tag2;
@@ -195,6 +195,12 @@
 			} else {
 				$sqlTag .= "";
             }
+
+            if ($extraConditions !== false) {
+                $extra = " ".$extraConditions;
+            } else {
+                $extra = "";
+            }
             
             if (($start != false ) AND ($limit != false )) {
                 $endTag = " LIMIT ".$start.", ".$limit;
@@ -203,7 +209,7 @@
             } else {
                 $endTag = "";
             }
-            $query = "SELECT * FROM `".$table."` WHERE `".$tag."` = :".$tag.$sqlTag." ORDER BY `".$order."` ".$dir.$endTag;
+            $query = "SELECT * FROM `".$table."` WHERE `".$tag."` = :".$tag.$sqlTag.$extra." ORDER BY `".$order."` ".$dir.$endTag;
             return $this->run($query, $prepare, $type);
         }
         

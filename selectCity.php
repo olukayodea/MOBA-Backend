@@ -43,25 +43,28 @@
 				
 					<div class="pdd">
 						<h2>SET LOCATION.</h2>
-                        <p>type your city or address in the space below.</p>
-                        
-                        <form method="post" name="sentMessage" id="contactForm" action="">
-                            <div class="form-row">
-                                <div class="col-md-10">
-                                <input id="autocomplete" name="autocomplete" placeholder="Enter your address or city" onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value="<?php echo $data['address']; ?>" required/>
-                                </div>
-                                <button type="submit" name="setLocation" class="btn purple-bn1-home mb-2"><i class="fa fa-location-arrow" aria-hidden="true"></i> </button>
-                                
-                            </div>
+            <p>type your city or address in the space below.</p>
+            
+            <form method="post" name="sentMessage" id="contactForm" action="">
+              <div class="form-row">
 
-                            <input type="hidden" name="city" id="locality" placeholder="City" value="<?php echo $data['city']; ?>">
-                            <input type="hidden" name="state" id="administrative_area_level_1" placeholder="State/Province" value="">
-                            <input type="hidden" name="postal_code" id="postal_code" placeholder="Zip/Postal Code" value="">
-                            <input type="hidden" name="country_code" id="country_code" placeholder="Country Code" value="">
-                            <input type="hidden" name="country" id="country" placeholder="Country" value="">
-                            <input type="hidden" name="lat" id="lat" placeholder="lat" value="">
-                            <input type="hidden" name="lng" id="lng" placeholder="lng" value="">
-                        </form>
+                <div class="col-10">
+                  <input id="autocomplete" name="autocomplete" placeholder="Enter your address or city" onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value="<?php echo $data['address']; ?>" required/>
+                </div>
+
+                <div class="col-2">
+                  <button type="submit" name="setLocation" class="btn purple-bn1-home mb-2"><i class="fa fa-location-arrow" aria-hidden="true"></i> </button>
+                </div>
+              </div>
+
+              <input type="hidden" name="city" id="locality" placeholder="City" value="<?php echo $data['city']; ?>">
+              <input type="hidden" name="state" id="administrative_area_level_1" placeholder="State/Province" value="">
+              <input type="hidden" name="postal_code" id="postal_code" placeholder="Zip/Postal Code" value="">
+              <input type="hidden" name="country_code" id="country_code" placeholder="Country Code" value="">
+              <input type="hidden" name="country" id="country" placeholder="Country" value="">
+              <input type="hidden" name="lat" id="lat" placeholder="lat" value="">
+              <input type="hidden" name="lng" id="lng" placeholder="lng" value="">
+            </form>
 					</div>
 					
 				</div>

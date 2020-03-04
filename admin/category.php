@@ -29,6 +29,16 @@
         } else {
             header("location: ?error=".urlencode("Category not created"));
         }
+    } else if (isset($_POST['AddQuestion'])) {
+        unset($_POST['AddQuestion']);
+        
+        $add = $categoryQuestion->create($_POST);
+
+        if ($add) {
+            header("location: ".URL.$redirect."/createQuestionare?edit=".$_REQUEST['edit']."&done=".urlencode("Category Question Updated"));
+        } else {
+            header("location: ".URL.$redirect."/createQuestionare?edit=".$_REQUEST['edit']."&error=".urlencode("Category Question not Updated"));
+        }
     }
     if (isset($_REQUEST['updateImg'])) {
         $add = $adminCategory->removeImage($_REQUEST['edit']);
@@ -37,6 +47,14 @@
             header("location: ".URL.$redirect."/create?edit=".$_REQUEST['edit']."&done=".urlencode("Category icon removed"));
         } else {
             header("location: ".URL.$redirect."/create?edit=".$_REQUEST['edit']."&error=".urlencode("Category icon not removed"));
+        }
+    } else if (isset($_REQUEST['deleteQustionare'])) {
+        $add = $categoryQuestion->remove($_REQUEST['deleteQustionare']);
+
+        if ($add) {
+            header("location: ".URL.$redirect."/createQuestionare?edit=".$_REQUEST['edit']."&done=".urlencode("Category question removed"));
+        } else {
+            header("location: ".URL.$redirect."/createQuestionare?edit=".$_REQUEST['edit']."&error=".urlencode("Category question not removed"));
         }
     } else if (isset($_REQUEST['delete'])) {
         $add = $adminCategory->removeCate($_REQUEST['delete']);

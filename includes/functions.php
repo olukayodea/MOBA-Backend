@@ -1,6 +1,6 @@
 <?php
 	session_start();
-	date_default_timezone_set("America/Toronto");
+	date_default_timezone_set("Africa/Lagos");
 	error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 	
 	$pageUR1      = $_SERVER["SERVER_NAME"];
@@ -49,15 +49,17 @@
   define("search_radius_me", 200);
 
   //google APIs
-  define("GoogleAPI", "AIzaSyCteLRexI48vsfoxMXMMmKWv-Ns6Qc3e80");
+  define("GoogleAPI", "AIzaSyAgGXpfWv4Be3Mwc7MwRQt9ULs73A77ryw");
   define("GoogleClientId", "81126587091-oo8egmh31gasnrq7jeof9oou8829iq3b.apps.googleusercontent.com");
-  define("GoogleSecret", "2pV-S4uN-7sdz9-LmeGYMiOW");
 
   //payment gateway
-  define("merchID",  "300206916");
-  define("gateway_access_code", "0bcd3711b13744D5A5E8608ca9A5F7B0");
-  define("batch_gateway_access_code", "892e267e758041Cf9c5Cef7907C95E48");
-  define("gateway_passcode", base64_encode(merchID.":".gateway_access_code));
+  define("fl_public_key",  "FLWPUBK_TEST-ffbf9b7c7fe3fcc61926f90c91f4fab9-X");
+  define("fl_secret_key", "FLWSECK_TEST-1cb22d96acf6436408173a882d4b1942-X");
+  define("fl_encryption_key", "FLWSECK_TEST53b6175abd98");
+
+  define("FL_charge", "https://api.ravepay.co/flwv3-pug/getpaidx/api/tokenized/charge");
+	define("FL_validatecharge", "https://ravesandboxapi.flutterwave.com/flwv3-pug/getpaidx/api/validatecharge");
+	define("FL_refund", "https://ravesandboxapi.flutterwave.com/gpx/merchant/transactions/refund");
 
   //include all the common controller methods
   include_once("controllers/common.php");
@@ -74,6 +76,7 @@
   include_once("controllers/messages.php");
   include_once("controllers/banks.php");
   include_once("controllers/category.php");
+  include_once("controllers/categoryQuestion.php");
   include_once("controllers/country.php");
   include_once("controllers/identity.php");
   include_once("controllers/options.php");
@@ -98,6 +101,7 @@
   $messages       = new messages;
   $banks          = new banks;
   $category       = new category;
+  $categoryQuestion = new categoryQuestion;
   $options        = new options;
   $country        = new country;
   $identity       = new identity;

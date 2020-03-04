@@ -14,13 +14,15 @@ class users extends database {
             if ($array['category'] != "") {
                 $categoryArray = explode(",",$array['category']);
             } else if ((count($array['category_select']) > 0) && (is_array($array['category_select']))) {
-                $categoryArray = $array['category'];
+                $categoryArray = $array['category_select'];
             }
             if ($array['user_type'] == 1) {
-                $address = urlencode($data['street']." ".$data['city']." ".$data['state']." ".$data['country']);
-                $addressData = $this->googleGeoLocation(false, false, $address);
-                $data['latitude'] = $addressData['latitude'];
-                $data['longitude'] = $addressData['longitude'];
+                if ((!isset($array['latitude'])) || (!isset($array['longitude']))) {
+                    $address = urlencode($data['street']." ".$data['city']." ".$data['state']." ".$data['country']);
+                    $addressData = $this->googleGeoLocation(false, false, $address);
+                    $data['latitude'] = $addressData['latitude'];
+                    $data['longitude'] = $addressData['longitude'];
+                }
             }
             $data['screen_name'] = $this->confirmUnique($this->createUnique($array['last_name']));
             unset($data['category_select']);
@@ -33,6 +35,9 @@ class users extends database {
             unset($data['kin_relationship']);
             unset($data['id_expiry_mm']);
             unset($data['id_expiry_yy']);
+            if ($data['account_type'] == "social_media") {
+                $data['status'] = $array['status'] = "ACTIVE";
+            }
             $create = $this->insert("users", $data);
 
             if ($create) {
@@ -55,15 +60,15 @@ class users extends database {
                 }
 
                 if ($photo_file != "") {
-                    $this->saveProfilePicture($create, $photo_file, "profile");
+                    $this->saveProfilePicture($create, $photo_file, "profile", $array, "profile");
                 } else {
-                    $this->saveProfilePicture($create, $file['photo_file'], false, "profile");
+                    $this->saveProfilePicture($create, $file['photo_file'], false, $array, "profile");
                 }
 
                 if ($id_file != "") {
-                    $this->saveProfilePicture($create, $photo_file, "gov_id");
+                    $this->saveGovernmentId($create, $photo_file, "gov_id");
                 } else {
-                    $this->saveProfilePicture($create, $file['id_file'], false, "gov_id");
+                    $this->saveGovernmentId($create, $file['id_file'], false);
                 }
                 $client = $array['last_name']." ".$array['other_names'];
                 $subjectToClient = "Welcome to MOBA";
@@ -73,6 +78,7 @@ class users extends database {
                     '&last_name='.urlencode($array['last_name']).
                     '&other_names='.urlencode($array['other_names']).
                     '&email='.urlencode($array['email']).
+                    '&status='.urlencode($array['status']).
                     '&password='.urlencode($array['password']);
                 $mailUrl = URL."includes/views/emails/welcome.php?".$fields;
                 $messageToClient = $this->curl_file_get_contents($mailUrl);
@@ -94,6 +100,60 @@ class users extends database {
         }
     }
 
+
+    function saveProfilePicture($id, $file, $api=false, $data=false, $type="profile") {
+        global $media;
+        if ($api === false) {
+            $upload = $media->uploadDP($id, $file, true);
+        } else {
+            $upload = $media->uploadAPI($id, $file, true);
+        }
+
+        if ($upload) {
+            if ($upload['title'] == "OK") {
+                if (($api == "gov_id") || ($type == "gov_id")) {
+                    $t = "id_url";
+                } else if (($api == "profile") || ($type == "profile")) {
+                    $t = "image_url";
+                } else {
+                    $t = "image_url";
+                }
+                $this->modifyUser($t, $upload['desc'], $id, "ref");
+            }
+
+            if ($data) {
+                $this->modifyUser("id_type", $data['id_type'], $id, "ref");
+                $this->modifyUser("id_expiry", $data['id_expiry'], $id, "ref");
+                $this->modifyUser("id_number", $data['id_number'], $id, "ref");
+                $this->modifyUser("verified", 1, $id, "ref");
+            }
+            
+            return $upload;
+        } else {
+            return false;
+        }
+    }
+
+    function saveGovernmentId($id, $file, $api=false) {
+        global $media;
+        if ($api === false) {
+            $upload = $media->uploadDP($id, $file, $api);
+        } else {
+            $upload = $media->uploadAPI($id, $file, $api);
+        }
+
+        if ($upload) {
+            if ($upload['title'] == "OK") {
+                $this->modifyUser("verified", 1, $id, "ref");
+                $this->modifyUser("id_url", $upload['desc'], $id, "ref");
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function validateAcc($email) {
         if ($this->checkExixst("users", "email", $email) == 1) {
             $data = $this->listOne($email, "email");
@@ -101,7 +161,7 @@ class users extends database {
             $urlString = $seed."_".sha1($seed."_".$data['ref']."_".$seed)."_".(time()+(60*60*24))."_".$data['ref'];
 
             $url = URL."login?recover&token=".$urlString;
-            $tag = "We noticed that you recently requested for a new password. please <a href='".$url."'>clcik</a> on the link below to complete the process<br><br>";
+            $tag = "We noticed that you recently requested for a new password. please <a href='".$url."'>click</a> on the link below to complete the process<br><br>";
             $tag .= $url."<br><br>";
             $tag .= "This link expires in 24 hours. If you did not request this action, please ignore and delete this email";
 
@@ -176,11 +236,14 @@ class users extends database {
         $login = $this->query($query, $prepare, "getRow");
 
         if ((is_array($login)) && ($login != false)) {
+            if ($array['firebase_token'] != "") {
+                $this->modifyUser("firebase_token", $array['firebase_token'], $login['ref']);
+            }
             unset($login['password']);
             $_SESSION['users'] = $login;
             $_SESSION['users']['loginTime'] = time();
             $_SESSION['users']['sessionTime'] = time() + 1800;
-            return true;
+            return $login;
         } else {
             return false;
         }
@@ -204,7 +267,6 @@ class users extends database {
     }
 
     public function logout() {
-        $_SESSION = array();
         if(isset($_COOKIE[session_name()])) {
             setcookie(session_name(), '', time()-42000, '/');
         }
@@ -220,19 +282,18 @@ class users extends database {
         if ($array['id_file'] != "") {
             unset($array['id_file']);
         }
-        if ($array['category'] != "") {
-            $categoryArray = explode(",",$array['category']);
-            if (count($categoryArray) > 0) {
+        if (count($array['category_select']) > 0) {
+            if (count($array['category_select']) > 0) {
                 $this->delete("usersCategory", $ref, "user_id");
                 global $usersCategory;
                 
                 $pushData['user_id'] = $ref;
-                for ($i = 0; $i < count($categoryArray); $i++) {
-                    $pushData['category_id'] = $categoryArray[$i];
+                for ($i = 0; $i < count($array['category_select']); $i++) {
+                    $pushData['category_id'] = $array['category_select'][$i];
                     $usersCategory->create($pushData);
                 }
             }
-            unset($array['category']);
+            unset($array['category_select']);
         }
         
         if ($array['kin_name'] != "") {
@@ -251,7 +312,7 @@ class users extends database {
         return $this->update("users", $array, array("ref" => $ref));
     }
 
-    public function modifyUser($tag, $value, $id, $ref) {
+    public function modifyUser($tag, $value, $id, $ref="ref") {
         return $this->updateOne("users", $tag, $value, $id,$ref);
     }
 
@@ -271,20 +332,31 @@ class users extends database {
         return $this->sortAll("users", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit, $type);
     }
 
-    function getProfileImage($id, $class='', $width='50') {
+    function getProfileImage($id, $class='', $width='50', $profile=true) {
         $data = $this->listOne($id);
         $image_Url = $data["image_url"];
         $screen_name = $data["screen_name"];
         $login_type = $data["account_type"];
 
+        if ($width === false) {
+            $thum = " thumbnail";
+        } else {
+            $thum = "";
+        }
+        if ($profile === true) {
+            $pro = " profile";
+        } else {
+            $pro = "";
+        }
+
         if (trim($image_Url) != "") {
             if ($login_type == "local") { ?>
-            <img class="<?php echo $class; ?> profile" src="<?php echo URL.$image_Url; ?>" alt="<?php echo $screen_name; ?>" height="<?php echo $width; ?>">
+            <img class="<?php echo $class.$pro.$thum; ?>" src="<?php echo URL.$image_Url; ?>" alt="<?php echo $screen_name; ?>" height="<?php echo $width; ?>">
         <?php } else if ($login_type == "social_media") { ?>
-            <img class="<?php echo $class; ?> profile" src="<?php echo $image_Url; ?>" alt="<?php echo $screen_name; ?>" height="<?php echo $width; ?>">
+            <img class="<?php echo $class.$pro.$thum; ?>" src="<?php echo $image_Url; ?>" alt="<?php echo $screen_name; ?>" height="<?php echo $width; ?>">
         <?php }
         } else { ?>
-            <img class="<?php echo $class; ?> main_img profile" data-name="<?php echo $screen_name; ?>" alt="<?php echo $screen_name; ?>" src="<?php echo $this->picURL($id, $width); ?>">
+            <img class="<?php echo $class." main_img".$pro.$thum; ?>" data-name="<?php echo $screen_name; ?>" alt="<?php echo $screen_name; ?>" src="<?php echo $this->picURL($id, $width); ?>">
         <?php }
     }
 
@@ -294,55 +366,6 @@ class users extends database {
              return "https://ui-avatars.com/api/?name=".urlencode(@$data['screen_name'])."&width=".$width;
         } else if ((@$data['image_Url'] != "") && (@$data['account_type'] == "local")) {
              return URL.@$data['image_Url'];
-        }
-    }
-
-    function saveProfilePicture($id, $file, $api=false, $data=false, $type="profile") {
-        global $media;
-        if ($api == false) {
-            $upload = $media->uploadDP($id, $file);
-        } else {
-            $upload = $media->uploadAPI($id, $file, $api);
-        }
-
-        if ($upload) {
-            if ($upload['title'] == "OK") {
-                if (($api == "gov_id") || ($type == "gov_id")) {
-                    $t = "id_url";
-                } else if (($api == "profile") || ($type == "profile")) {
-                    $t = "image_url";
-                } else {
-                    $t = "image_url";
-                }
-                $this->modifyUser($t, $upload['desc'], $id, "ref");
-            }
-
-            if ($data) {
-                $this->modifyUser("id_type", $data['id_type'], $id, "ref");
-                $this->modifyUser("id_expiry", $data['id_expiry'], $id, "ref");
-                $this->modifyUser("id_number", $data['id_number'], $id, "ref");
-                $this->modifyUser("verified", 1, $id, "ref");
-            }
-            
-            return $upload;
-        } else {
-            return false;
-        }
-    }
-
-    function saveGovernmentId($id, $file) {
-        global $media;
-        $upload = $media->uploadDP($id, $file, false);
-
-        if ($upload) {
-            if ($upload['title'] == "OK") {
-                $this->modifyUser("verified", 1, $id, "ref");
-                $this->modifyUser("id_url", $upload['desc'], $id, "ref");
-            } else {
-                return false;
-            }
-        } else {
-            return false;
         }
     }
 
@@ -471,12 +494,12 @@ class users extends database {
     
     function usersMailSearch($val, $mobile=false) {
         global $search;
-        $data = $search->usersMailSearch($val, $mobile);
+        // $data = $search->usersMailSearch($val, $mobile);
         
         $array = array();
-        for ($i = 0; $i < count($data); $i++) {
-            $array[$data[$i]['ref']] = $data[$i]['last_name']." ".$data[$i]['other_names']." (".$data[$i]['screen_name'].")";
-        }
+        // for ($i = 0; $i < count($data); $i++) {
+        //     $array[$data[$i]['ref']] = $data[$i]['last_name']." ".$data[$i]['other_names']." (".$data[$i]['screen_name'].")";
+        // }
 
         return $array;
     }
@@ -548,7 +571,7 @@ class users extends database {
             $return['status'] = "200";
             $return['message'] = "OK";
             $return['data'] = $this->formatResult( $this->listOne($user), true );
-            $kin = $usersKin->listOne($user);
+            $kin = $usersKin->listOneKin($user);
             if ($kin) {
                 $return['data']['next_of_kin'] = $kin;
             }

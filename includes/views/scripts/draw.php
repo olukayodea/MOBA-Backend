@@ -4,6 +4,6 @@ $id = $_REQUEST['id'];
 
 $image_Url = $users->listOnValue($id, "image_url");
 $screen_name = $users->listOnValue($id, "screen_name");
-echo $users->getProfileImage($id, "main_img");
+echo $users->getProfileImage($id, "main_img", false);
 
 ?>

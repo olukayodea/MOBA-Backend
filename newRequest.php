@@ -24,6 +24,7 @@
         $_POST['latitude'] = $_POST['lat'];
         $_POST['category_id'] = $_POST['id'];
         $_POST['longitude'] = $_POST['lng'];
+        $_POST['data'] = serialize( $_POST['data'] );
         unset($_POST['id']);
         unset($_POST['lat']);
         unset($_POST['lng']);

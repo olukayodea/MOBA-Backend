@@ -11,6 +11,7 @@
             if ($array['ref'] == 0) {
                 unset($array['ref']);
             }
+
             $create = $this->replace("category", $array, $replace);
             if ($create) {
                 return $create;
@@ -92,6 +93,8 @@
 
         private function clean($data) {
             $data['image_url'] = $this->getIcon($data['ref']);
+
+            $data['questionnaire'] = $this->apiGetQustions($data['ref']);
             unset($data['status']);
             unset($data['country']);
             unset($data['parent_id']);
@@ -108,6 +111,23 @@
             } else {
                 $data = $this->clean($data);
             }
+            return $data;
+        }
+
+        public function apiGetQustions($id) {
+            global $categoryQuestion;
+            $question = $categoryQuestion->getSortedList($id, "category_id");
+
+            for ($i = 0; $i < count($question); $i++) {
+                $data[$i]['question'] = $question[$i]['title'];
+                if ($question[$i]['type'] == 0) {
+                    $data[$i]['questionType'] = "Selection";
+                    $data[$i]['questionTypeOptions'] = explode("\n", $question[$i]['data'] );
+                } else {
+                    $data[$i]['questionType'] = "Text";
+                }
+            }
+
             return $data;
         }
 

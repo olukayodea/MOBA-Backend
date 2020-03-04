@@ -4,6 +4,8 @@ class request_negotiate extends database {
     */
     public function negotiatePrize($array) {
         global $messages;
+        global $notifications;
+        global $users;
         $data['post_id'] = $array['post_id'];
         $data['user_id'] = $array['user_id'];
         $data['user_r_id'] = $array['user_r_id'];
@@ -21,6 +23,14 @@ class request_negotiate extends database {
           $array['m_type_data']  = $data['amount']."_".$create;
           $messages->add($array);
   
+          $data["to"] = $array['user_r_id'];
+          $data["title"] = "Negotiation Request";
+          $data["body"] = $users->listOnValue($array['user_id'], "screen_name")." sent a negotiation request";
+          $data['data']['page_name'] = "messages";
+          $data['data']['provider']['ref'] = $array['user_r_id'];
+          $data['data']['provider']['screen_name'] = $users->listOnValue( $array['user_r_id'], "screen_name" );
+          $data['data']['postId'] = $array['post_id'];
+          $notifications->sendPush($data);
           return true;
         } else {
           return false;
@@ -30,6 +40,7 @@ class request_negotiate extends database {
     public function negotiateResponse($array) {
         global $messages;
         global $users;
+        global $notifications;
         $this->updateOneRow("status", $array['status'], $array['ref']);
         $messages->updateOneRow("message", "You have a new fee negotiation request.", $array['message']);
         $messages->updateOneRow("m_type", "post_messages", $array['message']);
@@ -49,6 +60,15 @@ class request_negotiate extends database {
         $msgArray['m_type']  = "system";
         $messages->add($msgArray);
 
+        $data["to"] = $messageData['user_id'];
+        $data["title"] = "Negotiation Request";
+        $data["body"] = $msg;
+        $data['data']['page_name'] = "messages";
+        $data['data']['provider']['ref'] = $messageData['user_id'];
+        $data['data']['provider']['screen_name'] = $users->listOnValue( $messageData['user_id'], "screen_name" );
+        $data['data']['postId'] = $messageData['post_id'];
+        $notifications->sendPush($data);
+
         //send email after
 
         $msg .= ". <a href='".$this->seo($messageData['post_id'], "view")."'>Click here</a> to continue review this request";
@@ -57,7 +77,7 @@ class request_negotiate extends database {
         
         $client = $data['last_name']." ".$data['other_names'];
         $subjectToClient = "Negotiation Request Update";
-        $contact = "Bereno <".replyMail.">";
+        $contact = "MOBA <".replyMail.">";
         
         $fields = 'subject='.urlencode($subjectToClient).
             '&last_name='.urlencode($data['last_name']).

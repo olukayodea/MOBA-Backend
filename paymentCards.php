@@ -9,11 +9,31 @@
         $view = "list";
     }
 
-    if (isset($_POST['getPayment'])) {
+    if (isset($_POST['getPaymentVerify'])) {
+        $add = $userPayment->verifyPayment($_POST);
+        if ($add) {
+
+            if ($add['status'] == "OK") {
+                if ($add['message'] == "complete") {
+                    header("location: ".URL.$redirect."?done=".urldecode("Payment Card Added"));
+                }  else if (($add['message'] == "incomplete") || isset($add['fields'])) {
+                    header("location: ".URL.$redirect."/".$view."/?id=".$add['card_id']."&fields=".urldecode($add['fields'])."&warning=".urldecode($add['additional_message']));
+                } else {
+                    header("location: ".URL.$redirect."/".$view."/?error=".urldecode($add['additional_message']));
+                }
+            } else {
+                header("location: ".URL.$redirect."/".$view."/?error=".urldecode($add['message']));
+            }
+        }
+    } else if (isset($_POST['getPayment'])) {
         $add = $userPayment->postMew($_POST);
         if ($add) {
             if ($add['status'] == "OK") {
-                header("location: ".URL.$redirect."?done=".urldecode("Payment Card Added"));
+                if ($add['message'] == "complete") {
+                    header("location: ".URL.$redirect."?done=".urldecode("Payment Card Added"));
+                } else {
+                    header("location: ".URL.$redirect."/".$view."/?id=".$add['card_id']."&fields=".urldecode($add['fields'])."&warning=".urldecode($add['additional_message']));
+                }
             } else {
                 header("location: ".URL.$redirect."/".$view."/?error=".urldecode($add['message']));
             }

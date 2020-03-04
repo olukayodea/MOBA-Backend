@@ -7,14 +7,129 @@
         <?php }
 
     function pageContent($redirect, $view="list", $edit=0) {
-      if ($view == "list") {
-          $this->listAll($redirect);
+      if ($view == "createQuestionare") {
+        $this->createQuestionare($redirect, $edit);
+      } else if ($view == "list") {
+        $this->listAll($redirect);
       } else {
           $this->createNew($redirect, $edit);
       }
     }
 
+    private function createQuestionare($redirect, $edit) {
+      global $categoryQuestion;
+      global $options;
+      $data = $this->getOne("category", $edit, "ref");
+      if (isset($_REQUEST['page'])) {
+        $page = $_REQUEST['page'];
+      } else {
+        $page = 0;
+      }
+
+      if (isset($_REQUEST['qRef'])) {
+        $qRef = $_REQUEST['qRef'];
+        $qData = $categoryQuestion->listOne($qRef);
+        $title = "Modify Questionnaire for ".$data['category_title'];
+        $tag = "Save Changes";
+      } else {
+        $qRef = 0;
+        $title = "Set up Questionnaire for ".$data['category_title'];
+        $tag = "Save Questioniare";
+      }
+      
+      
+      $limit = $options->get("result_per_page");
+      $start = $page*$limit;
+      $responseData = $categoryQuestion->categoryListPages($data['ref'], $start, $limit);
+      $list = $responseData['data'];
+      $listCount = $responseData['count']; ?>
+      <main class="col-12" role="main">
+      <form method="post" action="" enctype="multipart/form-data">
+      <h2><?php echo $title; ?></h2>
+      <div class="form-group">
+          <label for="title">Question 1</label>
+          <input type="text" class="form-control" name="title" id="title" placeholder="Enter Question" required value="<?php echo $qData['title']; ?>">
+      </div>
+      <div class="form-group">
+        <label for="type">Type</label>
+        <select class="form-control" id="type" name="type" required>
+          <option value="">Select One</option>
+          <option value="0"<?php if ($qData['type'] == "0") { ?> selected<?php } ?>>Multiple Option</option>
+          <option value="1"<?php if ($qData['type'] == "1") { ?> selected<?php } ?>>Text Input</option>
+        </select>
+      </div>
+      <div class="form-group">
+          <label for="data">Option</label>
+          <textarea name="data" id="data" class="form-control"><?php echo $qData['data']; ?></textarea>
+          <small>Enter each question options line by line</small>
+      </div>
+      <input type="hidden" name="category_id" value="<?php echo $edit; ?>">
+
+      <?php if ($qRef > 0) { ?>
+      <input type="hidden" name="ref" value="<?php echo $qRef; ?>">
+      <?php } ?>
+      <button type="submit" name="AddQuestion" id="AddQuestion" class="btn purple-bn1"><?php echo $tag; ?></button>
+      <button type="button" class="btn purple-bn1" onClick="location='<?php echo $redirect; ?>'" >Cancel</button>
+      </form>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Question</th>
+            <th scope="col">Type</th>
+            <th scope="col">Options</th>
+            <th scope="col">Created</th>
+            <th scope="col">Last Modified</th>
+            <th scope="col">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php for ($i = 0; $i < count($list); $i++) {
+            if ($list[$i]['type'] == 0) {
+              $statusTag = "Selection";
+            } else if ($list[$i]['type'] == 1) {
+              $statusTag = "Text";
+            } ?>
+          <tr>
+            <th scope="row"><?php echo $start+$i+1; ?></th>
+            <td><?php echo $list[$i]['title']; ?></td>
+            <td><?php echo $statusTag; ?></td>
+            <td><?php echo $list[$i]['data']; ?></td>
+            <td><?php echo $list[$i]['create_time']; ?></td>
+            <td><?php echo $list[$i]['modify_time']; ?></td>
+            <td><a href="<?php echo URL.$redirect."/createQuestionare?edit=".$data['ref']."&qRef=".$list[$i]['ref']; ?>">Edit</a> | <a href="<?php echo URL.$redirect."/createQuestionare?edit=".$data['ref']."&deleteQustionare=".$list[$i]['ref']; ?>" onClick="return confirm('this action will remove this category. are you sure you want to continue ?')">Delete</a></td>
+          </tr>
+          <?php } ?>
+        </tbody>
+      </table>
+      <?php $this->pagination($page, $listCount); ?>
+    </main>
+    </div>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#type').change(function() {
+          if ($(this).val() == 1) {
+            $('#data').removeAttr("required")
+            $('#data').prop('readonly', true);  
+          } else {
+            $('#data').prop('readonly', false);
+            $('#data').attr("required")      
+          }
+        })
+
+        if ($(this).val() == 1) {
+            $('#data').removeAttr("required")
+            $('#data').prop('readonly', true);  
+          } else {
+            $('#data').prop('readonly', false);
+            $('#data').attr("required")      
+          }
+      });
+    </script>
+    <?php }
+
     function createNew($redirect, $edit=0) {
+      global $country;
       $list = $this->getSortedList("ACTIVE", "status", "parent_id", 0);
 
       if ($edit > 0) {
@@ -38,16 +153,20 @@
       <label for="category_title">Category Name</label>
       <input type="text" class="form-control" name="category_title" id="category_title" placeholder="Enter Category Name" required value="<?php echo $data['category_title']; ?>">
   </div>
+  <div class="form-group">
+      <label for="call_out_charge">Callout Charge</label>
+      <input type="number" class="form-control" name="call_out_charge" id="call_out_charge" placeholder="Enter Callout Charge in <?php echo $country->getCountryData($_SESSION['location']['code'], "currency_symbol", "code"); ?>" step="0.01" required value="<?php echo $data['call_out_charge']; ?>">
+  </div>
   <?php if ($data['image_url'] != "") { ?>
     <div class="form-group">
-      <label for="category_title">Category Icon</label>
-      <div id="image-holder" class="thumb-image"><img width="150" src="<?php echo URL.$data['image_url']; ?>"></div>
+      <label for="fileUpload">Category Icon</label>
+      <div id="image-holder" class="thumb-image"><img width="150" src="<?php echo $this->getIcon($data['ref']); ?>"></div>
       <a href="<?php echo URL."admin/category/create?edit=".$data['ref']."&updateImg"; ?>" onClick="return confirm('this action will remove this icon, this action can not be reversed. are you sure you want to continue ?')">remove icon</a>
     </div>
   <?php } else { ?>
     <div class="form-group">
-        <label for="category_title">Category Icon</label>
-        <input id="fileUpload" name="img" type="file" class="form-control" required accept="image/png">
+        <label for="fileUpload">Category Icon</label>
+        <input id="fileUpload" name="img" type="file" class="form-control" accept="image/png">
         <div id="image-holder" class="thumb-image"></div>
     </div>
   <?php } ?>
@@ -68,9 +187,11 @@
     </select>
   </div>
   <input type="hidden" name="ref" value="<?php echo $edit; ?>">
+  <input type="hidden" name="country" value="<?php echo $country->getCountryData($_SESSION['location']['code'], "ref", "code"); ?>">
   <button type="submit" name="submitCat" id="submitCat" class="btn purple-bn1"><?php echo $tag; ?></button>
   <?php if ($edit > 0) { ?>
   <button type="button" class="btn purple-bn1" onClick="location='<?php echo $redirect; ?>'" >Cancel</button>
+  <button type="button" class="btn purple-bn1" onClick="location='<?php echo URL; ?>admin/category/createQuestionare?edit=<?php echo $edit; ?>'" >Manage Questionaire</button>
   <?php } ?>
   </form>
 </main>
@@ -113,6 +234,7 @@ $("#fileUpload").on('change', function () {
 <?php }
 
     function listAll($redirect) {
+      global $country;
       global $options;
 
       if (isset($_REQUEST['page'])) {
@@ -132,6 +254,7 @@ $("#fileUpload").on('change', function () {
   <th scope="col">#</th>
   <th scope="col">Category</th>
   <th scope="col">Parent Category</th>
+  <th scope="col">Country</th>
   <th scope="col">Status</th>
   <th scope="col">Created</th>
   <th scope="col">Last Modified</th>
@@ -150,10 +273,11 @@ $("#fileUpload").on('change', function () {
   <th scope="row"><?php echo $start+$i+1; ?></th>
   <td><img src="<?php echo $this->getIcon($list[$i]['ref']); ?>" height="25" width="25">&nbsp;<?php echo $list[$i]['category_title']; ?></td>
   <td><?php echo $this->getSingle($list[$i]['parent_id']); ?></td>
+  <td><?php echo $country->getSingle( $list[$i]['country'] ); ?></td>
   <td><?php echo $list[$i]['status']; ?></td>
   <td><?php echo $list[$i]['create_time']; ?></td>
   <td><?php echo $list[$i]['modify_time']; ?></td>
-  <td><a href="<?php echo URL.$redirect."/create?edit=".$list[$i]['ref']; ?>">Edit</a> | <a href="<?php echo URL.$redirect."?statusChange=".$list[$i]['ref']; ?>" onClick="return confirm('this action will <?php echo strtolower($statusTag); ?> this category, all sub categories under the category will also be <?php echo $statusTag; ?>d. are you sure you want to continue ?')"><?php echo strtolower($statusTag); ?></a> | <a href="<?php echo URL.$redirect."?delete=".$list[$i]['ref']; ?>" onClick="return confirm('this action will remove this category. are you sure you want to continue ?')">Delete</a></td>
+  <td><a href="<?php echo URL.$redirect."/create?edit=".$list[$i]['ref']; ?>">Edit</a> | <a href="<?php echo URL.$redirect."/createQuestionare?edit=".$list[$i]['ref']; ?>">Manage Questionaire</a> | <a href="<?php echo URL.$redirect."?statusChange=".$list[$i]['ref']; ?>" onClick="return confirm('this action will <?php echo strtolower($statusTag); ?> this category, all sub categories under the category will also be <?php echo $statusTag; ?>d. are you sure you want to continue ?')"><?php echo strtolower($statusTag); ?></a> | <a href="<?php echo URL.$redirect."?delete=".$list[$i]['ref']; ?>" onClick="return confirm('this action will remove this category. are you sure you want to continue ?')">Delete</a></td>
 </tr>
   <?php } ?>
 </tbody>

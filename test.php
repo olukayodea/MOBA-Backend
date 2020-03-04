@@ -4,16 +4,23 @@
     // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNB1EJ";
     $u = "https://dev.moba.com.ng/";
-    $token = "111HEVQ38JEOKVNB1EJ";
+    $token = "440XVMA543434323212";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
-    //common factors
+    // //common factors
     $header[] = "Content-Type: application/json";
     $header[] = "Authorization: Bearer ".$gateway_passcode;
 	$header[] ='key: '.$product_key;
 	$header[] ='ver: 1';
 	$header[] ='longitude: 3.349149';
     $header[] ='latitude: 6.605874';
+    //common factors
+    // $header[] = "Content-Type: application/json";
+    // $header[] = "Authorization: Bearer ODYzM182NjBKNTBSWks5MVhRMzVJS0k1";
+	// $header[] ='key: 8633';
+	// $header[] ='ver: 1';
+	// $header[] ='longitude: 7.4268125';
+    // $header[] ='latitude: 9.1228643';
 /*
     //data
     $url = $u."api/data";
@@ -31,49 +38,53 @@
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
 
-    $img[] = "tmp/1.jpeg";
-    $img[] = "tmp/2.jpeg";
-    $img[] = "tmp/2.jpg";
-    $img[] = "tmp/2.png";
-    $img[] = "tmp/3.jpg";
-    $img[] = "tmp/4.png";
-    $sImg = shuffle($img);
-    //1395 bank street  9am to 1:30pm tuesdays to friday, Elter Krity; 613 745 8124 x5360
-/*    //register
-    //type = "local", "social_media";
-    //user_type = "0 for users", "1 for service provider", "2 for service admin";
-    $array['user_type'] = 1;
-    $array['last_name'] = "Fighi".rand();
-    $array['other_names'] = "Fighi".rand();
-    $array['email'] = "Chi@gh.bjr".rand();
-    $array['password'] = "nigsu111";
-    $array['account_type'] = "local";
-    $array['account_type_token'] = "";
-    $array['firebase_token'] = "asdfasdfa";
-    //service provider
-    $array['mobile_number'] = "080".rand(10000000, 99999999);
-    $array['street'] = "Issuti road";
-    $array['city'] = "Igando";
-    $array['state'] = "Lagos";
-    $array['country'] = "Nigeria";
-    $array['category'] = rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52);
-    $array['id_type'] = 1;
-    $array['id_expiry'] = "Kunzu";
-    $array['id_number'] = "Kunzu";
-    $array['photo_file'] = "Kunzu";
-    $array['id_file'] = base64_encode(file_get_contents($img[$sImg]));
-    $array['kin_name'] = "Kunzu".rand();
-    $array['kin_email'] = rand().'@'.rand().".com";
-    $array['kin_phone'] = rand();
-    $array['kin_relationship'] = "Family";
+    // $img[] = "tmp/1.jpeg";
+    // $img[] = "tmp/2.jpeg";
+    // $img[] = "tmp/2.jpg";
+    // $img[] = "tmp/2.png";
+    // $img[] = "tmp/3.jpg";
+    // $img[] = "tmp/4.png";
+    // $sImg = shuffle($img);
+    // //1395 bank street  9am to 1:30pm tuesdays to friday, Elter Krity; 613 745 8124 x5360
+    // //register
+    // //type = "local", "social_media";
+    // //user_type = "0 for users", "1 for service provider", "2 for service admin";
+    // $array['user_type'] = 1;
+    // $array['last_name'] = "Fighi".rand();
+    // $array['other_names'] = "Fighi".rand();
+    // $array['email'] = "Chi@gh.bjr".rand();
+    // $array['password'] = "nigsu111";
+    // $array['account_type'] = "local";
+    // $array['account_type_token'] = "";
+    // $array['firebase_token'] = "asdfasdfa";
+    // //service provider
+    // $array['mobile_number'] = "080".rand(10000000, 99999999);
+    // $array['street'] = "Issuti road";
+    // $array['city'] = "Igando";
+    // $array['state'] = "Lagos";
+    // $array['country'] = "Nigeria";
+    // $array['category'] = rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52).",".rand(1,52);
+    // $array['id_type'] = 1;
+    // $array['id_expiry'] = "Kunzu";
+    // $array['id_number'] = "Kunzu";
+    // $array['photo_file'] = base64_encode(file_get_contents($img[$sImg]));
+    // $array['id_file'] = base64_encode(file_get_contents($img[$sImg]));
+    // $array['kin_name'] = "Kunzu".rand();
+    // $array['kin_email'] = rand().'@'.rand().".com";
+    // $array['kin_phone'] = rand();
+    // $array['kin_relationship'] = "Family";
 
-    $url = $u."api/users/join";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    // $url = $u."api/users/join";
+    // $json_data = json_encode($array);
+    // echo post($header, $url, $json_data);
 /*
     //recover
     $url = $u."api/users/recover/".urlencode("olukayode.adebiyi@hotmail.co.uk");
     echo get($header, $url); */
+/*
+    //profile
+    $url = $u."api/users/profile";
+    echo get($header, $url);*/
 /*
     //category::listparent
     $url = $u."api/category/listParent";
@@ -85,6 +96,10 @@
 /*
     //category::list
     $url = $u."api/category/list";
+    echo get($header, $url);*/
+/*
+    //category::Questionnaire
+    $url = $u."api/category/questionnaire/35";
     echo get($header, $url);*/
 /*
     Posts
@@ -103,21 +118,28 @@
     //posts::aroundme
     $url = $u."api/posts/aroundMe/1";
     echo get($header, $url);*/
-/*  
-    //Request
-    //request::create
-    $array['fee']  = "250.00";
-    $array['time']  = "60";
-    $array['address']  = "147 isuti road, Igando Lagos";
-    $array['description']  = "this is just a description text";
-    $array['category_id']  = 1;
-    $array['media'][0]  = base64_encode(file_get_contents($img[$sImg]));
-    $array['media'][1]  = base64_encode(file_get_contents($img[$sImg]));
-    $array['media'][2]  = base64_encode(file_get_contents($img[$sImg]));
+ 
+    // // Request
+    // // request::create
+    // $array['fee']  = "250.00";
+    // $array['time']  = "60";
+    // $array['address']  = "147 isuti road, Igando Lagos";
+    // $array['description']  = "this is just a description text";
+    // $array['category_id']  = 1;
+	// $array['longitude'] = 3.349149;
+    // $array ['latitude'] = 6.605874;
 
-    $url = $u."api/request/create";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    // $array['data'][0]['question']  = "What do you need an AC Technician for?";
+    // $array['data'][0]['answer']  = "I need my AC serviced.";
+    // $array['data'][1]['question']  = "How soon do you want this done?";
+    // $array['data'][1]['answer']  = "soon";
+    // $array['media'][0]  = base64_encode(file_get_contents($img[$sImg]));
+    // $array['media'][1]  = base64_encode(file_get_contents($img[$sImg]));
+    // $array['media'][2]  = base64_encode(file_get_contents($img[$sImg]));
+
+    // $url = $u."api/request/create";
+    // echo $json_data = json_encode($array);
+    // echo post($header, $url, $json_data);
 
 /*
     //request::hire
@@ -166,6 +188,9 @@
 /*    
     $url = $u."api/request/get/past";
     echo get($header, $url);*/
+
+    $url = $u."api/request/get/available";
+    echo get($header, $url);
 /*    
     $url = $u."api/request/get/active";
     echo get($header, $url);*/
@@ -252,7 +277,7 @@
     //add
     $array['cc_last_name'] = "Adeniran";
     $array['cc_first_name'] = "Olakunle";
-    $array['cardno'] = "4504481742333";
+    $array['cardno'] = "5531886652142950";
     $array['mm'] = "02";
     $array['yy'] = "20";
     $array['cvv'] = "123";
@@ -260,6 +285,15 @@
     $url = $u."api/cards/add/";
     $json_data = json_encode($array);
     echo post($header, $url, $json_data);*/
+
+    // //add
+    // $array['card_id'] = "10";
+    // //$array['pin'] = "3310";
+    // $array['otp_code'] = "12345";
+
+    // $url = $u."api/cards/verify";
+    // $json_data = json_encode($array, JSON_PRETTY_PRINT);
+    // echo put($header, $url, $json_data);
 /*
     //get
     $url = $u."api/cards/get/1";
@@ -401,7 +435,7 @@
     echo get($header, $url);*/
 /*
     //request ad as complete
-    $url = $u."api/request/alert/28";
+    $url = $u."api/request/alert/25";
     echo get($header, $url);*/
 /*
     //review criteria
@@ -411,7 +445,7 @@
     //get review
     $url = $u."api/request/review/28";
     echo get($header, $url);*/
-
+/*
     //post review
     $array['project_id'] = 28;
     $array['comment'] = "No Comment Via API";
@@ -425,7 +459,7 @@
     $array['rating'][3]['score'] = 3;
     $url = $u."api/advert/review";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);
+    echo post($header, $url, $json_data);*/
 /*
     //messages
     //send
@@ -480,44 +514,44 @@
     echo $url;
 
     function get($header,$url) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
-        // return $output;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
     }
 
     function post($header,$url, $data) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $output = curl_exec($ch);
+        curl_close($ch);
         
-        // return $output;
+        return $output;
     }
     
     function put($header,$url, $data) {
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
-        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // $output = curl_exec($ch);
-        // curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $output = curl_exec($ch);
+        curl_close($ch);
         
-        // return $output;
+        return $output;
     }
 
     function delete($header,$url) {

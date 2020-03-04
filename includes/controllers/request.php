@@ -13,7 +13,6 @@ class request extends database {
             unset($array['media']);
             
         }
-        $array['time'] = ($array['time']*60)+time();
         $create = $this->insert("request", $array);
         if ($create) {
             
@@ -90,7 +89,7 @@ class request extends database {
         return $this->getSortedList($id, $type, "status", "COMPLETED", false, false, "ref", "ASC", "AND", false, false, "count");
     }
 
-    public function listAllData($ref, $view, $start, $limit) {
+    public function listAllData($ref, $view, $start, $limit, $location) {
         if ($view == "open") {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'OPEN' AND `user_id` = ".$ref);
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'OPEN' AND `user_id` = ".$ref, "count"));
@@ -103,6 +102,9 @@ class request extends database {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )");
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )", "count"));
             $return['tag'] = "Current Interests.";
+        } else if ($view == "available") {
+            $return = $this->getActiveRequest($ref, $location['longitude'], $location['latitude'], $location['country'], $start, $limit);
+            $return['tag'] = "All Currently Available Jobs";
         } else if ($view == "past") {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
@@ -112,6 +114,15 @@ class request extends database {
             $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", " (`user_id` = ".$ref." OR `client_id` = ".$ref.") AND `status` != 'DELETED'", "count"));
             $return['tag'] = "All Requests";
         }
+
+        return $return;
+    }
+
+    public function getActiveRequest($ref, $longitude, $latitude, $country, $start, $limit) {        
+        $sql = "SELECT `ref`, `user_id`, `client_id`, `category_id`, `fee`, `address`, `card`, `region`, `tx_id`, `latitude`, `longitude`, `data`, `status`, `start_date`, `end_date`, `review_status`, `client_rate`, `review_status_time`, `user_rate`, `create_time`, `modify_time`, SQRT(((`latitude` - ".$latitude.")*(`latitude` - ".$latitude.")) + ((`longitude` - ".$longitude.")*(`longitude` - ".$longitude."))) AS `total` FROM `request` WHERE `status` = 'OPEN' AND (`user_id` != ".$ref." OR `client_id` != ".$ref.") AND `category_id` IN (SELECT `category_id` FROM `usersCategory` WHERE `user_id` = ".$ref.") AND (`address` LIKE '%".$country."%' OR `address` = '') ORDER BY `total` ASC";
+
+        $return['list'] = $this->query($sql." LIMIT ".$start.",".$limit, false, "list");
+        $return['listCount'] = $this->query($sql, false, "count");
 
         return $return;
     }
@@ -159,11 +170,12 @@ class request extends database {
             $tx_id = $transactions->createTx($tx_pay);
 
             $pay_gateway['gross_total'] = $remainder;
+            $pay_gateway['tx_id'] = $tx_id;
             //try all the cards until one goes
             for ($j = 0; $j < count($list); $j++) {
                 $pay_gateway['card'] = $list[$j]['ref'];
                 //get balance from gateway
-                $makePayment = $transactions->bambora_pay($pay_gateway);
+                $makePayment = $transactions->processPay($pay_gateway);
                 $this->updateOne("transactions", "gateway_data", serialize($makePayment), $tx_id, "ref");
                 $this->updateOne("transactions", "gateway_status", $makePayment['message'], $tx_id, "ref");
                 if (($makePayment['approved'] == 1) && ($makePayment['message'] == "Approved")) {
@@ -378,6 +390,15 @@ class request extends database {
 
                     $notifications->create($notificationArray);
 
+                    $data["to"] = $data['client_id'];
+                    $data["title"] = "Message Notification";
+                    $data["body"] = $notificationArray['message']." You can now review and comment on this job now";
+                    $data['data']['page_name'] = "comment";
+                    $data['data']['provider']['ref'] = $data['client_id'];
+                    $data['data']['provider']['screen_name'] = $users->listOnValue( $data['client_id'], "screen_name" );
+                    $data['data']['postId'] = $data['ref'];
+                    $notifications->sendPush($data);
+
                     $tag = "This task has been approve and the payment is now available in your wallet. <a href='".URL."ads\past'>Sigin in</a> to your MOBA Account to learn more";
 
                     $user_data = $users->listOne($data['client_id']);
@@ -408,6 +429,15 @@ class request extends database {
                     $notificationArray['email'] = $tag;
 
                     $notifications->create($notificationArray);
+
+                    $data["to"] = $data['user_id'];
+                    $data["title"] = "Message Notification";
+                    $data["body"] = $notificationArray['message']." You can now review and comment on this job now";
+                    $data['data']['page_name'] = "comment";
+                    $data['data']['provider']['ref'] = $data['user_id'];
+                    $data['data']['provider']['screen_name'] = $users->listOnValue( $data['user_id'], "screen_name" );
+                    $data['data']['postId'] = $data['ref'];
+                    $notifications->sendPush($data);
                     return true;
                 } else {
                     return false;
@@ -447,6 +477,16 @@ class request extends database {
                     $msgArray['m_type']  = "system";
                     $messages->add($msgArray);
 
+                    $data["to"] = $user_r_id;
+                    $data["title"] = "Message Notification";
+                    $data["body"] = $msg;
+                    $data['data']['page_name'] = "messages";
+                    $data['data']['provider']['ref'] = $user_r_id;
+                    $data['data']['provider']['screen_name'] = $users->listOnValue( $user_r_id, "screen_name" );
+                    $data['data']['postId'] = $data['ref'];
+
+                    $notifications->sendPush($data);
+
                     return true;
                 } else {
                     return false;
@@ -479,13 +519,14 @@ class request extends database {
                     $return['message'] = "Not Implemented";
                     $return['additional_message'] = "You can not allowed to perform this action";
                 }
-            } else if ($action == "request") {
+            } else if ($action == "alert") {
                 if (($data['user_id'] == $array['user_id']) && ($data['status'] != "COMPLETED")) {
                     $return['status'] = "501";
                     $return['message'] = "Not Implemented";
                     $return['additional_message'] = "You can not perform this request, you can only approve the Job";
                 } else if (($data['client_id'] == $array['user_id']) && ($data['status'] != "COMPLETED")) {
                         $add = $this->approve($ref, "request_approve", $data['client_id']);
+                        $add = true;
                         if ($add) {
                             $return['status'] = "200";
                             $return['message'] = "OK";
@@ -637,11 +678,12 @@ class request extends database {
                 $tx_id = $wallet->createTx($tx_pay);
 
                 $pay_gateway['gross_total'] = $remainder;
+                $pay_gateway['tx_id'] = $tx_id;
                 //try all the cards until one goes
                 for ($j = 0; $j < count($list); $j++) {
                     $pay_gateway['card'] = $list[$j]['ref'];
                     //get balance from gateway
-                    $makePayment = $wallet->bambora_pay($pay_gateway);
+                    $makePayment = $wallet->processPay($pay_gateway);
                     $this->updateOne("transactions", "gateway_data", serialize($makePayment), $tx_id, "ref");
                     $this->updateOne("transactions", "gateway_status", $makePayment['message'], $tx_id, "ref");
                     if (($makePayment['approved'] == 1) && ($makePayment['message'] == "Approved")) {
@@ -929,9 +971,13 @@ class request extends database {
         unset($card['create_time']);
         unset($card['modify_time']);
         unset($card['gateway_token']);
+        unset($card['gateway_token']);
+        unset($card['gateway_token']);
         
         $data['fee'] = $f_data;
         $data['card'] = $card;
+
+        $data['data'] = unserialize($data['data']);
 
         $category_id = $data['category_id'];
         $cat['id'] = $category_id;
@@ -953,8 +999,8 @@ class request extends database {
         }
         $start = $current*$limit;
 
-        if (($type == "all") || ($type == "open") || ($type == "running") || ($type == "past") || ($type == "running") || ($type == "past") || ($type == "current")) {
-            $result = $this->listAllData($user, $type, $start, $limit);
+        if (($type == "all") || ($type == "open") || ($type == "running") || ($type == "past") || ($type == "running") || ($type == "past") || ($type == "current") || ($type == "available")) {
+            $result = $this->listAllData($user, $type, $start, $limit, $location);
 
             $data['counts']['current_page'] = ($result['listCount'] > 0 ? $page : 0);
             $data['counts']['total_page'] = ceil($result['listCount']/$limit);
@@ -1108,6 +1154,7 @@ class request extends database {
         global $messages;
         global $users;
         global $rating;
+        global $notifications;
         if ($action == "post") {
             $array['m_type'] = "text";
             if ((intval($array['user_r_id']) > 0) && ($array['user_r_id'] != $array['user_id'])) {
@@ -1115,6 +1162,16 @@ class request extends database {
                 if ($id) {
                     $return['status'] = "200";
                     $return['message'] = "OK";
+
+                    $data["to"] = $array['user_r_id'];
+                    $data["title"] = "Message Notification";
+                    $data["body"] = "New message from ".$users->listOnValue($array['user_id'], "screen_name");
+                    $data['data']['page_name'] = "messages";
+                    $data['data']['provider']['ref'] = $array['user_r_id'];
+                    $data['data']['provider']['screen_name'] = $users->listOnValue( $array['user_r_id'], "screen_name" );
+                    $data['data']['postId'] = $array['post_id'];
+
+                    $notifications->sendPush($data);
                 } else {
                     $return['status'] = "500";
                     $return['message'] = "Internal Server Error";
@@ -1124,7 +1181,6 @@ class request extends database {
                 $return['message'] = "Not Implemented";
                 $return['additional_message'] = "Responder ID must be defined in POST as user_r_id and must not be the same as the logged in user";
             }
-
         } else {
             $data = $this->listOne($array['post_id']);
             if ($data) {
@@ -1314,6 +1370,7 @@ class request extends database {
             `client_rate` INT NOT NULL,
             `user_rate` INT NOT NULL,
             `review_status_time` VARCHAR(50) NULL, 
+            `data` TEXT NULL,
             `status` varchar(20) NOT NULL DEFAULT 'OPEN',
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

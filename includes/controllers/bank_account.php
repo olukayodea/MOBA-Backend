@@ -5,6 +5,7 @@
         public function create($array) {
             global $users;
             global $alerts;
+            global $notifications;
             
             $get_count = count($this->getSortedList($array['user_id'], 'user_id'));
             if ($get_count == 0) {
@@ -46,6 +47,12 @@
                 $mail['body'] = $messageToClient;
                 
                 $alerts->sendEmail($mail);
+
+                $data["to"] = $array['user_id'];
+                $data["title"] = "System Notification";
+                $data["body"] = "Payment Card Update";
+                $data['data']['page_name'] = "home";
+                $notifications->sendPush($data);
                 return true;
             }
         }

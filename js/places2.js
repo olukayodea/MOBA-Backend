@@ -9,8 +9,10 @@
 var placeSearch, autocomplete;
 
 var componentForm = {
+  colloquial_area: 'long_name',
   locality: 'long_name',
   administrative_area_level_1: 'long_name',
+  administrative_area_level_2: 'long_name',
   country: 'long_name',
   postal_code: 'short_name'
 };

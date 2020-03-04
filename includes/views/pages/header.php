@@ -9,91 +9,96 @@
             
 
             <?php if  ($home === true) {
-                $nav = "nav-link"; ?>
+                $nav = "nav-link";
+                $icon_color = "icon_color_light";
+                $logo = "logo_lg"; ?>
             <nav class="navbar absolute-top navbar-expand-lg navbar-dark opaque-navbar">
+            <!-- <nav class="navbar navbar-dark bg-dark"> -->
             <?php } else {
-                $nav = "nav-link1"; ?>
+                $nav = "nav-link1";
+                $icon_color = "icon_color_dark";
+                $logo = "logo"; ?>
             <nav class="navbar absolute-top1 navbar-expand-lg navbar-dark bg-white">
             <?php } ?>
                 <div class="container">
-                    <a class="navbar-brand" href="<?php echo URL; ?>"><img src="<?php echo URL; ?>images/logo.png" width="80"></a>
+                    <a class="navbar-brand" href="<?php echo URL; ?>"><img src="<?php echo URL; ?>images/<?php echo $logo; ?>.png" width="80"></a>
                     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item">
-                            <a class="<?php echo $nav; ?>" href="<?php echo URL."allCategories"; ?>">ALL SERVICES</a>
-                        </li>
-                        <?php if (isset($_SESSION['users'])) { ?>
-                            <li class="nav-item dropdown">
-                                <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo strtoupper($_SESSION['users']['screen_name']); ?></a>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                    <a class="dropdown-item" href="<?php echo URL; ?>ads">Posted Ads</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>bankAccounts">Bank Accounts</a>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>paymentCards">Payment Cards</a>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>transaction"> Transactions</a>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>wallet"> Wallets (<?php echo $regionData['currency_symbol'].number_format($wallet->balance($_SESSION['users']['ref'], $regionData['ref']), 2); ?>)</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>notification/inbox">Messages <?php if ($msgCount > 0){ ?>  <span id="badge3"><?php echo $msgCount; ?></span><?php } ?></a></a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?php echo URL; ?>profile">Profile</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="Javascript:void(0);" onclick="signOut();">Logout</a>
-                                </div>
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="<?php echo $nav; ?>" href="<?php echo URL."allCategories"; ?>">ALL SERVICES</a>
                             </li>
-                            <?php if ($_SESSION['users']['user_type'] == "2") {
-                                global $users;
-                                $list = $users->getSortedList("1", "verified", false, false, false, false, "ref", "ASC", "AND", false, false, "count");?>
+                            <?php if (isset($_SESSION['users'])) { ?>
                                 <li class="nav-item dropdown">
-                                    <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ADMINISTRATOR</a>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/adverts">Posted Ads</a>
+                                    <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo strtoupper($_SESSION['users']['screen_name']); ?></a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" href="<?php echo URL; ?>ads">Posted Ads</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/banks">Banks</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/category">Categories</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/country">Country</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/rating">Ratings</a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>bankAccounts">Bank Accounts</a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>paymentCards">Payment Cards</a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>transaction"> Transactions</a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>wallet"> Wallets (<?php echo $regionData['currency_symbol'].number_format($wallet->balance($_SESSION['users']['ref'], $regionData['ref']), 2); ?>)</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/accounts">Saved Accounts</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/cards">Saved Cards</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/transaction.pending">Pending Payment</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/transactions">Transactions</a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>notification/inbox">Messages <?php if ($msgCount > 0){ ?>  <span id="badge3"><?php echo $msgCount; ?></span><?php } ?></a></a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/users">Users</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/users/providers">Service Providers</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/users/admin">System Administrators</a>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/accuntVerification">Account Verification Request<?php if ($list > 0){ ?>  <span id="badge2"><?php echo $list; ?></span><?php } ?></a>
+                                        <a class="dropdown-item" href="<?php echo URL; ?>profile">Profile</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="<?php echo URL; ?>admin/options">System Settings</a>
+                                        <a class="dropdown-item" href="Javascript:void(0);" onclick="signOut();">Logout</a>
                                     </div>
                                 </li>
+                                <?php if ($_SESSION['users']['user_type'] == "2") {
+                                    global $users;
+                                    $list = $users->getSortedList("1", "verified", "status", "ACTIVE", "user_type", 1, "ref", "DESC", "AND", false, false, "count");?>
+                                    <li class="nav-item dropdown">
+                                        <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ADMINISTRATOR</a>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/adverts">Posted Ads</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/banks">Banks</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/category">Categories</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/country">Country</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/rating">Ratings</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/accounts">Saved Accounts</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/cards">Saved Cards</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/transaction.pending">Pending Payment</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/transactions">Transactions</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/users">Users</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/users/providers">Service Providers</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/users/admin">System Administrators</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/accuntVerification">Account Verification Request<?php if ($list > 0){ ?>  <span id="badge2"><?php echo $list; ?></span><?php } ?></a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/options">System Settings</a>
+                                        </div>
+                                    </li>
+                                <?php } ?>
+                            <?php } else { ?>
+                            <li class="nav-item">
+                            <a class="<?php echo $nav; ?>" href="<?php echo URL; ?>login?join">SIGNUP</a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="<?php echo $nav; ?>" href="<?php echo URL; ?>login">LOGIN</a>
+                            </li>
                             <?php } ?>
-                        <?php } else { ?>
-                        <li class="nav-item">
-                        <a class="<?php echo $nav; ?>" href="<?php echo URL; ?>login?join">SIGNUP</a>
-                        </li>
-                        <li class="nav-item">
-                        <a class="<?php echo $nav; ?>" href="<?php echo URL; ?>login">LOGIN</a>
-                        </li>
-                        <?php } ?>
-                    </ul>
-                    <form method="get" class="form-inline my-2 my-lg-0" action="<?php echo URL."search"; ?>">
-                        <?php if (isset($_SESSION['users'])) { ?>
-                            <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications' ;?>'"><i class="fas fa-bell" style="color:#3e3e94"></i><span id="badge"></span></button>
-                            <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications/inbox' ;?>'"><i class="fas fa-envelope" style="color:#3e3e94"></i><span id="badge4"></span></button>
-                        <?php } ?>
-                        <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'selectCity' ;?>'"><i class="fas fa-location-arrow" style="color:#3e3e94"></i></button>
-                        <div class="row ml-2">
-                            <div class="col-lg-10 p-0">					
-                                <input type="text" class="form-control pd1 float-left" type="search" placeholder="Search" aria-label="Search" name="s" id="s" value="<?php echo $_REQUEST['s']; ?>" required>
+                        </ul>
+                        <form method="get" class="form-inline my-2 my-lg-0" action="<?php echo URL."search"; ?>">
+                            <?php if (isset($_SESSION['users'])) { ?>
+                                <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications' ;?>'"><i class="fas fa-bell <?php echo $icon_color; ?>"></i><span id="badge"></span></button>
+                                <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'notifications/inbox' ;?>'"><i class="fas fa-envelope <?php echo $icon_color; ?>"></i><span id="badge4"></span></button>
+                            <?php } ?>
+                            <button type="button" class="btn btn-outline-succes my-2 my-sm-0" onclick="location='<?php echo URL.'selectCity' ;?>'"><i class="fas fa-location-arrow <?php echo $icon_color; ?>"></i></button>
+                            <div class="row ml-2">
+                                <div class="col-10 p-0">					
+                                    <input type="text" class="form-control pd1 float-left" type="search" placeholder="Search" aria-label="Search" name="s" id="s" value="<?php echo $_REQUEST['s']; ?>" required>
+                                </div>
+                                <div class="col-2">
+                                    <button type="submit" class="btn purple-bn1 pd1">GO</button>
+                                </div>
                             </div>
-                            <div class="col-lg-2">
-                                <button type="submit" class="btn purple-bn1 pd1">GO</button>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
                     </div>
                 </div>
             </nav>
@@ -150,10 +155,7 @@
                 <div class="row">
                     <div class="col-lg-4">
                         <div class="float-left mr-3"><img src="<?php echo URL; ?>images/logo.png" width="80"></a></div>
-                        <p>
-                            Moba  dolor sit amet, consectetur adipisicing seddo 
-                            eiusmodtempor consectetur incididun labore edipisicing etdolore.
-                        </p>
+                        <p>Efficient and effectively verified workers at your fingertips.</p>
                     </div>
                     <div class="col-lg-3">
                         <h6>QUICK LINK</h6>
@@ -200,8 +202,6 @@
     
     <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" async defer></script>
     <script type="text/javascript">
-	TweenLite.set('.right-img', {backgroundSize:"110%"});
-	TweenLite.to('.right-img', 1.3, {backgroundSize:"100%", ease:Power1.easeOut, delay: 0.7}); 
         $(document).ready(function(){
             if ( !$.cookie("l_d") ) {
                 getLocation();
@@ -326,6 +326,7 @@
         function headerFiles() { ?>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="google-signin-client_id" content="<?php echo GoogleClientId; ?>">
+    <link rel="icon" type="image/png" href="<?php echo URL; ?>images/icon.png">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="<?php echo URL; ?>css/main.css" rel="stylesheet">

@@ -5,16 +5,20 @@
         public function createWallet($array) {
             global $users;
             global $alerts;
+            global $notifications;
             $create = $this->insert("wallet", $array);
             if ($create) {
 
-                $tag = "Some money has been";
+                $pushNotice = "Some money has been";
                 if ($array['tx_dir'] == "CR") {
-                    $tag .= " deposited into ";
+                    $pushNotice .= " deposited into ";
                 } else {
-                    $tag .= " withdrawn from ";
+                    $pushNotice .= " withdrawn from ";
                 }
-                $tag .= "your wallet account. <a href='".URL."wallet'>Sigin in</a> to your MOBA Wallet to learn more";
+                $pushNotice .= "your wallet account.";
+                
+                $tag = $pushNotice." <a href='".URL."wallet'>Sigin in</a> to your MOBA Wallet to learn more";
+
 
                 $user_data = $users->listOne($array['user_id']);
                 $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -35,6 +39,17 @@
                 $mail['body'] = $messageToClient;
                 
                 $alerts->sendEmail($mail);
+
+
+                $data["to"] = $array['user_id'];
+                $data["title"] = "Payment Notification";
+                $data["body"] = $pushNotice;
+                $data['data']['page_name'] = "wallet";
+                $data['data']['provider']['ref'] = $array['user_id'];
+                $data['data']['provider']['screen_name'] = $users->listOnValue( $array['user_id'], "screen_name" );
+
+
+                $notifications->sendPush($data);
 
                 return $create;
             } else {

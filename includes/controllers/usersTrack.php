@@ -1,5 +1,5 @@
 <?php
-class usersTrack extends users {
+class usersTrack extends database {
     /*  create users track
     */
 

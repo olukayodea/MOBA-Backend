@@ -83,6 +83,15 @@
                 $data['timestamp'] = time()+(60*10);
                 $data['count'] = $count;
                 $notifications->create($data);
+
+                $data["to"] = $users_r;
+                $data["title"] = "New Message";
+                $data["body"] = $data['message'];
+                $data['data']['page_name'] = "messages";
+                $data['data']['provider']['ref'] = $users_r;
+                $data['data']['provider']['screen_name'] = $users->listOnValue( $users_r, "screen_name" );
+                $data['data']['postId'] = $ref;
+                $notifications->sendPush($data);
             }
         }
 

@@ -51,7 +51,21 @@
       unset($names[0]);
       $_POST['other_names'] = trim(implode(" ", $names));
       $key = strtolower(substr($_POST['other_names'], 0, 6));
+      if ($_POST['city'] == "") {
+        $_POST['city'] = $_POST['locality'];
+      }
+
+      $_POST['latitude'] = $_POST['lat'];
+      $_POST['longitude'] = $_POST['lng'];
+
+      unset($_POST['lat']);
+      unset($_POST['lng']);
+      unset($_POST['locality']);
       unset($_POST['captcha']);
+      unset($_POST['postal_code']);
+      unset($_POST['country_code']);
+      unset($_POST['autocomplete']);
+
       $addUrser = $users->create($_POST, $_FILES);
       if ($addUrser) {
 
@@ -60,7 +74,7 @@
           } else if ($addUrser == "duplicate data") {
               header("location: ?join&redirect=".$redirect."&error=".urlencode("this account already exist, please login or reset your password to continue"));
           } else {
-              header("location: ".$tagLink."&done=".urldecode("account was created successfully"));
+              header("location: ".$tagLink."&done=".urldecode("account was created successfully")."#notice");
           
           }
       } else {
@@ -172,7 +186,7 @@
                 </div>
                 <div class="form-group">
                   <span id="sprytextfield1">
-                    <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $_POST['last_name']; ?>" aria-describedby="lastnameHelp" placeholder="Last Names">
+                    <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $_POST['last_name']; ?>" aria-describedby="lastnameHelp" placeholder="Full Names">
                     <span class="textfieldRequiredMsg">A value is required.</span>
                   </span>
                   <small id="lastnameHelp" class="form-text text-muted">Please enter your full names as it appears on your ID.</small>
@@ -182,22 +196,18 @@
                   <small id="mobileHelp" class="form-text text-muted">Please provide your phone number.</small>
                 </div>
                 <div class="form-group" id="show_street" style="display: none;">
-                  <input type="text" name="street" id="street" value="<?php echo $_POST['street']; ?>" required class="form-control" placeholder="Address">
+                  <input id="autocomplete" name="autocomplete" placeholder="Enter your address or city" onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value="<?php echo $data['address']; ?>"/>
+                  <input type="hidden" name="street" id="colloquial_area" value="">
+                  <input type="hidden" name="city" id="locality" value="">
+                  <input type="hidden" name="locality" id="administrative_area_level_2" value="">
+                  <input type="hidden" name="state" id="administrative_area_level_1" value="">
+                  <input type="hidden" name="postal_code" id="postal_code" value="">
+                  <input type="hidden" name="country_code" id="country_code" value="">
+                  <input type="hidden" name="country" id="country" value="">
+                  <input type="hidden" name="lat" id="lat" value="">
+                  <input type="hidden" name="lng" id="lng" value="">
+
                   <small id="streetHelp" class="form-text text-muted">Please provide your address.</small>
-                </div>
-                <div class="form-group" id="show_city" style="display: none;">
-                  <input type="text" name="city" id="city" value="<?php echo $_POST['city']; ?>" required class="form-control" placeholder="City">
-                  <small id="cityHelp" class="form-text text-muted">Please provide your city.</small>
-                </div>
-                <div class="form-group" id="show_state" style="display: none;">
-                  <input type="text" name="state" id="state" value="<?php echo $_POST['state']; ?>" required class="form-control" placeholder="State/Province">
-                  <small id="stateHelp" class="form-text text-muted">Please provide your state or province.</small>
-                </div>
-                <div class="form-group" id="show_country" style="display: none;">
-                  <select class="form-control" id="country" name="country">
-                    <option value="Nigeria" selected>Nigeria</option>
-                  </select>
-                  <small id="countryHelp" class="form-text text-muted">Please select your country.</small>
                 </div>
                 <div class="form-group" id="show_photo_file" style="display: none;">
                   <input type="file" name="photo_file" id="photo_file" required class="form-control" placeholder="Upload Photo" accept="image/*">
@@ -223,10 +233,10 @@
                 <div class="form-group" id="show_id_expiry_mm" style="display: none;">
                   <div class="form-row">
                     <div class="col">
-                      <input type="number" name="id_expiry_mm" id="id_expiry_mm" required class="form-control" placeholder="MM" min="01" max="12" value="<?php echo $_POST['id_expiry_mm']; ?>">
+                      <input type="number" name="id_expiry_mm" id="id_expiry_mm" class="form-control" placeholder="MM" min="01" max="12" value="<?php echo $_POST['id_expiry_mm']; ?>">
                     </div>
                     <div class="col">
-                      <input type="number" name="id_expiry_yy" id="id_expiry_yy" required class="form-control" placeholder="YYYY" min="<?php echo date("Y"); ?>" max="<?php echo date("Y")+10; ?>" value="<?php echo $_POST['id_expiry_yy']; ?>">
+                      <input type="number" name="id_expiry_yy" id="id_expiry_yy" class="form-control" placeholder="YYYY" min="<?php echo date("Y"); ?>" max="<?php echo date("Y")+10; ?>" value="<?php echo $_POST['id_expiry_yy']; ?>">
                     </div>
                   </div>
                   <small id="id_expiryHelp" class="form-text text-muted">Please provide the expiry date MM-YYYY.</small>
@@ -338,6 +348,7 @@
     <script src="https://apis.google.com/js/platform.js" async defer></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/js/select2.min.js"></script>
+
 <script type="text/javascript">
 function onSignIn(googleUser) {
   var profile = googleUser.getBasicProfile();
@@ -374,10 +385,10 @@ $(document).ready(function() {
         placeholder: "Select a skill(s) or Area(s) of expertise",
         allowClear: true
       });
-      $('#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').attr("required")      
+      $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').attr("required")      
     } else {
       $('#show_mobile_number,#show_street,#show_city,#show_state,#show_country,#show_photo_file,#show_category_select,#show_id_type,#show_id_expiry_mm,#show_id_number,#show_id_file,#show_kin_name,#show_kin_email,#show_kin_phone,#show_kin_relationship').hide();
-      $('#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').removeAttr("required")
+      $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').removeAttr("required")
     }
   })
 
@@ -387,21 +398,32 @@ $(document).ready(function() {
   
   function checkSize() {
     //this.files[0].size gets the size of your file.
-
-    var photo_file =  document.getElementById("photo_file").files[0].size;
-    var id_file =  document.getElementById("id_file").files[0].size;
-
-    if (photo_file > 2048) {
-      alert("the profile picture is greater than the allowed size of 2MB");
+    if (document.getElementById("photo_file").files[0].size) {
+      var photo_file =  document.getElementById("photo_file").files[0].size;
+      if (photo_file > 2048000) {
+        alert("the profile picture is greater than the allowed size of 2MB");
+        $('#photo_file').focus();
+        return false;
+      }
+    } else {
+      alert("the profile picture is empty");
       $('#photo_file').focus();
       return false;
-    } else if (id_file > 2048) {
-      alert("the photo ID picture is greater than the allowed size of 2MB");
-      $('#id_file').focus();
-      return false;
-    } else {
-      return true;
     }
+    if (document.getElementById("id_file").files[0].size) {
+      var id_file =  document.getElementById("id_file").files[0].size;
+      if (id_file > 2048000) {
+        alert("the photo ID picture is greater than the allowed size of 2MB");
+        $('#id_file').focus();
+        return false;
+      }
+    } else {
+      alert("the Photo ID picture is empty");
+      $('#photo_file').focus();
+      return false;
+    }
+    
+    return true;
   }
 
   $('#password2, #password3').keyup(function() {
@@ -455,6 +477,9 @@ $(document).ready(function() {
   });
 });
 </script>
+
+<script type="text/javascript" src="<?php echo URL; ?>js/places2.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=<?php echo GoogleAPI; ?>&libraries=places&callback=initAutocomplete" async defer></script>
   </body>
 
 </html>

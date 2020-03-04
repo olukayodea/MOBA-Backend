@@ -199,13 +199,13 @@
 				$extension = strtolower($extension);
 				
 				if($array['size'] < 2097152) {			
-                    if ($pic == true) {
+                    if ($pic === true) {
                         $file = sha1($ref).".".$extension;
                     } else {
                         $file = "gov_id.".$extension;
                     }
                     $dir = "media/profiles/".$ref."/";
-					$userDoc = "../../../".$dir;
+					$userDoc = $dir;
 					if(!is_dir($userDoc)) {
 						mkdir($userDoc, 0777, true);
 					}
@@ -223,7 +223,7 @@
 					$msg['title'] = "ERROR";
 					$msg['desc'] = "the file exceed 2MB is not allowed";
 				}
-			}
+            }
 			return $msg;
         }
         
@@ -342,7 +342,6 @@
                 $msg['title'] = "ERROR";
                 $msg['desc'] = "the file exceed 2MB is not allowed";
             }
-
             return $msg;
         }
         

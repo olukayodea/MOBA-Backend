@@ -22,6 +22,7 @@
 
         function markRead($event, $ref, $id) {
             $array['status'] = 1;
+            $array['sent_mail'] = 1;
             $where['event'] = $event;
             $where['event_id'] = $ref;
             $where['user_id'] = $id;
@@ -30,6 +31,7 @@
 
         function markReadOne($ref) {
             $array['status'] = 1;
+            $array['sent_mail'] = 1;
             $where['ref'] = $ref;
             return $this->update("notifications", $array, $where);
         }
@@ -59,7 +61,9 @@
         function senemail() {
             global $users;
             global $alerts;
-            $query = "SELECT * FROM notifications WHERE sent_mail = 0 AND timestamp > ".time()+(60*10)." LIMIT 10";
+            global $notifications;
+            $time = time()+(60*10);
+            $query = "SELECT * FROM `notifications` WHERE `status` = 0 AND `timestamp` < ".$time." LIMIT 10";
 
             $list = $this->run($query, false, "list");
 
@@ -84,6 +88,43 @@
                 
                 $alerts->sendEmail($mail);
 
+                $data["to"] = $list[$i]['user_id'];
+                $data["title"] = "System Notification";
+                $data["body"] = $subjectToClient;
+                $data['data']['page_name'] = "home";
+                $notifications->sendPush($data);
+
+                $array['timestamp'] = time()+(60*60*24);
+                $where['ref'] = $list[$i]['ref'];
+                $this->update("notifications", $array, $where);
+
+            }
+        }
+
+        public function sendPush($array) {
+            global $users;
+            $input['to'] = $users->listOnValue( $array['to'], "firebase_token");
+            if ($input['to'] != "") {
+                $input['title'] = $array['title'];
+                $input['body'] = $array['body'];
+                $input['data'] = $array['data'];
+
+                $url = "https://exp.host/--/api/v2/push/send";
+                $header[] = "Content-Type: application/json";
+
+                $post_data = json_encode($input);
+
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_VERBOSE, true );
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $header );
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data );
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false );
+                $output = curl_exec($ch);
+                curl_close($ch);
+                $data = json_decode( $output );
+                return $data;
             }
         }
 

@@ -42,5 +42,4 @@
 	} else {
 		header("location: ".URL."login?redirect=".urldecode($redirect)."&error=please+login"."&".$urlData[1]);
 	}
-
 ?>

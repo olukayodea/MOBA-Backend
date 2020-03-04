@@ -1,5 +1,5 @@
 <?php
     include_once("includes/functions.php");
-    $payments->processPayment(true);
-    $payments->processPayment();
+    //$payments->processPayment(true);
+    //$payments->processPayment();
 ?>

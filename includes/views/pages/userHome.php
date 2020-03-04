@@ -4,6 +4,8 @@
           <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect; ?>/all"><b>List All</b></a></p>
           <?php if ($_SESSION['users']['user_type'] == 1) { ?>
           <div class="moba-line my-2"></div>
+          <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/available"; ?>"><b>Currently Available</b></a></p>
+          <div class="moba-line my-2"></div>
           <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/current"; ?>"><b>Current Interest</b></a></p>
           <?php } else if ($_SESSION['users']['user_type'] <= 2) { ?>
           <div class="moba-line my-2"></div>
@@ -21,9 +23,9 @@
             <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/inbox"; ?>"><b>Messages</b></a></p>
         <?php }
 
-        function requestPageContentpublic($ref, $view, $redirect, $data=false) {
+        public function requestPageContentpublic($ref, $view, $redirect, $data=false) {
             $this->showAll($ref, $view, $redirect);
-          }
+        }
 
         public function pageContent($redirect, $id=false, $type=false) {
             if ($redirect == "requestDetails") {
@@ -68,10 +70,10 @@
                     
                         <div class="pdd">
                             <h2>FIND AND HIRE THE BEST PROFESSIONAL ARTISANS TODAY.</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, expedita, saepe, vero rerum deleniti beatae veniam harum neque nemo praesentium cum alias asperiores commodi.</p>
+                            <p>Efficient and effectively verified workers at your fingertips.</p>
                             <form method="post" name="sentMessage" id="contactForm" action="<?php echo URL; ?>newRequest">
                                 <div class="form-row">
-                                    <div class="col-md-10">
+                                    <div class="col-10">
                                         <select name="id" id="id" class="form-control" required>
                                             <option value="">Select Category to Start</option>
                                             <?php for ($i = 0; $i < count($list); $i++) { ?>  
@@ -79,7 +81,9 @@
                                             <?php } ?>
                                         </select>
                                     </div>
-                                    <button type="submit" name="setLocation" class="btn purple-bn1-home mb-2"><i class="fa fa-arrow-right" aria-hidden="true"></i> Go</button>
+                                    <div class="col-2">
+                                        <button type="submit" name="setLocation" class="btn purple-bn1-home mb-2"><i class="fa fa-arrow-right" aria-hidden="true"></i> Go</button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -97,29 +101,17 @@
                     <div class="col-lg-4 mt-3">
                         <span>1</span><br><br>
                         <h5 class="mt-3">Describe The Task</h5>
-                        <p>
-                            asdolor sit amet, consectetur adipisicing elit, sed 
-                            do eiusmodtempor incididunt ut labore etdolore 
-                            magna aliqua.
-                        </p>
+                        <p>Select the category that best fits the service you require, click on "Request Service", describe your task and state your location.</p>
                     </div>
                     <div class="col-lg-4">
                         <span>2</span><br><br>
                         <h5 class="mt-3">Get Matched</h5>
-                        <p>
-                            asdolor sit amet, consectetur adipisicing elit, sed 
-                            do eiusmodtempor incididunt ut labore etdolore 
-                            magna aliqua.
-                        </p>				
+                        <p>You will be matched with the closest available verified professional in your vicinity.</p>				
                     </div>
                     <div class="col-lg-4">
                         <span>3</span><br><br>
                         <h5 class="mt-3">Get It Done</h5>
-                        <p>
-                            asdolor sit amet, consectetur adipisicing elit, sed 
-                            do eiusmodtempor incididunt ut labore etdolore 
-                            magna aliqua.
-                        </p>				
+                        <p>The verified professional gets the job done.</p>				
                     </div>
                 </div>
                 <div class="moba-line mt-5"></div>
@@ -133,6 +125,8 @@
             global $category;
             global $users;
 
+            $location = $_SESSION['location'];
+ 
             if (isset($_REQUEST['page'])) {
                 $page = $_REQUEST['page'];
             } else {
@@ -141,7 +135,7 @@
             
             $limit = $options->get("result_per_page");
             $start = $page*$limit;
-            $data = $request->listAllData($ref, $view, $start, $limit);
+            $data = $request->listAllData($ref, $view, $start, $limit, $location);
 
             $list = $data['list'];
             $listCount = $data['listCount'];
@@ -760,7 +754,7 @@
                 $data = $keywordData['data'];
                 $dataCount = $keywordData['count'];
             } else {
-                $jobData = $search->jobSearchData($_SESSION['location'], $s, $start, $limit);
+                $jobData = $search->aroundMeData($_SESSION['location'], $start, $limit);
                 $data = $jobData['data'];
                 $dataCount = $jobData['count'];
             }
@@ -992,7 +986,7 @@
                             <ol id="update" >
                             <?php for ($i = 0; $i < count($initialComment); $i++) { ?>
                                 <li class="media" id='<?php echo $initialComment[$i]['ref']; ?>'>
-                                    <?php $users->getProfileImage($initialComment[$i]['user_id'], "mr-3", "50"); ?>
+                                    <?php $users->getProfileImage($initialComment[$i]['user_id'], "mr-3", false); ?>
                                     <div class="media-body">
                                         <small class="time"><i class="fa fa-clock-o"></i> <?php echo $this->get_time_stamp(strtotime($initialComment[$i]['create_time'])); ?></small>
                                         <p class="mt-0">
@@ -1016,7 +1010,7 @@
                                 <div class="col-lg-12">
                                 <form  method="post" name="form" action="">
                                     <div class="input-group input-group-lg">
-                                    <?php $users->getProfileImage($user_id, "50"); ?> 
+                                    <?php $users->getProfileImage($user_id, "", false); ?> 
                                     <input type='text' name="content" id="content" class="form-control input-lg" placeholder="Enter your message here..." />
                                     <input type='hidden' name="user_r_id" id="user_r_id" value="<?php echo $user_r_id; ?>" />
                                     <input type='hidden' name="user_id" id="user_id" value="<?php echo $user_id; ?>" />
@@ -1053,7 +1047,6 @@
                                         } else if (data.m_type == "negotiate_charges") {
                                             var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
 
-                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+msg+"</p></div></li>";
                                         } else {
                                             var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+data.msg+"</p></div></li>";
                                         }
@@ -1140,6 +1133,7 @@
 
         private function categoryHomePage($id, $type) {
             global $category;
+            global $categoryQuestion;
             global $country;
             global $rating;
             global $users;
@@ -1148,6 +1142,7 @@
             $userData = $users->listOne(trim($_SESSION['users']['ref']));
             $countryData = $country->listOne($data['country'], "ref");
             $usersData = $category->totalUsers($id);
+            $question = $categoryQuestion->getSortedList($id, "category_id");
             ?>
             <div class="container my-5">
             <div class="row py-5">	
@@ -1187,8 +1182,25 @@
                             if ($check) { ?>
                                 <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" enctype="multipart/form-data">
                                     <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
-
+                                    <?php for ($i = 0; $i < count($question); $i++) { ?>
                                     <div class="form-group">
+                                        <label for="data<?php echo $i; ?>" class="form-text text-muted"><?php echo $question[$i]['title']; ?></label>
+                                        <input type="hidden" name="data[<?php echo $i; ?>][question]" value="<?php echo $question[$i]['title']; ?>">
+                                        <?php if ($question[$i]['type'] == 0) {
+                                            $d = explode("\n", $question[$i]['data'] ) ?>
+                                            <select name="data[<?php echo $i; ?>][answer]" id="data<?php echo $i; ?>" class="form-control editable-select" required>
+                                                <?php for ($u = 0; $u < count($d); $u++) { ?>
+                                                    <option value="<?php echo $d[$u]; ?>"><?php echo $d[$u]; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <small id="autocomplete_help" class="form-text text-muted">Select your prefered answer from the drop down, if your answer is not included, type your answer in the select box.</small>
+                                        <?php } else { ?>
+                                            <input type="text" name="data[<?php echo $i; ?>][answer]" id="data<?php echo $i; ?>" class="form-control" placeholder="Type Answer" required>
+                                        <?php } ?>
+                                    </div>
+                                    <?php } ?>
+                                    <div class="form-group">
+                                        <label for="autocomplete" class="form-text text-muted">Enter your address</label>
                                         <input id="autocomplete" name="autocomplete" placeholder="Enter your address" required onfocus="geolocate()" type="text" class="form-control" autocomplete="false" value=""/>
                                         <input type="hidden" name="city" id="locality" value="">
                                         <input type="hidden" name="state" id="administrative_area_level_1" value="">
@@ -1200,24 +1212,12 @@
                                         <small id="autocomplete_help" class="form-text text-muted">This will be the location where the service is required.</small>
                                     </div>
                                     <div class="form-group">
+                                        <label for="fee" class="form-text text-muted">Price Range</label>
                                         <input type="number" name="fee" id="fee" class="form-control" placeholder="Price Range" min="<?php echo $data['call_out_charge']; ?>" required>
                                         <small id="autocomplete_help" class="form-text text-muted">This amount must be greater than or equal to <?php echo $countryData['currency_symbol']." ".number_format($data['call_out_charge'], 2); ?>.</small>
                                     </div>
                                     <div class="form-group">
-                                        <select name="time" id="time" class="form-control" required>
-                                            <option value="">Select One</option>
-                                            <option value="60">Within an Hour</option>
-                                            <option value="180">1 to 3 Hours</option>
-                                            <option value="240">3 Hours or more</option>
-                                        </select>
-                                        <small id="autocomplete_help" class="form-text text-muted">How soon do you want this service done.</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <textarea name="description" id="description" required class="form-control" placeholder="Job Description"></textarea>
-                                        <small id="autocomplete_help" class="form-text text-muted">Tesll us what you want to get done.</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="uploadFile">Include pictures with as much details as you will prefer. You can upload a maximum of 10 media with a maximum fike size of 2MB. (Optional)</label>
+                                        <label for="uploadFile">Include pictures with as much details as you will prefer. You can upload a maximum of 10 media with a maximum file size of 2MB. (Optional)</label>
                                         <div class="row">
                                             <div class="col-sm-2 imgUp">
                                                 <div class="imagePreview"></div>
@@ -1235,7 +1235,7 @@
                                 </form>
                             <?php } else { ?>
                                 <div class="alert alert-danger" role="alert">
-                                    <strong>You must have at least one payment card saved to make a request. <a href="<?php echo URL."paymentCards"; ?>">Click here to add your payment card</a> then come back to create the request again</strong>
+                                    <strong>You must have at least one payment card saved to make a request. <a href="<?php echo URL."paymentCards/create"; ?>">Click here to add your payment card</a> then come back to create the request again</strong>
                                 </div>
                             <?php } ?>
                         <?php } ?>
@@ -1266,8 +1266,11 @@
             </div>
             <script type="text/javascript" src="<?php echo URL; ?>js/imageUpload.js"></script>
             <script type="text/javascript" src="<?php echo URL; ?>js/places.js"></script>
+            <script src="//rawgithub.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.js"></script>
+            <link href="//rawgithub.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.css" rel="stylesheet">
             <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=<?php echo GoogleAPI; ?>&libraries=places&callback=initAutocomplete" async defer></script>
             <script type="text/javascript">
+                $('.editable-select').editableSelect();
                 function checkFileSize(e) {
                     var element = e.target.id;
                     if ((document.getElementById(element).files[0].size/1024/1024 ) > 2) {
@@ -1284,7 +1287,9 @@
             global $category;
             global $country;
             global $rating;
+            global $users;
             $data = $request->listOne($id);
+            $extraData = unserialize($data['data']);
             $categoryData = $category->listOne($data['category_id']);
             $countryData = $country->listOne($data['region'], "ref");
             $loc = $this->googleGeoLocation($data['longitude'], $data['latitude']);
@@ -1298,7 +1303,6 @@
 
             $result = $request->findRequest($addressData, $data['category_id'])['data'];
             //echo "<pre>";
-            //print_r($result);
             ?>
             <div class="container my-5">
             <div class="row py-5">	
@@ -1307,8 +1311,9 @@
                     <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?>
                     <div class="moba-line my-3"></div>
                     <p><b>Job Category:</b> <?php echo $categoryData['category_title']; ?></p>	
-                    <p><b>Description:</b> <?php echo $data['description']; ?></p>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <?php for ($u = 0; $u < count($extraData); $u++) { ?>
+                    <p><b><?php echo $extraData[$u]['question']; ?><br></b> <?php echo $extraData[$u]['answer']; ?></p>
+                    <?php } ?>
                     <p><b>Callout Charge:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
                     <p><a href="<?php echo URL."ads/all?remove&id=".$id; ?>" class="btn red-bn pd" onClick='return confirm("this action end this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete</a></p>	
                     
@@ -1325,7 +1330,7 @@
                                     <div class="moba-content__img">
                                     <div class="row">
                                         <div class="col-lg-4">
-                                        <img src="users/av1.jpg" class="mr-3 float-left"/>
+                                        <?php echo $users->getProfileImage($result[$i]['ref'], "mr-3 float-left", 250); ?>
                                         </div>
                                         <div class="col-lg-7">
                                         <?php echo $result[$i]['screen_name']; ?><br>
@@ -1361,6 +1366,7 @@
             global $messages;
             global $media;
             $data = $request->listOne($array[2]);
+            $extraData = unserialize($data['data']);
             $categoryData = $category->listOne($data['category_id']);
             $countryData = $country->listOne($data['region'], "ref");
             $usersData = $users->listOne($array[0]);
@@ -1383,12 +1389,11 @@
                 $requestData = $request_negotiate->listOne($_REQUEST['respond']);
             }
             // echo "<pre>";
-            // print_r($usersData);
             ?>
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <img class="card-img-top my-3" src="<?php echo $users->picURL( $usersData['ref'], 250 ); ?>" alt="<?php echo $usersData['screen_name']; ?>">
+                    <?php echo $users->getProfileImage($usersData['ref'], "card-img-top my-3", 250, false); ?>
                     <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?>
                     <div class="moba-line my-3"></div>
                     <?php if (count($getAlbum) > 0) {
@@ -1397,8 +1402,9 @@
                         <?php }
                     } ?>
                     <p><b>Job Category:</b> <?php echo $categoryData['category_title']; ?></p>	
-                    <p><b>Description:</b> <?php echo $data['description']; ?></p>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <?php for ($u = 0; $u < count($extraData); $u++) { ?>
+                    <p><b><?php echo $extraData[$u]['question']; ?><br></b> <?php echo $extraData[$u]['answer']; ?></p>
+                    <?php } ?>
                     <p><b>Callout Charge:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
                     <?php if ($user_id != $usersData['ref']) { ?>
                         <?php if ($data['status'] == "OPEN") { ?>
@@ -1490,7 +1496,7 @@
                             <ol id="update" >
                             <?php for ($i = 0; $i < count($initialComment); $i++) { ?>
                                 <li class="media" id='<?php echo $initialComment[$i]['ref']; ?>'>
-                                <?php $users->getProfileImage($initialComment[$i]['user_id'], "mr-3", "50"); ?>
+                                <?php $users->getProfileImage($initialComment[$i]['user_id'], "mr-3", false); ?>
                                 <div class="media-body">
                                 <small class="time"><i class="fa fa-clock-o"></i> <?php echo $this->get_time_stamp(strtotime($initialComment[$i]['create_time'])); ?></small>
                                 <p class="mt-0">
@@ -1514,7 +1520,7 @@
                                 <div class="col-lg-12">
                                 <form  method="post" name="form" action="">
                                     <div class="input-group input-group-lg">
-                                    <?php $users->getProfileImage($user_id, "50"); ?> 
+                                    <?php $users->getProfileImage($user_id, "", false); ?> 
                                     <input type='text' name="content" id="content" class="form-control input-lg" placeholder="Enter your message here..." />
                                     <input type='hidden' name="user_r_id" id="user_r_id" value="<?php echo $user_r_id; ?>" />
                                     <input type='hidden' name="user_id" id="user_id" value="<?php echo $user_id; ?>" />
@@ -1539,25 +1545,27 @@
                             $.getJSON("<?php echo URL; ?>includes/views/scripts/chat_json?post_id="+ref+"&user_id="+user_id+"&user_r_id="+user_r_id,function(data) {
                                 $.each(data.posts, function(i,data) {
                                 if(b != data.id) {
-                                    var dataString = 'id='+ data.user;
-                                    $.ajax({
-                                        type: "POST",
-                                        url: "<?php echo URL; ?>includes/views/scripts/draw",
-                                        data: dataString,
-                                        cache: false,
-                                        success: function(html){
-                                        if (data.m_type == "system") {
-                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'><i class='fa fa-exclamation' aria-hidden='true'></i>     "+data.msg+"</p></div></li>";
-                                        } else if (data.m_type == "negotiate_charges") {
-                                            var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
+                                    if (data.id != "") {
+                                        var dataString = 'id='+ data.user;
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "<?php echo URL; ?>includes/views/scripts/draw",
+                                            data: dataString,
+                                            cache: false,
+                                            success: function(html){
+                                            if (data.m_type == "system") {
+                                                var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'><i class='fa fa-exclamation' aria-hidden='true'></i>     "+data.msg+"</p></div></li>";
+                                            } else if (data.m_type == "negotiate_charges") {
+                                                var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
 
-                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+msg+"</p></div></li>";
-                                        } else {
-                                            var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+data.msg+"</p></div></li>";
-                                        }
-                                        $(div_data).appendTo("ol#update");
-                                        }
-                                    });
+                                                var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+msg+"</p></div></li>";
+                                            } else {
+                                                var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+data.msg+"</p></div></li>";
+                                            }
+                                            $(div_data).appendTo("ol#update");
+                                            }
+                                        });
+                                    }
                                 }
                                 });
                             });
@@ -1659,7 +1667,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top my-3", "25"); ?>
+                    <?php echo $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>

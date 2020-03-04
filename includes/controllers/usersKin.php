@@ -1,5 +1,5 @@
 <?php
-class usersKin extends users {
+class usersKin extends database {
     /*  create users track
     */
     public function create($array, $file=false) {

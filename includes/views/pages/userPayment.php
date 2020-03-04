@@ -1,5 +1,6 @@
 <?php
     class userPayment extends wallet {
+        protected $fieldString = array("billingzip" => "Postal/Zip Code", "billingcity" => "City", "billingaddress" => "Address", "billingstate" => "State/Province", "billingcountry" => "Country", "pin" => "Card PIN", "otp_code" => "OTP");
         function pageContent($redirect, $view="list", $edit=0) {
             if ($view == "list") {
                 $this->listAll($redirect);
@@ -47,7 +48,8 @@
             $array['gross_total'] = $array['net_total'];
             $post = $this->createTx($array);
             if ($array['tx_dir'] == "CR") {
-                $makePayment = $this->bambora_pay($array);
+                $array['tx_id'] = $post;
+                $makePayment = $this->processPay($array);
                 if (($makePayment['approved'] == 1) && ($makePayment['message'] == "Approved")) {
                     $return['code'] = 1;
                     $return['message'] = $makePayment['message'];
@@ -60,7 +62,6 @@
                         $array['tx_desc'] = $desc;
                     }
                     $array['amount'] = $array['gross_total'];
-                    $array['tx_id'] = $post;
                     unset($array['gross_total']);
                     unset($array['tax_total']);
                     unset($array['net_total']);
@@ -123,6 +124,8 @@
                     $return['message'] = "Insufficient wallet Balance";
                 }
             }
+
+            print_r($return);
             return $return;
         }
 
@@ -334,18 +337,36 @@
         function createNew() {
                 $tag = "Create New Payment Card";
                 $tag2 = "Create Payment Card";
+                if (isset($_REQUEST['warning'])) {
+                    $tag2 = "Verify Payment Card";
+                }
+
+                if (isset($_REQUEST['fields'])) {
+                    $fields = explode(',', urldecode($_REQUEST['fields']));
+                }
             ?>
 <main class="col-12" role="main">
     <form method="post" action="" enctype="multipart/form-data" autocomplete="off">
     <h2><?php echo $tag; ?></h2>
+    
+    <?php if (isset($_REQUEST['warning'])) { ?>
+        <p><strong><?php echo $_REQUEST['warning']; ?></strong></p>
+        <?php foreach ($fields AS $field) { ?>
+            <div class="form-group">
+                <input type="text" class="form-control" name="<?php echo $field; ?>" id="<?php echo $field; ?>" placeholder="<?php echo $this->fieldString[$field]; ?>">
+            </div>
+        <?php } ?>
+        <input type="hidden" name="card_id" value="<?php echo $_REQUEST['id']; ?>">
+        <button type="submit" name="getPaymentVerify" class="btn purple-bn1"><?php echo $tag2; ?></button>
+    <?php } else { ?>
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="cc_last_name">Last Name</label>
-            <input type="text" class="form-control" name="cc_last_name" id="cc_last_name" placeholder="Last Name" required>
+            <input type="text" class="form-control" name="cc_last_name" id="cc_last_name" placeholder="Last Name" required value="<?php echo $_SESSION['users']['last_name'];?>">
         </div>
         <div class="form-group col-md-6">
             <label for="cc_first_name">First Name</label>
-            <input type="text" class="form-control" name="cc_first_name" id="cc_first_name" placeholder="First Name" required>
+            <input type="text" class="form-control" name="cc_first_name" id="cc_first_name" placeholder="First Name" required value="<?php echo $_SESSION['users']['other_names'];?>">
         </div>
     </div>
     <div class="form-group">
@@ -370,11 +391,12 @@
         </div>
     </div>
     <div class="form-group">
-        <label for="tag">CVV</label>
+        <label for="cvv">CVV</label>
         <input type="text" class="form-control" name="cvv" id="cvv" placeholder="CVV">
     </div>
-    <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
     <button type="submit" name="getPayment" class="btn purple-bn1"><?php echo $tag2; ?></button>
+    <?php } ?>
+    <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
     </form>
 </main>
 <script type="text/javascript" src="<?php echo URL; ?>js/creditCard.js"></script>

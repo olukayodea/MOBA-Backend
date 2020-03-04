@@ -20,7 +20,6 @@
 <body>
 <?php $pageHeader->loginStrip(true); ?>
 <?php $pageHeader->navigation(); ?>
-<?php $pageHeader->selector(); ?>
 <div class="container-fluid">
     <?php $userHome->pageContent($redirect, $s, $type); ?>
 </div>
