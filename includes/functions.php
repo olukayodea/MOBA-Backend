@@ -6,8 +6,8 @@
 	$pageUR1      = $_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
 
-  if (($curdomain == "moba.oasmack.com/") || ($curdomain == "moba.oasmack.com")) {
-    $URL        = "https://moba.oasmack.com/";
+  if (($curdomain == "moba.oasmack.com/") || ($curdomain == "invapp.oasmack.com")) {
+    $URL        = "https://invapp.oasmack.com/moba/";
     $servername = "192.185.189.29";
     $dbusername = "mobacom_dev";
     $dbpassword = "n%).*6CBlBBu";
@@ -129,7 +129,7 @@
 
   include_once("views/pages/main.php");
 
-  if (($curdomain == "moba.oasmack.com/") || ($curdomain == "moba.oasmack.com")) {
+  if (($curdomain == "invapp.oasmack/") || ($curdomain == "invapp.oasmack")) {
 		$common->http2https();
   }
 ?>
