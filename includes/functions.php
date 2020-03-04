@@ -6,8 +6,8 @@
 	$pageUR1      = $_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
 
-  if (($curdomain == "invapp.oasmack.com/") || ($curdomain == "invapp.oasmack.com")) {
-    $URL        = "https://invapp.oasmack.com/moba/";
+  if (($curdomain == "moba.oasmack.com/") || ($curdomain == "invapp.oasmack.com")) {
+    $URL        = "https://moba.oasmack.com/";
     $servername = "192.185.189.29";
     $dbusername = "mobacom_dev";
     $dbpassword = "n%).*6CBlBBu";
