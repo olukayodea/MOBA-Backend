@@ -32,6 +32,7 @@
             global $banks;
             global $identity;
             global $options;
+            global $currentLocation;
 
             $requestData = explode("/", $postPequest);
             $mode = @strtolower($requestData[0]);
@@ -171,6 +172,9 @@
                     $return = $post->postAPI($location, $action, $string, $page);
                 } else if ($this->authenticate($header)) {
                     $userData = $this->authenticatedUser($header['auth']);
+
+                    $currentLocation->set($userData['ref'], $location['longitude'], $location['latitude'], $location['city'], $location['state'], $location['country']);
+
                     //authenticated users only
                     if (($mode == "request") && ($action == "create")) {
                         $returnedData['user_id'] = $userData['ref'];

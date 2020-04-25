@@ -5,17 +5,29 @@ class request extends database {
         if (isset($array['web'])) {
             $web = true;
             unset($array['web']);
+            $error = ' <a href="'.URL.'"paymentCards/create">Click here to add a new payment card</a> ';
         } else {
             $web = false;
+            $error = ' Add a new payment card, ';
         }
         if (isset($array['media'])) {
             $mediaFiles = $array['media'];
             unset($array['media']);
-            
         }
+
+        $location['state'] = $array['state'];
+        $location['state_code'] = $array['state'];
+        $location['country'] = $array['country'];
+        $location['code'] = $array['country_code'];
+        $location['latitude'] = $array['latitude'];
+        $location['longitude'] = $array['longitude'];
+        
+        unset($array['state']);
+        unset($array['country']);
+        unset($array['country_code']);
+
         $create = $this->insert("request", $array);
         if ($create) {
-            
             if ($web === true) {
                 if (count($mediaFiles) > 0) {
                     $mediaArray['user_id'] = $array['user_id'];
@@ -38,13 +50,43 @@ class request extends database {
             //make payment
             $paymentData = $this->authorize($create);
             if ($paymentData['status'] == "COMPLETE") {
+                //send request out
+                $this->broadcast($array['category_id'], $create, $location);
                 return array("status" => "ok", "id" => $create);
             } else if ($paymentData['status'] == "FAILED") {
                 $this->clean($create, $paymentData['tx_id']);
+                if ($paymentData['type'] == "card") {
+                    return array("status" => "failed", "msg" => "You must have at least one payment card saved to make a request.".$error."then come back to create the request again");
+                }
+
                 return array("status" => "failed", "msg" => "your payment card could not be processed and you do not have enough balance in your wallet to initiate this request");
             }
+
         } else {
             return false;
+        }
+    }
+
+    private function broadcast($category_id, $request, $location) {
+        global $category;
+        global $notifications;
+        global $users;
+        $data = $category->totalUsers($category_id, $location);
+        $requestData = $this->listOne($request);
+        print_r($request);
+
+        for ($i = 0; $i < count($data); $i++) {
+            $array['event'] = "request";
+            $array['event_id'] = $request;
+            $array['user_id'] = $data[$i]['user_id'];
+            $array['message'] = $request;
+
+            $name = $users->listOnValue($requestData['user_id'], "screen_name");
+
+            $array['message'] = "Job Request from ".$name;
+            $array['email'] = $name." needs a ".$category->getSingle($category_id)." at ".$requestData['address'].". Click <a href='".$this->seo($request, "request", $requestData['user_id'])."'>here</a> to notify ".$name." of your interest";
+
+            $notifications->create($array);
         }
     }
 
@@ -156,43 +198,48 @@ class request extends database {
         $remainder = ($fee+$tax)-$wallet_balance;
         $complete = false;
         if ($wallet_balance < $fee) {
-            //get lists of all cards
-            $list = $payment_card->getSortedList($data['user_id'], "user_id");
-            $tx_pay['user_id'] = $data['user_id'];
-            $tx_pay['tx_type_id'] = $id;
-            $tx_pay['tx_type'] = "request";
-            $tx_pay['tx_dir'] = "DR";
-            $tx_pay['card'] = 0;
-            $tx_pay['region'] = $data['region'];
-            $tx_pay['net_total'] = $fee;
-            $tx_pay['tax_total'] = $tax;
-            $tx_pay['gross_total'] = $remainder;
-            $tx_id = $transactions->createTx($tx_pay);
+            $check = $wallet->getDefault($data['user_id']);
+            if ($check) {
+                //get lists of all cards
+                $list = $payment_card->getSortedList($data['user_id'], "user_id");
+                $tx_pay['user_id'] = $data['user_id'];
+                $tx_pay['tx_type_id'] = $id;
+                $tx_pay['tx_type'] = "request";
+                $tx_pay['tx_dir'] = "DR";
+                $tx_pay['card'] = 0;
+                $tx_pay['region'] = $data['region'];
+                $tx_pay['net_total'] = $fee;
+                $tx_pay['tax_total'] = $tax;
+                $tx_pay['gross_total'] = $remainder;
+                $tx_id = $transactions->createTx($tx_pay);
 
-            $pay_gateway['gross_total'] = $remainder;
-            $pay_gateway['tx_id'] = $tx_id;
-            //try all the cards until one goes
-            for ($j = 0; $j < count($list); $j++) {
-                $pay_gateway['card'] = $list[$j]['ref'];
-                //get balance from gateway
-                $makePayment = $transactions->processPay($pay_gateway);
-                $this->updateOne("transactions", "gateway_data", serialize($makePayment), $tx_id, "ref");
-                $this->updateOne("transactions", "gateway_status", $makePayment['message'], $tx_id, "ref");
-                if (($makePayment['approved'] == 1) && ($makePayment['message'] == "Approved")) {
-                    $this->updateOne("transactions", "status", 2, $tx_id, "ref");
-                    $tx_wallet['user_id'] = $data['user_id'];
-                    $tx_wallet['tx_id'] = $tx_id;
-                    $tx_wallet['ref_id'] = 0;
-                    $tx_wallet['tx_desc'] = "CR transaction in wallet";
-                    $tx_wallet['tx_dir'] = "CR";
-                    $tx_wallet['region'] = $data['region'];
-                    $tx_wallet['amount'] = $remainder-$tax;
-                    $tx_wallet['status'] = 1;
-                    $wallet->createWallet($tx_wallet);
-                    $this->updateOneRow("card", $pay_gateway['card'], $id);
-                    $complete = true;
-                    break;
+                $pay_gateway['gross_total'] = $remainder;
+                $pay_gateway['tx_id'] = $tx_id;
+                //try all the cards until one goes
+                for ($j = 0; $j < count($list); $j++) {
+                    $pay_gateway['card'] = $list[$j]['ref'];
+                    //get balance from gateway
+                    $makePayment = $transactions->processPay($pay_gateway);
+                    $this->updateOne("transactions", "gateway_data", serialize($makePayment), $tx_id, "ref");
+                    $this->updateOne("transactions", "gateway_status", $makePayment['message'], $tx_id, "ref");
+                    if (($makePayment['approved'] == 1) && ($makePayment['message'] == "Approved")) {
+                        $this->updateOne("transactions", "status", 2, $tx_id, "ref");
+                        $tx_wallet['user_id'] = $data['user_id'];
+                        $tx_wallet['tx_id'] = $tx_id;
+                        $tx_wallet['ref_id'] = 0;
+                        $tx_wallet['tx_desc'] = "CR transaction in wallet";
+                        $tx_wallet['tx_dir'] = "CR";
+                        $tx_wallet['region'] = $data['region'];
+                        $tx_wallet['amount'] = $remainder-$tax;
+                        $tx_wallet['status'] = 1;
+                        $wallet->createWallet($tx_wallet);
+                        $this->updateOneRow("card", $pay_gateway['card'], $id);
+                        $complete = true;
+                        break;
+                    }
                 }
+            } else {
+                return array("status" => "FAILED", "tx_id" => $tx_id, "type" => "card");
             }
         } else {
             //post transaction to wallet and credit the 
@@ -265,7 +312,7 @@ class request extends database {
         } else {
             $user_data = $users->listOne($data['user_id']);
             
-            $tag = "We could not approve payment for this request. Please make sure your MOBA wallet is funded with a minimum of ".$regionData['currency_symbol'].number_format($remainder, 2).". <a href='".URL."wallet'>Sigin in</a> to your MOBA Account to learn more";;
+            $tag = "We could not approve payment for this request. Please make sure your MOBA wallet is funded with a minimum of ".$regionData['currency_symbol'].number_format($remainder, 2).". <a href='".URL."wallet'>Sign in</a> to your MOBA Account to learn more";;
 
             $client = $user_data['last_name']." ".$user_data['other_names'];
             $subjectToClient = "Problem with Payment Aproval";
@@ -359,7 +406,7 @@ class request extends database {
                     $this->updateOneRow("status", "COMPLETED", $data['ref']);
                     $this->updateOneRow("end_date", time(), $data['ref']);
 
-                    $tag = "you have marked this task as done. Payment has been sent. <a href='".URL."ads\archive'>Sigin in</a> to your MOBA Account to learn more";
+                    $tag = "you have marked this task as done. Payment has been sent. <a href='".URL."ads\archive'>Sign in</a> to your MOBA Account to learn more";
 
                     $user_data = $users->listOne($data['user_id']);
                     $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -381,25 +428,16 @@ class request extends database {
                     
                     $alerts->sendEmail($mail);
 
-                    $notificationArray['event'] = "post_messages";
-                    $notificationArray['event_id'] = $data['ref'];
-                    $notificationArray['user_id'] = $data['user_id'];
-                    $notificationArray['user_r_id'] = $data['client_id'];
-                    $notificationArray['message'] = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
-                    $notificationArray['email'] = $tag;
+                    $msg = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
+                    $msgArray['message']  = $msg;
+                    $msgArray['user_r_id']  = $data['client_id'];
+                    $msgArray['user_id']  = $data['user_id'];
+                    $msgArray['post_id']  = $data['ref'];
+                    $msgArray['m_type']  = "system";
+                    $messages->add($msgArray);
 
-                    $notifications->create($notificationArray);
+                    $tag = "This task has been approve and the payment is now available in your wallet. <a href='".URL."ads\past'>Sign in</a> to your MOBA Account to learn more";
 
-                    $data["to"] = $data['client_id'];
-                    $data["title"] = "Message Notification";
-                    $data["body"] = $notificationArray['message']." You can now review and comment on this job now";
-                    $data['data']['page_name'] = "comment";
-                    $data['data']['provider']['ref'] = $data['client_id'];
-                    $data['data']['provider']['screen_name'] = $users->listOnValue( $data['client_id'], "screen_name" );
-                    $data['data']['postId'] = $data['ref'];
-                    $notifications->sendPush($data);
-
-                    $tag = "This task has been approve and the payment is now available in your wallet. <a href='".URL."ads\past'>Sigin in</a> to your MOBA Account to learn more";
 
                     $user_data = $users->listOne($data['client_id']);
                     $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -421,23 +459,15 @@ class request extends database {
                     
                     $alerts->sendEmail($mail);
 
-                    $notificationArray['event'] = "post_messages";
-                    $notificationArray['event_id'] = $data['ref'];
-                    $notificationArray['user_id'] = $data['client_id'];
-                    $notificationArray['user_r_id'] = $data['user_id'];
-                    $notificationArray['message'] = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
-                    $notificationArray['email'] = $tag;
+                    $msg = "Job with ".$users->listOnValue($data['user_id'], "screen_name")." Completed";
 
-                    $notifications->create($notificationArray);
+                    $msgArray['message']  = $msg;
+                    $msgArray['user_r_id']  = $data['user_id'];
+                    $msgArray['user_id']  = $data['client_id'];
+                    $msgArray['post_id']  = $data['ref'];
+                    $msgArray['m_type']  = "system";
+                    $messages->add($msgArray);
 
-                    $data["to"] = $data['user_id'];
-                    $data["title"] = "Message Notification";
-                    $data["body"] = $notificationArray['message']." You can now review and comment on this job now";
-                    $data['data']['page_name'] = "comment";
-                    $data['data']['provider']['ref'] = $data['user_id'];
-                    $data['data']['provider']['screen_name'] = $users->listOnValue( $data['user_id'], "screen_name" );
-                    $data['data']['postId'] = $data['ref'];
-                    $notifications->sendPush($data);
                     return true;
                 } else {
                     return false;
@@ -446,11 +476,11 @@ class request extends database {
                 if ($this->updateOneRow("review_status", 1, $data['ref'])) {
                     $this->updateOneRow("review_status_time", (time()+(60*60*24*$options->get("max_days_approve"))), $data['ref']);
                     
-                    $tag = "Your attention is required in <strong>".$data['projec_name']."</strong>. This task as been marked as comleted and is awaiting your review. If no action is taken by you in ".$options->get("max_days_approve")." ".$this->addS("day", $options->get("max_days_approve")).", this task will be marked as completed and all outstanding payments will be released. <a href='".URL."ads/on-going'>Sigin in</a> to your MOBA Account to learn more";;
+                    $tag = "Your attention is required in. This task as been marked as completed and is awaiting your review. If no action is taken by you in ".$options->get("max_days_approve")." ".$this->addS("day", $options->get("max_days_approve")).", this task will be marked as completed and all outstanding payments will be released. <a href='".URL."ads/on-going'>Sign in</a> to your MOBA Account to learn more";;
 
                     $user_data = $users->listOne($data['user_id']);
                     $client = $user_data['last_name']." ".$user_data['other_names'];
-                    $subjectToClient = "[ACTION REQUIRED]: ".$data['project_name'];
+                    $subjectToClient = "[ACTION REQUIRED]: Task Awaiting Review";
                     $contact = "MOBA <".replyMail.">";
                     
                     $fields = 'subject='.urlencode($subjectToClient).
@@ -476,16 +506,6 @@ class request extends database {
                     $msgArray['post_id']  = $data['ref'];
                     $msgArray['m_type']  = "system";
                     $messages->add($msgArray);
-
-                    $data["to"] = $user_r_id;
-                    $data["title"] = "Message Notification";
-                    $data["body"] = $msg;
-                    $data['data']['page_name'] = "messages";
-                    $data['data']['provider']['ref'] = $user_r_id;
-                    $data['data']['provider']['screen_name'] = $users->listOnValue( $user_r_id, "screen_name" );
-                    $data['data']['postId'] = $data['ref'];
-
-                    $notifications->sendPush($data);
 
                     return true;
                 } else {
@@ -651,6 +671,8 @@ class request extends database {
         global $country;
         global $notifications;
         global $users;
+        global $messages;
+
         $data = $this->listOne($array['post_id']);
         $fee = $this->getFee($array);
 
@@ -749,15 +771,38 @@ class request extends database {
             $this->updateOne("request", "status", "ACTIVE", $data['ref'], "ref");
             $this->updateOne("request", "fee", $this->getFee($array), $data['ref'], "ref");
             $this->updateOne("request", "client_id", $array['user_r_id'], $data['ref'], "ref");
-            
-            $notificationArray['event'] = "post_messages";
-            $notificationArray['event_id'] = $data['ref'];
-            $notificationArray['user_id'] = $data['user_id'];
-            $notificationArray['user_r_id'] = $array['user_r_id'];
-            $notificationArray['message'] = "Work approval";
-            $notificationArray['email'] = $users->listOnValue($data['user_id'], "screen_name")." have approved your work ";
 
-            $notifications->create($notificationArray);
+
+            $user_data = $users->listOne($data['user_id']);
+            $tag = $user_data['screen_name']." has approve your task wit them at ".$data['address']." <a href='".URL."ads/on-going'>Sign in</a> to your MOBA Account to learn more";;
+
+            $client = $user_data['last_name']." ".$user_data['other_names'];
+            $subjectToClient = "[ACTION REQUIRED]: Job Approved and Assigned To You";
+            $contact = "MOBA <".replyMail.">";
+            
+            $fields = 'subject='.urlencode($subjectToClient).
+                '&last_name='.urlencode($user_data['last_name']).
+                '&other_names='.urlencode($user_data['other_names']).
+                '&email='.urlencode($user_data['email']).
+                '&tag='.urlencode(htmlentities($tag));
+            $mailUrl = URL."includes/views/emails/notification.php?".$fields;
+            $messageToClient = $this->curl_file_get_contents($mailUrl);
+            
+            $mail['from'] = $contact;
+            $mail['to'] = $client." <".$user_data['email'].">";
+            $mail['subject'] = $subjectToClient;
+            $mail['body'] = $messageToClient;
+            
+            global $alerts;
+            $alerts->sendEmail($mail);
+
+            $msg = "You have been assigned a task";
+            $msgArray['message']  = $msg;
+            $msgArray['user_r_id']  = $array['user_r_id'];
+            $msgArray['user_id']  = $array['user_id'];
+            $msgArray['post_id']  = $data['ref'];
+            $msgArray['m_type']  = "system";
+            $messages->add($msgArray);
 
             $return['status'] = "200";
             $return['message'] = "OK";
@@ -775,6 +820,7 @@ class request extends database {
     public function apiMegotiate($array, $action="post") {
         global $category;
         global $request_negotiate;
+        $array['fee'] = $array['negotiated_fee'];
         if ($action == "post") {
             if ($array['user_id'] == $array['user_r_id']) {
                 $return['status'] = "501";
@@ -1074,16 +1120,17 @@ class request extends database {
             $addressData = $this->googleGeoLocation(false, false, $array['address']);
             $array['latitude'] = $addressData['latitude'];
             $array['longitude'] = $addressData['longitude'];
-            $addressData['state_code'] = $addressData['province_code'];
-            $addressData['state'] = $addressData['province'];
-            $addressData['code'] = $addressData['country_code'];
+            $array['state_code'] = $addressData['state_code'] = $addressData['province_code'];
+            $array['state'] = $addressData['state'] = $addressData['province'];
+            $array['country_code'] = $addressData['code'] = $addressData['country_code'];
+            $array['country'] = $addressData['country'];
         } else {
             $array['latitude'] = $addressData['latitude'] = $location['latitude'];
             $array['longitude'] = $addressData['longitude'] = $location['longitude'];
-            $addressData['state_code'] = $location['state_code'];
-            $addressData['state'] = $location['state'];
-            $addressData['code'] = $location['code'];
-            $addressData['country'] = $location['country'];
+            $array['state_code'] = $addressData['state_code'] = $location['state_code'];
+            $array['state'] = $addressData['state'] = $location['state'];
+            $array['country_code'] = $addressData['code'] = $location['code'];
+            $array['country'] = $addressData['country'] = $location['country'];
             $address = $location['address'];
         }
         $maps['latitude'] = $addressData['latitude'];
@@ -1193,7 +1240,7 @@ class request extends database {
                 }
                 
                 if (($array['user_id'] == $data['user_id']) && (intval($user_r) < 1)) {
-                    $return['status'] = "501";
+                    $return['status'] = 501;
                     $return['message'] = "Not Implemented";
                     $return['additional_message'] = "Responder ID must be defined in URL after the ad. ID";
                 } else {
@@ -1201,6 +1248,11 @@ class request extends database {
                         $initialComment = $messages->getPage($array['post_id'], $user_r, $user_id);
                         for ($i = 0; $i < count($initialComment); $i++) {
                             $user['id'] = $initialComment[$i]['user_id'];
+                            if ($array['user_id'] == $initialComment[$i]['user_id']) {
+                                $user['current_user'] = true;
+                            } else {
+                                $user['current_user'] = false;
+                            }
                             $user['name'] = $users->listOnValue($initialComment[$i]['user_id'], "screen_name");
                             $user['rating']['score'] = round($rating->getRate($initialComment[$i]['user_id']), 2);
                             $user['rating']['total'] = 5;
@@ -1226,8 +1278,9 @@ class request extends database {
                             unset($initialComment[$i]['status']);
                             unset($initialComment[$i]['modify_time']);
                         }
-                        $return['status'] = "200";
+                        $return['status'] = 200;
                         $return['message'] = "OK";
+                        $return['post_id'] = $array['post_id'];
                         $return['data'] = $initialComment;
 
                     } else if ($action == "new") {
@@ -1258,13 +1311,14 @@ class request extends database {
                         unset($initialComment['status']);
                         unset($initialComment['modify_time']);
 
-                        $return['status'] = "200";
+                        $return['status'] = 200;
                         $return['message'] = "OK";
+                        $return['post_id'] = $array['post_id'];
                         $return['data'] = $initialComment;
                     }
                 }
             } else {
-                $return['status'] = "404";
+                $return['status'] = 404;
                 $return['message'] = "Not Found";
                 $return['additional_message'] = "Invalid Ad or Posting";
             }
@@ -1395,5 +1449,7 @@ class request extends database {
     }
 }
 include_once("request_negotiate.php");
+include_once("request_accept.php");
 $request_negotiate  = new request_negotiate;
+$request_accept  = new request_accept;
 ?>

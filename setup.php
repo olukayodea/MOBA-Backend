@@ -7,12 +7,11 @@ if(isset($_REQUEST['initiate'])) {
     $usersTrack->initialize_table();
     $usersKin->initialize_table();
     $request->initialize_table();
-    // $projects->initialize_table();
     $request_negotiate->initialize_table();
-    // $projects_data->initialize_table();
-    // $project_save->initialize_table();
+    $request_accept->initialize_table();
     $inbox->initialize_table();
     $messages->initialize_table();
+    $responseTime->initialize_table();
     $notifications->initialize_table();
     $category->initialize_table();
     $identity->initialize_table();
@@ -29,22 +28,25 @@ if(isset($_REQUEST['initiate'])) {
     $bank_account->initialize_table();
     $banks->initialize_table();
     $wallet->initialize_table();
+    $currentLocation->initialize_table();
 } else if(isset($_REQUEST['clear'])) {
-    $users->clear_table();
-    $usersCategory->clear_table();
-    $usersTrack->clear_table();
-    $usersKin->clear_table();
+    // $users->clear_table();
+    // $usersCategory->clear_table();
+    // $usersTrack->clear_table();
+    // $usersKin->clear_table();
     // $projects->clear_table();
     // $request_negotiate->clear_table();
+    // $request_accept->clear_table();
     // $projects_data->clear_table();
     // $project_save->clear_table();
     // $inbox->clear_table();
     // $messages->clear_table();
+    // $responseTime->clear_table();
     // $notifications->clear_table();
     // $category->clear_table();
     // $country->clear_table();
     // $options->clear_table();
-    $media->clear_table();
+    // $media->clear_table();
     // $rating_question->clear_table();
     // $rating_comment->clear_table();
     // $rating->clear_table();
@@ -54,14 +56,17 @@ if(isset($_REQUEST['initiate'])) {
     // $bank_account->clear_table();
     // $banks->clear_table();
     // $wallet->clear_table();
+    // $currentLocation->clear_table();
 } else if(isset($_REQUEST['remove'])) {
     $users->delete_table();
     // $projects->delete_table();
     // $projects_negotiate->delete_table();
+    // $request_accept->delete_table();
     // $projects_data->delete_table();
     // $project_save->delete_table();
     // $inbox->delete_table();
     // $messages->delete_table();
+    // $responseTime->delete_table();
     // $notifications->delete_table();
     // $category->delete_table();
     // $country->delete_table();
@@ -76,5 +81,6 @@ if(isset($_REQUEST['initiate'])) {
     // $bank_account->delete_table();
     // $banks->delete_table();
     // $wallet->delete_table();
+    // $currentLocation->delete_table();
 }
 ?>

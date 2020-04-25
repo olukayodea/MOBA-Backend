@@ -21,16 +21,11 @@
 		<?php $userHome->pageContent("homeSelect"); ?>
 	</section>
 	<section class="moba-works">
-		<?php if (isset($_REQUEST['done'])) { ?>
-			<div class="alert alert-success text-center" role="alert">
-				<a namw="notice"><strong><?php echo $_REQUEST['done']; ?></strong></a>
-			</div>
-		<?php } ?>
 		<?php $userHome->pageContent("homeList"); ?>
 	</section>
 	<section class="moba-category">
 		<div class="container">
-			<h4>WHO ARE YOU LOOKING FOR?</h4>
+			<h4>WHAT SERVICE DO YOU REQUIRE?</h4>
 			<p>Select the category that best fits the service you require.</p>
 
 			<div class="row">

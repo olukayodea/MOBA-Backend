@@ -68,7 +68,9 @@
 		<div class="container my-5">
             	
 			<div class="row py-5">
+				
 				<?php if ($_SESSION['users']['user_type'] == 1) { ?>
+					<h5 class="alert alert-success">You are viewing current requests for <strong><?php echo $users->getCatNameList($_SESSION['users']['ref']); ?></strong></h5>
 					<?php for ($i = 0; $i < count($list); $i++) { ?>
 						<div class="col-lg-3">			
 							<div class="card h-50">

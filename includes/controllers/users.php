@@ -3,6 +3,9 @@ class users extends database {
     /*  create users
     */
     public function create($array, $file=false) {
+        global $usersToken;
+        global $usersCategory;
+        global $usersKin;
         if ($this->checkExixst("users", "email", $array['email']) < 1) {
             $data = $array;
             $categoryArray = array();
@@ -35,14 +38,27 @@ class users extends database {
             unset($data['kin_relationship']);
             unset($data['id_expiry_mm']);
             unset($data['id_expiry_yy']);
+            $firebase_token = $data['firebase_token'];
+            unset($data['firebase_token']);
             if ($data['account_type'] == "social_media") {
                 $data['status'] = $array['status'] = "ACTIVE";
+            }
+
+            if (isset($array['channel'])) {
+                $fbToken['channel'] = $array['channel'];
+                unset($data['channel']);
+            } else {
+                $fbToken['channel'] = "app";
             }
             $create = $this->insert("users", $data);
 
             if ($create) {
+                if ($array['firebase_token'] != "") {
+                    $fbToken['token'] = $firebase_token;
+                    $fbToken['user_id'] = $create;
+                    $usersToken->create($fbToken);
+                }
                 if (count($categoryArray) > 0) {
-                    global $usersCategory;
                     $pushData['user_id'] = $create;
                     for ($i = 0; $i < count($categoryArray); $i++) {
                         $pushData['category_id'] = $categoryArray[$i];
@@ -50,7 +66,6 @@ class users extends database {
                     }
                 }
                 if ($array['kin_name'] != "") {
-                    global $usersKin;
                     $kin['user_id'] = $create;
                     $kin['kin_name'] = $array['kin_name'];
                     $kin['kin_email'] = $array['kin_email'];
@@ -196,10 +211,10 @@ class users extends database {
             $data = $this->listOne($array['ref'], "ref");
 
             if ($this->modifyUser("password", sha1($array['password']), $data['ref'], "ref")) {
-                $tag = "Your password was changed successfully. <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+                $tag = "Your password was changed successfully. <a href='".URL."'>Sign in</a> to your MOBA Account to learn more";
 
                 $client = $data['last_name']." ".$data['other_names'];
-                $subjectToClient = "Psssword Modification Update";
+                $subjectToClient = "Password Modification Update";
                 $contact = "MOBA <".replyMail.">";
                 
                 $fields = 'subject='.urlencode($subjectToClient).
@@ -229,6 +244,7 @@ class users extends database {
     /*  login user and create user session
     */
     public function login($array) {
+        global $usersToken;
         $query = "SELECT * FROM `users` WHERE  (`email` = :email AND `password` = :password) AND `status` != 'DELETED'";
         $prepare[':email'] = $array['email'];
         $prepare[':password'] = sha1($array['password']);
@@ -237,7 +253,15 @@ class users extends database {
 
         if ((is_array($login)) && ($login != false)) {
             if ($array['firebase_token'] != "") {
-                $this->modifyUser("firebase_token", $array['firebase_token'], $login['ref']);
+                if (isset($array['channel'])) {
+                    $fbToken['channel'] = $array['channel'];
+                } else {
+                    $fbToken['channel'] = "app";
+                }
+                
+                $fbToken['token'] = $array['firebase_token'];
+                $fbToken['user_id'] = $login['ref'];
+                $usersToken->create($fbToken);
             }
             unset($login['password']);
             $_SESSION['users'] = $login;
@@ -379,11 +403,11 @@ class users extends database {
             $updateData = "INACTIVE";
 
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account Deactivated </strong><br><br>Please contact us to contest this action";
-            $tag .= ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+            $tag .= ". <a href='".URL."'>Sign in</a> to your MOBA Account to learn more";
         } else if ($data['status'] == "INACTIVE") {
             $updateData = "ACTIVE";
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account Activated</strong>";
-            $tag .= ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+            $tag .= ". <a href='".URL."'>Sign in</a> to your MOBA Account to learn more";
         } else if ($data['status'] == "NEW") {
             $updateData = "DELETED";
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account Cancellation</strong>";
@@ -425,7 +449,7 @@ class users extends database {
             $updateData = 0;
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Account verification was refused</strong>";
         }
-        $tag .= ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+        $tag .= ". <a href='".URL."'>Sign in</a> to your MOBA Account to learn more";
         if ($this->modifyUser("verified", $updateData, $data['ref'], "ref")) {
             //send email
 
@@ -463,7 +487,7 @@ class users extends database {
             $updateData = 1;
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Administrator Status Authorized</strong><br><br>Please logout of your account and log back in to notice this update on your account";
         }
-        $tag = ". <a href='".URL."'>Sigin in</a> to your MOBA Account to learn more";
+        $tag = ". <a href='".URL."'>Sign in</a> to your MOBA Account to learn more";
         if ($this->modifyUser("user_type", $updateData, $data['ref'], "ref")) {
             //send email
 
@@ -692,7 +716,9 @@ class users extends database {
 include_once("usersCategory.php");
 include_once("usersTrack.php");
 include_once("usersKin.php");
+include_once("usersToken.php");
 $usersCategory  = new usersCategory;
 $usersTrack     = new usersTrack;
 $usersKin       = new usersKin;
+$usersToken     = new usersToken;
 ?>

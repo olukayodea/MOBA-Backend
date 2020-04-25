@@ -84,7 +84,7 @@
 
         public function catSearchData($location, $keyWord, $start, $limit) {
             $return['data'] = $this->catSearch($location, $keyWord, "list", $start, $limit);
-            $return['count'] = $this->catSearch($location, $keyWord, "count");
+            //$return['count'] = $this->catSearch($location, $keyWord, "count");
 
             return $return;
         }
@@ -99,8 +99,8 @@
             } else {
                 $limitData = "";
             }
-            
-            $query = "SELECT `users`.`ref`, `users`.`last_name`, `users`.`other_names`, `users`.`screen_name`, `users`.`email`, `users`.`mobile_number`, `users`.`street`, `users`.`city`, `users`.`state`, `users`.`country`, `users`.`account_type`, `users`.`latitude`, `users`.`longitude`, `users`.`about_me`, `users`.`image_url`, `users`.`average_response_time`, SQRT(((`users`.`latitude` - ".$latitude.")*(`users`.`latitude` - ".$latitude.")) + ((`users`.`longitude` - ".$longitude.")*(`users`.`longitude` - ".$longitude."))) AS `total` FROM `usersCategory`, `users` WHERE `users`.`status` = 'ACTIVE' AND `users`.`user_type` = 1 AND `users`.`verified` = 2 AND `usersCategory`.`user_id` = `users`.`ref` AND `category_id` = ".$val." AND ((`users`.`country` LIKE '".$data['code']."' OR `users`.`country` LIKE '".$data['country']."') AND (`users`.`state` LIKE '".$data['state_code']."' OR `users`.`state` LIKE '".$data['state']."')) GROUP BY `usersCategory`.`user_id` ORDER BY `users`.`is_featured` DESC, `total` ASC".$limitData;
+
+            $query = "SELECT `users`.`ref`, `users`.`last_name`, `users`.`other_names`, `users`.`screen_name`, `users`.`email`, `users`.`mobile_number`, `users`.`street`, `users`.`city`, `users`.`state`, `users`.`country`, `users`.`account_type`, `users`.`latitude`, `users`.`longitude`, `users`.`about_me`, `users`.`image_url`, `users`.`average_response_time`, SQRT(((`users`.`latitude` - ".$latitude.")*(`users`.`latitude` - ".$latitude.")) + ((`users`.`longitude` - ".$longitude.")*(`users`.`longitude` - ".$longitude."))) AS `total` FROM `usersCategory`, `users`, `currentLocation` WHERE `users`.`status` = 'ACTIVE' AND `users`.`user_type` = 1 AND `users`.`verified` = 2 AND `usersCategory`.`user_id` = `users`.`ref` AND `users`.`ref` = `currentLocation`.`user_id` AND `category_id` = ".$val." AND ((`users`.`country` LIKE '%".$data['code']."%' OR `users`.`country` LIKE '%".$data['country']."%' OR `currentLocation`.`country` LIKE '%".$data['code']."%' OR `currentLocation`.`country` LIKE '%".$data['country']."%%') AND (`users`.`state` LIKE '%".$data['state_code']."%' OR `users`.`state` LIKE '%".$data['state']."%' OR `currentLocation`.`state` LIKE '%".$data['state_code']."%' OR `currentLocation`.`state` LIKE '%".$data['state']."%')) GROUP BY `usersCategory`.`user_id` ORDER BY `users`.`is_featured` DESC, `total` ASC".$limitData;
             
             return $this->run($query, false, $type, "s");
         }

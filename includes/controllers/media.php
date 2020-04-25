@@ -171,7 +171,7 @@
 			return $msg;
         }
         
-        public function uploadDP($ref, $array, $pic=true) {
+        public function uploadDP($ref, $array, $pic=true, $home=false) {
 			ini_set("memory_limit", "200000000");
 			$uploadedfile = $array['tmp_name'];
 			if ($array["error"] == 1) {
@@ -205,12 +205,18 @@
                         $file = "gov_id.".$extension;
                     }
                     $dir = "media/profiles/".$ref."/";
-					$userDoc = $dir;
+                    if (local == true) {
+                        $directory = $_SERVER['DOCUMENT_ROOT']."/MOBA-Backend/";
+                    } else {
+                        $directory = $_SERVER['DOCUMENT_ROOT']."/";
+                    }
+					$userDoc = $directory.$dir;
 					if(!is_dir($userDoc)) {
 						mkdir($userDoc, 0777, true);
-					}
+                    }
+                    
 					$newFile = $userDoc.$file;
-					$move = move_uploaded_file($uploadedfile, $newFile);
+				    $move = move_uploaded_file($uploadedfile, $newFile);
 					
 					if ($move) {
 						$msg['title'] = "OK";
@@ -266,7 +272,7 @@
 					
 					if ($move) {
 						$msg['title'] = "OK";
-                        $msg['desc'] = $dir.$file;
+                        $msg['desc'] = $file;
 					} else {
 						$msg['title'] = "ERROR";
 						$msg['desc'] = "an error occured";

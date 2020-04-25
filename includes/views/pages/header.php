@@ -160,25 +160,30 @@
                     <div class="col-lg-3">
                         <h6>QUICK LINK</h6>
                         <p>
-                            <a href="#">Home</a><br>
-                            <a href="#">Post Ad</a><br>
-                            <a href="#">Sign Up</a><br>
-                            <a href="#">Log In</a>
+                            <a href="<?php echo URL; ?>">Home</a><br>
+                            <a href="<?php echo URL; ?>ads">Post Ad</a><br>
+                            <a href="<?php echo URL; ?>allCategories">All Posted Services</a><br>
+                            <?php if (isset($_SESSION['users'])) { ?>
+                                <a href="<?php echo URL; ?>profile"><?php echo strtoupper($_SESSION['users']['screen_name']); ?></a><br>
+                                <a href="Javascript:void(0);" onclick="signOut();">Logout</a>
+                            <?php } else { ?>
+                                <a href="<?php echo URL; ?>login?join">Sign Up</a><br>
+                                <a href="<?php echo URL; ?>login">Log In</a>
+                            <?php } ?>
                         </p>
                     </div>
                     <div class="col-lg-2">
                         <h6>SOCIAL</h6>	
-                        <a href="#">Facebook</a><br>
-                        <a href="#">Twitter</a><br>
-                        <a href="#">Linkedin</a><br>
+                        <a href="https://www.facebook.com/mobaprofessionals/" target="_blank">Facebook</a><br>
+                        <a href="https://twitter.com/Moba_services" target="_blank">Twitter</a><br>
+                        <a href="https://www.linkedin.com/company/mobile-application-resources-limited/" target="_blank">Linkedin</a><br>
                         <a href="#">instagram</a>
-                        
                     </div>
                     <div class="col-lg-3">
                         <h6>CONTACT</h6>
                         <p>
-                            07058794031, 08056569644<br>
-                            info@moba.com
+                            +234 (0) 706 210 5551<br>
+                            Info@moba.com.ng
                         </p>
                     </div>
                 </div>
@@ -242,12 +247,12 @@
 
         function getLocation() {
             if (navigator.geolocation) {
-            var geoError = function() {
-                location="<?php echo URL."selectCity"; ?>";
-            };
-            navigator.geolocation.getCurrentPosition(showPosition, geoError);
+                var geoError = function() {
+                    location="<?php echo URL."selectCity"; ?>";
+                };
+                navigator.geolocation.getCurrentPosition(showPosition, geoError);
             } else {
-            location="<?php echo URL."selectCity"; ?>";
+                location="<?php echo URL."selectCity"; ?>";
             }
         }
 

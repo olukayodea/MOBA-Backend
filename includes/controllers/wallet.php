@@ -17,7 +17,7 @@
                 }
                 $pushNotice .= "your wallet account.";
                 
-                $tag = $pushNotice." <a href='".URL."wallet'>Sigin in</a> to your MOBA Wallet to learn more";
+                $tag = $pushNotice." <a href='".URL."wallet'>Sign in</a> to your MOBA Wallet to learn more";
 
 
                 $user_data = $users->listOne($array['user_id']);

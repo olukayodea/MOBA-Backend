@@ -98,7 +98,7 @@
             <div class="container">
                 <h4>HOW MOBA WORKS</h4>
                 <div class="row">
-                    <div class="col-lg-4 mt-3">
+                    <div class="col-lg-4">
                         <span>1</span><br><br>
                         <h5 class="mt-3">Describe The Task</h5>
                         <p>Select the category that best fits the service you require, click on "Request Service", describe your task and state your location.</p>
@@ -231,7 +231,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -241,7 +241,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
                     <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['image_url'] != "") { ?>
                         <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
@@ -253,10 +253,10 @@
                     <div class="moba-line mb-3"></div>
                     <p>Drag and Drop a file or select one<br>
                     Click on the Upload Button to upload the image<br>
-                    Or remoe the selected file by clicking on the 'Remove' or 'cancel' Button</p>
+                    Or remove the selected file by clicking on the 'Remove' or 'cancel' Button</p>
                     <form enctype="multipart/form-data" method="post">
                         <div class="form-group">
-                            <input id="file-3" type="file">
+                            <input id="file-3" type="file" accept="image/*">
                         </div>
                     </form>
                     <div class="moba-line m-3"></div>
@@ -275,7 +275,7 @@
                     fileType: "any",
                     uploadUrl: '<?php echo URL; ?>/includes/views/scripts/imageUpload.php',
                     uploadExtraData: {id: user_id},
-                    allowedFileExtensions: ['jpg', 'png', 'gif'],
+                    allowedFileExtensions: ['jpg', 'png', 'gif', 'jpeg'],
                     maxFileSize: 2048,
                     required: true
                 });
@@ -297,7 +297,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -307,7 +307,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
                     <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['image_url'] != "") { ?>
                         <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
@@ -324,7 +324,7 @@
                     <?php } else { ?>
                         <h6 class="card-subtitle mb-2 text-muted">Drag and Drop a file or select one<br>
                         Click on the Upload Button to upload the image<br>
-                        Or remoe the selected file by clicking on the 'Remove' or 'cancel' Button</h6>
+                        Or remove the selected file by clicking on the 'Remove' or 'cancel' Button</h6>
                         <form enctype="multipart/form-data" method="post">
                             <div class="form-group">
                                 <input id="file-3" type="file" accept="png, .jpg, .jpeg, .pdf">
@@ -369,7 +369,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -379,7 +379,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
                     <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['image_url'] != "") { ?>
                         <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
@@ -450,7 +450,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -460,7 +460,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
                     <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['image_url'] != "") { ?>
                         <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
@@ -575,7 +575,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top", "50"); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -585,7 +585,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average ResponseTime:</b> <?php echo $data['average_response_time']; ?></p>
                     <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['image_url'] != "") { ?>
                         <p><a href="<?php echo URL."edit/Image?removeImage"; ?> "onClick="return confirm('this action will remove this picture and can not be undone. are you sure you want to continue ?')"  class="btn red-bn pd">Remove Display Image</a></p>
@@ -913,7 +913,7 @@
                         <p><b>Client:</b> <?php echo $users->listOnValue($data['user_id'], "screen_name"); ?></p>
                         <p><b>Service Provider:</b> <?php echo $users->listOnValue($data['client_id'], "screen_name"); ?></p>
                         <p><b>Address:</b> <?php echo $data['address']; ?></p>
-                        <p><b>Aount Charged:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
+                        <p><b>Amount Charged:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
                         <?php if ($data['status'] != "COMPLETED") { ?>
                             <?php if ($data['client_id'] == $_SESSION['users']['ref']) {
                                 if ($data['review_status'] == 1) { ?>
@@ -944,7 +944,7 @@
                                 <p><strong>Comments</strong><br>
                                 <?php echo $checkComment['comment']; ?><p>
                             <?php } else { ?>
-                                <p>Kindly rate <?php echo $users->listOnValue($user_id, "screen_name"); ?> performance on the following headings:</p>
+                                <p>Kindly rate <?php echo $users->listOnValue($user_r_id, "screen_name"); ?> performance on the following headings:</p>
                                 <form method="post" action="<?php echo URL."requestDetails?id=".$data['ref']; ?>">
                                     <input name="user_id" type="hidden" value="<?php echo $user_id; ?>">
                                     <input name="reviewed_by" type="hidden" value="<?php echo $user_r_id; ?>">
@@ -981,6 +981,7 @@
                         </div>
                         <div class="moba-line m-3"></div>
                         <h5><a name="messages"></a>Messages with <?php echo $users->listOnValue($user_r_id, "screen_name"); ?></h5>
+                        <small>Average Response Time:</b> <?php echo $users->listOnValue($user_r_id, 'average_response_time'); ?></small>
                         <div class="moba-line mb-3"></div>
                         <div class="row">
                             <ol id="update" >
@@ -993,6 +994,8 @@
                                             <?php if ($initialComment[$i]['m_type'] == "negotiate_charges" ) {
                                                 $m_type_data = explode("_", $initialComment[$i]['m_type_data'] ) ?>
                                                 <i class="fa fa-handshake" aria-hidden="true"></i><br><?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>You have a <?php } ?>new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" )." " .$m_type_data[0]; ?></strong>
+                                                <?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>
+                                                <p><a href="<?php echo $this->seo($user_id, "profile").$m_type_data[1]."/negotiate?respond=".$user_id; ?>" class="btn purple-bn pd" title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p><?php } ?>
                                             <?php } else if ($initialComment[$i]['m_type'] == "system" ) {
                                                 echo "<i class='fa fa-exclamation' aria-hidden='true'></i>".$initialComment[$i]['message'];
                                             } else {
@@ -1045,7 +1048,7 @@
                                         if (data.m_type == "system") {
                                             var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'><i class='fa fa-exclamation' aria-hidden='true'></i>     "+data.msg+"</p></div></li>";
                                         } else if (data.m_type == "negotiate_charges") {
-                                            var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
+                                            var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong><br><p><a href="<?php echo $this->seo($user_id, "profile"); ?>'+data.data_2+'<?php echo "/negotiate?respond=".$user_id; ?>" class="btn purple-bn pd" title=\'Remove\'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p>';
 
                                         } else {
                                             var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+data.msg+"</p></div></li>";
@@ -1141,7 +1144,7 @@
             $data = $category->listOne($id);
             $userData = $users->listOne(trim($_SESSION['users']['ref']));
             $countryData = $country->listOne($data['country'], "ref");
-            $usersData = $category->totalUsers($id);
+            $usersData = $category->totalUsers($id, $_SESSION['location']);
             $question = $categoryQuestion->getSortedList($id, "category_id");
             ?>
             <div class="container my-5">
@@ -1153,8 +1156,6 @@
                     
                     
                     <div class="moba-line my-3"></div>
-                    <p><b>Completed Jobs:</b> 2.9K</p>	
-                    <p><b>Average Response Time:</b> 1Hr 25m</p>
                     <p><b>Callout Charge:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['call_out_charge'], 2); ?></p>		
                     
                 </div>
@@ -1178,7 +1179,8 @@
                             </div>
                         </form>
                         <?php } else {
-                            $check = $wallet->getDefault($_SESSION['users']['ref']);
+                            
+                            $check = true;
                             if ($check) { ?>
                                 <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" enctype="multipart/form-data">
                                     <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
@@ -1214,7 +1216,8 @@
                                     <div class="form-group">
                                         <label for="fee" class="form-text text-muted">Price Range</label>
                                         <input type="number" name="fee" id="fee" class="form-control" placeholder="Price Range" min="<?php echo $data['call_out_charge']; ?>" required>
-                                        <small id="autocomplete_help" class="form-text text-muted">This amount must be greater than or equal to <?php echo $countryData['currency_symbol']." ".number_format($data['call_out_charge'], 2); ?>.</small>
+                                        <small id="autocomplete_help" class="form-text text-muted">This amount must be greater than or equal to <?php echo $countryData['currency_symbol']." ".number_format($data['call_out_charge'], 2); ?>.<br>
+                                        Please note that the call-out charge is the minimum for each category, charges may vary depending on the service required.</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="uploadFile">Include pictures with as much details as you will prefer. You can upload a maximum of 10 media with a maximum file size of 2MB. (Optional)</label>
@@ -1246,10 +1249,11 @@
                     <div class="row">
                         <?php if (count($usersData) > 0) { ?>
                         <?php for ($i = 0; $i < count($usersData); $i++) { ?>
-                            <div class="col-lg-4">
+                            <div class="col-lg-6">
                                 <div class="moba-content__img">
                                     <?php $users->getProfileImage($usersData[$i]['user_id'], "mr-3 float-left"); ?>
-                                    <small><?php echo $users->listOnValue($usersData[$i]['user_id'], "screen_name"); ?></small><br>
+                                    <small><?php echo $usersData[$i]['screen_name']; ?></small><br>
+                                    Reponds in <?php echo $usersData[$i]['average_response_time']; ?><br>
                                     <?php echo $rating->drawRate(intval($rating->getRate($usersData[$i]['user_id']))); ?>
                                 </div>
                             </div>
@@ -1288,6 +1292,7 @@
             global $country;
             global $rating;
             global $users;
+            global $request_accept;
             $data = $request->listOne($id);
             $extraData = unserialize($data['data']);
             $categoryData = $category->listOne($data['category_id']);
@@ -1301,7 +1306,7 @@
             $addressData['code'] = $loc['country_code'];
             $addressData['country'] = $loc['country'];
 
-            $result = $request->findRequest($addressData, $data['category_id'])['data'];
+            $result = $request_accept->getResponse($data['ref']);
             //echo "<pre>";
             ?>
             <div class="container my-5">
@@ -1318,10 +1323,10 @@
                     <p><a href="<?php echo URL."ads/all?remove&id=".$id; ?>" class="btn red-bn pd" onClick='return confirm("this action end this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete</a></p>	
                     
                 </div>
-                <div class="col-lg-8">			
-                    <h5>Search Result for <?php echo $categoryData['category_title']; ?></h5>
+                <div class="col-lg-8" id="messageData">			
+                    <h5>Request Response for '<strong><?php echo $categoryData['category_title']; ?></strong></h5>
                     <div class="moba-line mb-3"></div>
-                    <p>Your request for <strong><?php echo $categoryData['category_title']; ?></strong> at <strong><?php echo $loc['address']; ?></strong> brought <strong><?php echo intval(count($result)); ?></strong> Result(s)</p>
+                    <p>Your request for <strong><?php echo $categoryData['category_title']; ?></strong> at <strong><?php echo $loc['address']; ?></strong> has <strong><?php echo intval(count($result)); ?></strong> <?php echo $this->addS("response", intval(count($result))); ?></p>
                     <div class="row">
                         <?php if (count($result) > 0) { ?>
                             <?php for ($i = 0; $i < count($result); $i++) {
@@ -1352,6 +1357,23 @@
                 </div>
             </div>
             </div>
+
+            <script>
+            var auto_refresh = setInterval(function () {
+                var url = '<?php echo URL; ?>';
+                var dataString = "request=<?php echo $data['ref']; ?>&category_title=<?php echo $categoryData['category_title']; ?>&address=<?php echo $loc['address']; ?>&latitude=<?php echo $addressData['latitude']; ?>&longitude=<?php echo $addressData['longitude']; ?>&state_code=<?php echo $addressData['state_code']; ?>&state=<?php echo $addressData['state']; ?>&code=<?php echo $addressData['code']; ?>&country=<?php echo $addressData['country']; ?>";
+                $.ajax({
+                    type: "POST",
+                    url: url+"includes/views/scripts/messageRequest",
+                    data: dataString,
+                    cache: false,
+                    success: function(html){
+                        $('#messageData').html('');
+                        $(html).appendTo("#messageData");
+                    }
+                });
+            }, 10000);
+            </script>
         <?php 
         }
 
@@ -1365,6 +1387,8 @@
             global $rating_question;
             global $messages;
             global $media;
+            $extraData = array();
+            $getAlbum = array();
             $data = $request->listOne($array[2]);
             $extraData = unserialize($data['data']);
             $categoryData = $category->listOne($data['category_id']);
@@ -1408,19 +1432,20 @@
                     <p><b>Callout Charge:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
                     <?php if ($user_id != $usersData['ref']) { ?>
                         <?php if ($data['status'] == "OPEN") { ?>
-                            <?php if ($checkCurrentRequest == 1) { ?>
-                                <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?respond=".$currentData['ref']; ?>" class="btn purple-bn pd" title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p>
-                            <?php } else if (($userData['user_type'] == "1") && ($checkRequest == 1)) { ?>
-                                <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?cancel=".$requestData['ref']; ?>" class="btn red-bn pd"  onClick='return confirm("this action cancel this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Cancel Negotiation Request</a></p>
-                            <?php } else if ($userData['user_type'] == "1") { ?>
-                                <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate"; ?>" class="btn purple-bn pd" onClick='' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Negotiate Fee</a></p>
+                            <?php if ($array[3] != "respond") { ?>
+                                <?php if ($checkCurrentRequest == 1) { ?>
+                                    <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?respond=".$currentData['ref']; ?>" class="btn purple-bn pd" title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p>
+                                <?php } else if (($userData['user_type'] == "1") && ($checkRequest == 1)) { ?>
+                                    <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?cancel=".$requestData['ref']; ?>" class="btn red-bn pd"  onClick='return confirm("this action cancel this request, are you sure you want to continue ?")' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Cancel Negotiation Request</a></p>
+                                <?php } else if ($userData['user_type'] == "1") { ?>
+                                    <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate"; ?>" class="btn purple-bn pd" onClick='' title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Negotiate Fee</a></p>
+                                <?php } ?>
                             <?php } ?>
                         <?php } ?>
-                        
                         <?php if ($array[3] == "view") { ?>
-                        <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/message"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-comments"></i>&nbsp;&nbsp;Message</a></p>
+                            <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/message"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-comments"></i>&nbsp;&nbsp;Message</a></p>
                         <?php } else { ?>
-                        <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/view"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-eye"></i>&nbsp;&nbsp;View Profile</a></p>
+                            <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/view"; ?>" class="btn purple-bn pd" title='Message'><i class="fas fa-eye"></i>&nbsp;&nbsp;View Profile</a></p>
                         <?php } ?>
                         <?php if ($data['status'] == "OPEN") { ?>
                             <?php if ($data['user_id'] == $user_id) { ?>
@@ -1431,7 +1456,7 @@
                             <?php } ?>
                         <?php } ?>
                     <?php } else { ?>
-                        <p><a href="<?php echo URL."ad"; ?>" class="btn red-bn pd" title='Go Back'><i class="fas fa-backward"></i>&nbsp;&nbsp;Back To Requests</a></p>
+                        <p><a href="<?php echo URL."newRequestDetails?id=".$data['ref']; ?>" class="btn red-bn pd" title='Go Back'><i class="fas fa-backward"></i>&nbsp;&nbsp;Back To Requests</a></p>
                     <?php } ?>
                     
                 </div>
@@ -1468,7 +1493,9 @@
                         <p><?php echo $usersData['about_me']; ?></p>
                         <?php echo $rating->drawRate(intval($rating->getRate($usersData['ref']))); ?>
                         <p><small>Number of Tasks Completed</small><br>
-                        <small> Response Time</small><br>
+                        <strong><?php echo $request->taskCompleted($data['ref'], "user_id"); ?></strong>
+                        <small> Average Response Time</small><br>
+                        <strong><?php echo $usersData['ref']; ?></strong><br>
                         <small> Rating<small<br>
                         <strong><?php echo $rating->textRate(intval($rating->getRate($usersData['ref']))); ?></strong></p>
 
@@ -1484,10 +1511,36 @@
                                 <?php } ?>
                             <?php } ?>
                         </div>
+                    <?php } else if ($array[3] == "respond") { ?>
+                        <h5>Respond to Request</h5>
+                        <p><b>Job Location:</b><br><?php echo $data['address']; ?></p>
+                        <div class="moba-line my-3"></div>
+                        <?php if (count($getAlbum) > 0) {
+                            for ($i = 0; $i < count($getAlbum); $i++) { ?>
+                                <a data-fancybox="gallery" href="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>"><img src="<?php echo $media->getCover($getAlbum[$i]['ref'], "ref"); ?>" alt="<?php echo $data['project_name']; ?>" class="img-thumbnail" style="width:auto; height:70px;"></a>
+                            <?php } ?>
+                            <div class="moba-line my-3"></div>
+                        <?php } ?>
+                        <?php for ($u = 0; $u < count($extraData); $u++) { ?>
+                        <p><b><?php echo $extraData[$u]['question']; ?><br></b> <?php echo $extraData[$u]['answer']; ?></p>
+                        <div class="moba-line my-3"></div>
+                        <?php } ?>
+                        <p><b>Callout Charge</b><br><?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
+                        <?php if ($data['status'] == "OPEN") { ?>
+                        <form name="req" id="req" method="post" action="">
+                        <input type="hidden" name="request" value="<?php echo $data['ref']; ?>"/>
+                        <input type="hidden" name="user_r_id" value="<?php echo $user_id; ?>"/>
+                        <input type="submit" name="accept_req" value="Accept Request" class="btn purple-bn1"/>
+                        <input type="submit" name="reject_req" value="Reject" class="btn red-bn1"/>
+                        </form>
+                        <?php } else { ?>
+                            <p class="alert alert-danger">This request has expired</p>
+                        <?php } ?>
                     <?php } else {
                         $messages->markRead($_SESSION['users']['ref'], $data['ref']);
                         $initialComment = $messages->getPage($data['ref'], $user_r_id, $user_id); ?>     			
                         <h5><a name="messages"></a>Messages with <?php echo $users->listOnValue($user_r_id, "screen_name"); ?></h5>
+                        <small>Average Response Time:</b> <?php echo $users->listOnValue($user_r_id, 'average_response_time'); ?></small>
                         <p><?php echo $usersData['about_me']; ?></p>
                         <div class="moba-line mb-3"></div>
                         <?php echo $rating->drawRate(intval($rating->getRate($usersData['ref']))); ?>
@@ -1503,6 +1556,8 @@
                                 <?php if ($initialComment[$i]['m_type'] == "negotiate_charges" ) {
                                     $m_type_data = explode("_", $initialComment[$i]['m_type_data'] ) ?>
                                     <i class="fa fa-handshake" aria-hidden="true"></i><br><?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>You have a <?php } ?>new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" )." " .$m_type_data[0]; ?></strong>
+                                    <?php if ($initialComment[$i]['user_id'] != $_SESSION['users']['ref']) { ?>
+                                    <p><a href="<?php echo $this->seo($usersData['ref'], "profile").$data['ref']."/negotiate?respond=".$currentData['ref']; ?>" class="btn purple-bn pd" title='Remove'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p><?php } ?>
                                 <?php } else if ($initialComment[$i]['m_type'] == "system" ) {
                                     echo "<i class='fa fa-exclamation' aria-hidden='true'></i>".$initialComment[$i]['message'];
                                 } else {
@@ -1556,7 +1611,7 @@
                                             if (data.m_type == "system") {
                                                 var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'><i class='fa fa-exclamation' aria-hidden='true'></i>     "+data.msg+"</p></div></li>";
                                             } else if (data.m_type == "negotiate_charges") {
-                                                var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong>'
+                                                var msg = '<i class="fa fa-handshake-o" aria-hidden="true"></i><br>You have a new fee negotiation request.<br><br>New Fee: <strong><?php echo $country->getCountryData( $data['region'], "currency_symbol", "ref" ); ?>'+data.data_1+'</strong><br><p><a href="<?php echo $this->seo($user_id, "profile"); ?>'+data.data_2+'<?php echo "/negotiate?respond=".$user_id; ?>" class="btn purple-bn pd" title=\'Remove\'><i class="fas fa-tags"></i>&nbsp;&nbsp;Respond to Negotiation</a></p>';
 
                                                 var div_data = "<li class='media' id='"+data.id+"'>"+html+"<div class='media-body'><small class='time'><i class='fa fa-clock-o'></i>"+data.time+"</small><p class='mt-0'>"+msg+"</p></div></li>";
                                             } else {
@@ -1677,7 +1732,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
                     <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['screen_name_cam_change'] == 0) { ?>
                         <p><a href="<?php echo URL."edit/ScreenName"; ?>" class="btn purple-bn pd">Edit Username</a></p>
@@ -1749,7 +1804,7 @@
                     <?php } else if ($data['user_type'] != 1) { ?>
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
-                    <p><b>Average Time:</b> <?php echo date('l jS \of F Y h:i:s A', $data['time']); ?></p>
+                    <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
                 </div>
                 <div class="col-lg-8">
                     <h5><?php echo $data['last_name']." ".$data['other_names']." <strong>'".$data['screen_name']."'</strong>"; ?></h5>
@@ -1827,7 +1882,7 @@
                 <?php for ($i = 0; $i < count($notificationList); $i++) { ?>
                 <tr <?php if ($notificationList[$i]['status'] == 0) { ?>class="table-active"<?php } ?>>
                 <th scope="row"><?php echo $start+$i+1; ?></th>
-                <td><?php $users->getProfileImage( $notificationList[$i]['user_id'] ); ?></td>
+                <td><?php $users->getProfileImage( $notificationList[$i]['user_id'], "mr-3 main_img profile thumbnail" ); ?></td>
                 <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id'], $notificationList[$i]['message'], $notificationList[$i]['user_r_id']); ?></td>
                 <td><?php echo $notificationList[$i]['create_time']; ?></td>
                 <td><?php echo $notificationList[$i]['modify_time']; ?></td>

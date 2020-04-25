@@ -2,7 +2,7 @@
 $redirect = ltrim($_SERVER['REQUEST_URI'], "/");
 include_once("includes/functions.php");
 include_once("includes/sessionUser.php");
-
+print_R($_REQUEST);
 if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
     $data = $category->listOne($id);

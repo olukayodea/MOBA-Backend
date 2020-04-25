@@ -19,7 +19,7 @@
         /*  $table  =   name of table to be inserted into
         *   $data   =   an array containing the value key pair of the data to be inserted
         */
-        public function insert($table, $data) {
+        public function insert($table, $data, $ignore=false) {
             $queryLine1 = "";
             $queryLine2 = "";
 
@@ -33,7 +33,13 @@
             $queryLine1 = trim($queryLine1, ",");
             $queryLine2 = trim($queryLine2, ",");
 
-            $query = "INSERT INTO `".$table."` (".$queryLine1.") VALUES (".$queryLine2.")";
+            if ($ignore === true) {
+                $pre = "INSERT IGNORE";
+            } else {
+                $pre = "INSERT";
+            }
+
+            $query = $pre." INTO `".$table."` (".$queryLine1.") VALUES (".$queryLine2.")";
             return $this->run($query, $prepare, "insert");
         }
 
@@ -342,7 +348,7 @@
             }
             if ($sql) {
                 if ($type == "replace") {
-                    return ($db->lastInsertId('ref') > 0 ? $db->lastInsertId('ref') : $prepare[":ref"]);
+                    return ($db->lastInsertId('ref') > 0 ? $db->lastInsertId('ref') : @$prepare[":ref"]);
                 } else if ($type == "insert") {
                     return $db->lastInsertId('ref');
                 } else if ($type == "list") {

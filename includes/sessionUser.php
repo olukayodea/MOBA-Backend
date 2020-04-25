@@ -3,6 +3,8 @@
 	$urlData = explode("?", $_SERVER['REQUEST_URI']);
 	//$_SESSION['users']['sessionTime'] = time() + 1800;
 	if ((isset($_SESSION['users']['ref'])) && ($_SESSION['users']['status'] != "NEW")) {
+		$common->dumpCurrent();
+
 		$last_name = trim($_SESSION['users']['last_name']);
 		$other_names = trim($_SESSION['users']['other_names']);
 		$screen_name = trim($_SESSION['users']['screen_name']);

@@ -26,7 +26,7 @@
             
             if ($create) {
                 //send email
-                $tag = "you have added a new bank account to your account. <a href='".URL."bankAccounts'>Sigin in</a> to your MOBA Account to learn more";
+                $tag = "you have added a new bank account to your account. <a href='".URL."bankAccounts'>Sign in</a> to your MOBA Account to learn more";
 
                 $user_data = $users->listOne($array['user_id']);
                 $client = $user_data['last_name']." ".$user_data['other_names'];

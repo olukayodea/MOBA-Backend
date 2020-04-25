@@ -3,8 +3,8 @@
     $product_key = rand();
     // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNB1EJ";
-    $u = "https://dev.moba.com.ng/";
-    $token = "440XVMA543434323212";
+    $u = "https://moba.com.ng/";
+    $token = "440XVMA5TFBXJ16VN06";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -188,21 +188,21 @@
 /*    
     $url = $u."api/request/get/past";
     echo get($header, $url);*/
-
+/*
     $url = $u."api/request/get/available";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*    
     $url = $u."api/request/get/active";
     echo get($header, $url);*/
-/*
-    $url = $u."api/request/get/27/2";
-    echo get($header, $url);*/
+
+    $url = $u."api/request/get/61";
+    echo get($header, $url);
 /*
     $url = $u."api/request/delete/1";
     echo delete($header, $url);*/
 /*
     //request messages
-    $url = $u."api/request/messages/1/2"; //post ID
+    $url = $u."api/request/messages/87"; //post ID
     echo get($header, $url);*/
 /*
     //request new messages

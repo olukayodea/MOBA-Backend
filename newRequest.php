@@ -13,18 +13,15 @@
     if (isset($_POST['sendMessageButton'])) {
         $_POST['address'] = $_POST['city']." ".$_POST['state']." ".$_POST['postal_code']." ".$_POST['country'];
         unset($_POST['city']);
-        unset($_POST['state']);
         unset($_POST['postal_code']);
-        unset($_POST['country']);
         unset($_POST['autocomplete']);
         $regionData = $country->getLoc($_POST['country_code']);
-        unset($_POST['country_code']);
         $_POST['region'] = $regionData['ref'];
         $_POST['user_id'] = $_SESSION['users']['ref'];
         $_POST['latitude'] = $_POST['lat'];
         $_POST['category_id'] = $_POST['id'];
         $_POST['longitude'] = $_POST['lng'];
-        $_POST['data'] = serialize( $_POST['data'] );
+        $_POST['data'] = serialize( @$_POST['data'] );
         unset($_POST['id']);
         unset($_POST['lat']);
         unset($_POST['lng']);

@@ -46,18 +46,60 @@
         
         //send emails
 		function send_mail($from,$to,$subject,$body) {
-			$headers = '';
+			/*$headers = '';
 			$headers .= "From: $from\r\n";
 			$headers .= "Reply-to: ".replyMail."\r\n";
+			$headers .= "Return-Path: ".replyMail."\r\n";
+			$headers .= "Organization: SkrinAd\r\n";
 			$headers .= "MIME-Version: 1.0\r\n";
-			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+			$headers .= 'Content-Type: text/html; charset=utf-8' . "\r\n";
 			$headers .= "Date: " . date('r', time()) . "\r\n";
 		
-			if (@mail($to,$subject,$body,$headers)) {
+			if (mail($to,$subject,$body,$headers)) {
 				return true;
 			} else {
 				return false;
 			}
+			
+			*/
+			
+			$from_data = explode("<", trim($from, ">"));
+			$to_data = explode("<", trim($to, ">"));
+			$to_email = $to_data[1];
+			$to_name = $to_data[0];
+			$mail = new PHPMailer();
+			$mail->IsSMTP();
+			//$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
+			$mail->SMTPAuth = true; // authentication enabled
+			$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
+			$mail->Host = "email-smtp.us-east-1.amazonaws.com";
+			//$mail->Host = "mail.skrinad.com";
+			$mail->Port = 465; // or 587
+			
+			$mail->Username = "AKIAUZQU4YDJ7QOUCEQQ";  // SMTP username
+			$mail->Password = "BAgOjq9UHoKdP/E3QMe5O3XzsUcRK4g20VvmfSNV5ntx"; // SMTP password
+			//$mail->Username = "do-not-reply@skrinad.com";  // SMTP username
+			//$mail->Password = "P@%%W)RD"; // SMTP password
+			
+			$mail->From = $from_data[1];
+			$mail->FromName = $from_data[0];
+			$mail->AddAddress($to_email,$to_name);                  // name is optional
+			$mail->AddReplyTo($from_data[1], $from_data[0]);  
+			
+			$mail->WordWrap = 50;                                 // set word wrap to 50 characters
+			$mail->IsHTML(true);                                  // set email format to HTML
+			
+			$mail->Subject = $subject;
+			$mail->Body    = $body;
+			$mail->AltBody = "This is email is readable only in an HTML enabled browser or reader";
+			
+			// if(!$mail->Send()) {
+			// 	error_log("could not send");
+			// 	return false;
+			// } else {
+			// 	//echo "Mailer Error: " . $mail->ErrorInfo;
+			// 	return true;
+			// }
 		}
 		
 		function checkSize($file, $array=false) {
@@ -115,7 +157,7 @@
 			return $tag;
 		}
 
-		function seo($id, $type="category") {
+		function seo($id, $type="category", $other=0) {
 			if ($type == "category") {
 				global $category;
 				$row = $category->listOne($id);
@@ -145,8 +187,17 @@
 				$link = implode("-", $urlLink);
 				
 				$result = URL."profile/request/".$id."/".$link."/";
-			} else {
+
+			} else if ($type == "request") {
+				global $users;
+				$row = $users->listOne($other);
+				$name = trim(strtolower($row['screen_name']));
 				
+				$urlLink = explode(" ", $name);
+				$link = implode("-", $urlLink);
+				
+				$result = URL."profile/request/".$other."/".$link."/".$id."/respond";
+			} else {
 				$result = URL."items/".$id."/";
 			}
 			
@@ -251,8 +302,10 @@
 			}
 		}
 
-		function getLocation() {
-			if ((isset($_COOKIE['js_loc'])) && (intval($_COOKIE['loc_check']) < time())) {
+		function getLocation($redirect = false) {
+			if ((isset($_SESSION['location'])) && ($_SESSION['location']['latitude'] == "" || $_SESSION['location']['longitude'] == "" || $_SESSION['location']['code'] == "" || $_SESSION['location']['state_code'] == "")) {
+				$this->loccationFallBack();
+			} elseif ((isset($_COOKIE['js_loc'])) && (intval($_COOKIE['loc_check']) < time())) {
 				$loc = explode("_", $_COOKIE['js_loc']);
 				
 				$addressData = $this->googleGeoLocation($loc[1], $loc[0]);
@@ -276,20 +329,31 @@
 			} else if ((isset($_COOKIE['l_d'])) && (!isset($_SESSION['location']))) { 
 				$_SESSION['location'] = unserialize($_COOKIE['l_d']);
 			} else if ((!isset($_COOKIE['l_d'])) && (!isset($_SESSION['location']))) {
-				$response = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.ip_address));
-
-				$data['latitude'] = $response['geoplugin_latitude'];
-				$data['longitude'] = $response['geoplugin_longitude'];
-				$data['code'] = $response['geoplugin_countryCode'];
-				$data['city'] = $response['geoplugin_city'];
-				$data['state'] = $response['geoplugin_region'];
-				$data['state_code'] = $response['geoplugin_regionCode'];
-				$data['country'] = $response['geoplugin_countryName'];
-				$_SESSION['location'] = $data;
-				$cookie = serialize($data);
-
-				setcookie("l_d", $cookie, time()+(60*60*24), "/");
+				$this->loccationFallBack();
 			}
+		}
+
+		function dumpCurrent() {
+			global $currentLocation;
+			if (isset($_SESSION['users']['ref'])) {
+				$currentLocation->set($_SESSION['users']['ref'], $_SESSION['location']['longitude'], $_SESSION['location']['latitude'], $_SESSION['location']['city'], $_SESSION['location']['state'], $_SESSION['location']['country']);
+			}
+		}
+
+		private function loccationFallBack () {
+			$response = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.ip_address));
+
+			$data['latitude'] = $response['geoplugin_latitude'];
+			$data['longitude'] = $response['geoplugin_longitude'];
+			$data['code'] = $response['geoplugin_countryCode'];
+			$data['city'] = $response['geoplugin_city'];
+			$data['state'] = $response['geoplugin_region'];
+			$data['state_code'] = $response['geoplugin_regionCode'];
+			$data['country'] = $response['geoplugin_countryName'];
+			$_SESSION['location'] = $data;
+			$cookie = serialize($data);
+
+			setcookie("l_d", $cookie, time()+(60*60*24), "/");
 		}
 
 		function truncate($text, $chars = 100) {
@@ -526,10 +590,13 @@
 				$result['duration']['text'] = @$data['routes'][0]['legs'][0]['duration']['text'];
 				$result['duration']['value'] = @$data['routes'][0]['legs'][0]['duration']['value'];
 				
-				return $result;
 			} else {
-				return false;
+				$result['distance']['text'] = "N/A";
+				$result['distance']['value'] = "N/A";
+				$result['duration']['text'] = "N/A";
+				$result['duration']['value'] = "N/A";
 			}
+			return $result;
 		}
 
 		function print_time($timestamp) {

@@ -102,18 +102,32 @@
         }
 
         public function sendPush($array) {
-            global $users;
-            $input['to'] = $users->listOnValue( $array['to'], "firebase_token");
-            if ($input['to'] != "") {
-                $input['title'] = $array['title'];
-                $input['body'] = $array['body'];
-                $input['data'] = $array['data'];
+            global $usersToken;
 
+            $userData = $usersToken->getSortedList($array['to'], "user_id");
+
+            $token = array();
+            $input = array();
+            $count = 0;
+            for ($i = 0; $i < count($userData); $i++) {
+                if ($userData[$i]['channel'] == "app") {
+                    $input[$count]['to'] = $userData[$i]['token'];
+                    $input[$count]['title'] = $array['title'];
+                    $input[$count]['body'] = $array['body'];
+                    $input[$count]['data'] = $array['data'];
+                    $count++;
+                } else {
+                    $token[] = $userData[$i]['token'];
+                }
+            }
+            
+            if (count($input) > 0) {
+                $sendExpo = [$input];
                 $url = "https://exp.host/--/api/v2/push/send";
                 $header[] = "Content-Type: application/json";
-
-                $post_data = json_encode($input);
-
+    
+                $post_data = json_encode($sendExpo);
+    
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_VERBOSE, true );
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $header );
@@ -125,6 +139,64 @@
                 curl_close($ch);
                 $data = json_decode( $output );
                 return $data;
+            }
+
+            if (count($token) > 0) {
+                
+                // require_once 'vendor/autoload.php';
+
+                // $client = new Google_Client();
+                // $client->useApplicationDefaultCredentials(); 
+                // $client->setAuthConfig(__DIR__.'/moba-6a561-5da551422b4e.json');
+                // $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+                // $httpClient = $client->authorize();
+
+                // $project = "moba-6a561";
+                // $message = [
+                //     "message" => [
+                //         "to" =>  $token[0],
+                //         "notification" => [
+                //             "body" => "This is an FCM notification message!",
+                //             "title" => "FCM Message",
+                //         ]
+                //     ]
+                // ];
+                // $response = $httpClient->post("https://fcm.googleapis.com/v1/projects/{$project}/messages:send", ['json' => $message]);
+
+                // echo "<pre>";
+                // print_r($response);
+                // //send firebase
+                // $url = "https://fcm.googleapis.com/v1/projects/moba-web-api/messages:send";
+                // $header[] = "Content-Type: application/json";
+                // $header[] = "Authorization: Bearer AAAA5ehhqFQ:APA91bFYIfAJIzHKa6s2vt9uXUhNSZKmPvEZYsTAriqGv9ZyGr826bYD4q4iyfv78BxEx58GRbxvdk9J1rJdBmY-0zB5KDuRZ1PRv68vtRMW7DayqC9VXINNlQ-hEx7EqqPXGtxORsw7";
+
+                // $data['notification']['title'] = $array['title'];
+                // $data['notification']['body'] = $array['body'];
+                // $data['notification']['click_action'] = $array['click_action'];
+                // $data['notification']['icon'] = URL."images/logo.png";
+                // if (count($token) > 1) {
+                //     $data['registration_ids'] = $token;
+                // } else {
+                //     $data['to'] = $token[0];
+                // }
+
+                // $ch = curl_init($url);
+                // curl_setopt($ch, CURLOPT_VERBOSE, true);
+                // curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+                // curl_setopt($ch, CURLOPT_POST, 1);
+                // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+                // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                // $output = curl_exec($ch);
+                // curl_close($ch);
+
+                // $result = json_decode($output, true);
+
+                // if ($result['success'] == 1) {
+                //     return true;
+                // } else {
+                //     return false;
+                // }
             }
         }
 

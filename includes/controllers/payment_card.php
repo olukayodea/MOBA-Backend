@@ -59,7 +59,7 @@
             global $notifications;
 			$data = $this->listOne($id);
             //send email
-            $tag = "you have added card **** **** **** ".$data['pan']." expiring ".$data['expiry_month']."/".$data['expiry_year']." to your account. <a href='".URL."paymentCards'>Sigin in</a> to your MOBA Account to learn more";
+            $tag = "you have added card **** **** **** ".$data['pan']." expiring ".$data['expiry_month']."/".$data['expiry_year']." to your account. <a href='".URL."paymentCards'>Sign in</a> to your MOBA Account to learn more";
 
             $user_data = $users->listOne($data['user_id']);
             $client = $user_data['last_name']." ".$user_data['other_names'];

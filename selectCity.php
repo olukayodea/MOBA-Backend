@@ -1,4 +1,5 @@
 <?php
+    $redirect = "selectCity";
     include_once("includes/functions.php");
     if (isset($_POST['setLocation'])) {
 

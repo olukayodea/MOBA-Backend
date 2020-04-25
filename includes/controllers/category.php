@@ -67,22 +67,25 @@
             return $this->getSortedList($parent, "parent_id", "status", "ACTIVE", "country", $country, "category_title", "ASC", "AND", $start,$limit, $type);
         }
 
-        public function totalUsers($id) {
-            $query = "SELECT `user_id` FROM `usersCategory`, `users` WHERE `users`.`ref` = `usersCategory`.`user_id` AND `usersCategory`.`category_id` = :id AND `users`.`user_type` = 1 GROUP BY `user_id`";
+        public function totalUsers($id, $location) {
+            $query = "SELECT `usersCategory`.`user_id`, `users`.`average_response_time`, `users`.`screen_name`, SQRT(((`users`.`latitude` - ".$location['latitude'].")*(`users`.`latitude` - ".$location['latitude'].")) + ((`users`.`longitude` - ".$location['longitude'].")*(`users`.`longitude` - ".$location['longitude']."))) AS `total` FROM `usersCategory`, `users`, `currentLocation` WHERE `users`.`status` = 'ACTIVE' AND `users`.`user_type` = 1 AND `users`.`verified` = 2 AND `usersCategory`.`user_id` = `users`.`ref` AND `users`.`ref` = `currentLocation`.`user_id` AND `category_id` = ".$id." AND ((`users`.`country` LIKE '%".$location['code']."%' OR `users`.`country` LIKE '%".$location['country']."%' OR `currentLocation`.`country` LIKE '%".$location['code']."%' OR `currentLocation`.`country` LIKE '%".$location['country']."%%') AND (`users`.`state` LIKE '%".$location['state_code']."%' OR `users`.`state` LIKE '%".$location['state']."%' OR `currentLocation`.`state` LIKE '%".$location['state_code']."%' OR `currentLocation`.`state` LIKE '%".$location['state']."%')) GROUP BY `usersCategory`.`user_id` ORDER BY `users`.`is_featured` DESC, `total` ASC LIMIT 20";
+
             $prepare[":id"] = $id;
+            $prepare[":state"] = $location['state'];
+            $prepare[":country"] = $location['country'];
 
             return $this->run($query, $prepare, "list");
 
         }
 
         public function getIcon($id) {
-          $data = $this->getSingle($id, "image_url");
+          $data = $this->getSingle($id, "image_url_svg");
     
           if ($data != "") {
             $file = URL."media/categories/".$data;
             $file_headers = @get_headers($file);
             if($file_headers[0] == 'HTTP/1.1 404 Not Found') {
-                return URL."media/categories/0.png";
+                return URL."media/categories/0.svg";
             } else {
                 return URL."media/categories/".$data;
             }
@@ -174,6 +177,7 @@
                 `country` INT NOT NULL, 
                 `category_title` VARCHAR(50) NOT NULL,
                 `image_url` VARCHAR(500) NOT NULL,
+                `image_url_svg` VARCHAR(500) NOT NULL,
                 `call_out_charge` DOUBLE NOT NULL, 
                 `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

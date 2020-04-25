@@ -1,10 +1,12 @@
 <?php
 	class messages extends database {
         public function add($array) {
+            global $responseTime;
             $create = $this->insert("messages", $array);
             //send push notification
             if ($create) {
                 if ($array['m_type'] == "text") {
+                    $responseTime->set($array['post_id'], $array['user_id']);
                     $array['m_type'] = "post_messages";
                 }
                 $this->sendNotification($array['post_id'], $array['user_r_id'], $array['user_id'], $array['m_type']);

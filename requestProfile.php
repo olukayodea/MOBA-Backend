@@ -35,7 +35,15 @@ if (!$data) {
     header("location: ".URL."?error=".urlencode("User profile public page not found"));
 }
 
-if (isset($_POST['negotiate'])) {
+if (isset($_POST['accept_req'])) {
+    if ($request_accept->requestResponse($_POST)) {
+        header("location: ".URL."ads?done=".urlencode("Job request Accepted, you will be notified if you selected for the job"));
+    } else {
+        header("location: ".URL."ads?error=".urlencode("An error occured, this request has expired"));
+    }
+} elseif(isset($_POST['reject_req'])) {
+    header("location: ".URL."ads?done=".urlencode("Job request rejected"));
+} elseif (isset($_POST['negotiate'])) {
     $add = $request_negotiate->negotiatePrize($_POST);
 
     if ($add) {

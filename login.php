@@ -74,7 +74,11 @@
           } else if ($addUrser == "duplicate data") {
               header("location: ?join&redirect=".$redirect."&error=".urlencode("this account already exist, please login or reset your password to continue"));
           } else {
-              header("location: ".$tagLink."&done=".urldecode("account was created successfully")."#notice");
+            $tag = "Account was created successfully and we have sent an activation email to ".$_POST['email'].". Please check your junk mail if you can not find this email in your inbox.";
+            if ($_POST['user_type'] == 1) {
+              $tag .= " As a Service Provider, your account is subject to additional review to enable full access, you will be notified via email when the review is completed";
+            }
+            header("location: ".URL."allCategories?done=".urldecode($tag)."#notice");
           
           }
       } else {
@@ -170,7 +174,7 @@
               <a href="<?php echo URL; ?>"><img src="<?php echo URL; ?>images/logo.png" class="mb-3" width="70"></a>
                 <h2>Register</h2>
                 <div class="form-group">
-                  <select class="form-control" id="user_type" name="user_type">
+                  <select class="form-control" id="user_type" name="user_type" required>
                     <option value="0" selected>User</option>
                     <option value="1">Service Provider</option>
                   </select>
@@ -178,7 +182,7 @@
                 </div>
                 <div class="form-group">
                   <span id="sprytextfield3">
-                    <input type="email" class="form-control" id="email" name="email" value="<?php echo $_POST['email']; ?>" aria-describedby="emailHelp" placeholder="Email Address">
+                    <input type="email" class="form-control" id="email" name="email" required value="<?php echo $_POST['email']; ?>" aria-describedby="emailHelp" placeholder="Email Address">
                     <span class="textfieldRequiredMsg">A value is required.</span>
                     <span class="textfieldInvalidFormatMsg">Invalid format.</span>
                   </span>
@@ -186,7 +190,7 @@
                 </div>
                 <div class="form-group">
                   <span id="sprytextfield1">
-                    <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $_POST['last_name']; ?>" aria-describedby="lastnameHelp" placeholder="Full Names">
+                    <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $_POST['last_name']; ?>" aria-describedby="lastnameHelp" placeholder="Full Names" required>
                     <span class="textfieldRequiredMsg">A value is required.</span>
                   </span>
                   <small id="lastnameHelp" class="form-text text-muted">Please enter your full names as it appears on your ID.</small>
@@ -242,27 +246,27 @@
                   <small id="id_expiryHelp" class="form-text text-muted">Please provide the expiry date MM-YYYY.</small>
                 </div>
                 <div class="form-group" id="show_id_number" style="display: none;">
-                  <input type="text" name="id_number" id="id_number" required class="form-control" placeholder="ID Number" value="<?php echo $_POST['id_number']; ?>">
+                  <input type="text" name="id_number" id="id_number" class="form-control" placeholder="ID Number" value="<?php echo $_POST['id_number']; ?>">
                   <small id="id_numberHelp" class="form-text text-muted">Please provide your the ID Number.</small>
                 </div>
                 <div class="form-group" id="show_id_file" style="display: none;">
-                  <input type="file" name="id_file" id="id_file" required class="form-control" placeholder="Upload ID" accept="image/png, image/jpeg, Application/pdf" data-max-size="2048">
+                  <input type="file" name="id_file" id="id_file" class="form-control" placeholder="Upload ID" accept="image/png, image/jpeg, Application/pdf" data-max-size="2048">
                   <small id="id_fileHelp" class="form-text text-muted">Please upload your ID not more than 2MB.</small>
                 </div>
                 <div class="form-group" id="show_kin_name" style="display: none;">
-                  <input type="text" name="kin_name" id="kin_name" required class="form-control" placeholder="Next of Kin Name" value="<?php echo $_POST['kin_name']; ?>">
+                  <input type="text" name="kin_name" id="kin_name" class="form-control" placeholder="Next of Kin Name" value="<?php echo $_POST['kin_name']; ?>">
                   <small id="kin_nameHelp" class="form-text text-muted">Please provide your Next of Kin Name.</small>
                 </div>
                 <div class="form-group" id="show_kin_email" style="display: none;">
-                  <input type="email" name="kin_email" id="kin_email" required class="form-control" placeholder="Next of Kin E-Mail" value="<?php echo $_POST['kin_email']; ?>">
+                  <input type="email" name="kin_email" id="kin_email" class="form-control" placeholder="Next of Kin E-Mail" value="<?php echo $_POST['kin_email']; ?>">
                   <small id="kin_emailHelp" class="form-text text-muted">Please provide your Next of Kin E-Mail.</small>
                 </div>
                 <div class="form-group" id="show_kin_phone" style="display: none;">
-                  <input type="number" name="kin_phone" id="kin_phone" required class="form-control" placeholder="Next of Kin Phone number" value="<?php echo $_POST['kin_phone']; ?>">
+                  <input type="number" name="kin_phone" id="kin_phone" class="form-control" placeholder="Next of Kin Phone number" value="<?php echo $_POST['kin_phone']; ?>">
                   <small id="kin_phoneHelp" class="form-text text-muted">Please provide your Next of Kin Phone Number.</small>
                 </div>
                 <div class="form-group" id="show_kin_relationship" style="display: none;">
-                  <input type="text" name="kin_relationship" id="kin_relationship" required class="form-control" placeholder="Next of Kin Relationship" value="<?php echo $_POST['kin_relationship']; ?>">
+                  <input type="text" name="kin_relationship" id="kin_relationship" class="form-control" placeholder="Next of Kin Relationship" value="<?php echo $_POST['kin_relationship']; ?>">
                   <small id="kin_relationshipHelp" class="form-text text-muted">Please provide your Next of Kin Relationship.</small>
                 </div>
                 <div class="form-group">
@@ -301,6 +305,8 @@
                   </span>
                   <small id="confirmHelp" class="form-text text-muted">Please enter the text in the image above.</small>
                 </div>
+                <input type="hidden" name="firebase_token" id="firebase_token" value="">
+                <input type="hidden" name="channel" id="channel" value="web">
                 <button type="submit" name="register" id="register" disabled class="btn purple-bn">Register</button>
                 <div class="form-group">
                   <div class="form-group col-md-2">
@@ -313,7 +319,7 @@
               </form>
               <?php } else { ?>
               <form name="form1" method="post" action="">
-              <a href="<?php echo URL; ?>"><img src="<?php echo URL; ?>images/logo.png" class="mb-3" width="70"></a>
+                <a href="<?php echo URL; ?>"><img src="<?php echo URL; ?>images/logo.png" class="mb-3" width="70"></a>
                 <h2>Login</h2>
                 <div class="form-group">
                   <span id="sprytextfield5">
@@ -328,6 +334,8 @@
                       <span class="textfieldRequiredMsg">A value is required.</span>
                   </span>
                 </div>
+                <input type="hidden" name="firebase_token" id="firebase_token" value="">
+                <input type="hidden" name="channel" id="channel" value="web">
                 <button type="submit" name="login" id="login" class="btn purple-bn">Login</button>
                 <div class="form-group">
                   <a href='<?php echo URL; ?>login?recoverPassword'>Forgot Password</a> | <a href='<?php echo URL; ?>login?join'>Register</a>
@@ -348,8 +356,50 @@
     <script src="https://apis.google.com/js/platform.js" async defer></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6/js/select2.min.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-messaging.js"></script>
 
 <script type="text/javascript">
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyAgGXpfWv4Be3Mwc7MwRQt9ULs73A77ryw",
+    authDomain: "moba-6a561.firebaseapp.com",
+    databaseURL: "https://moba-6a561.firebaseio.com",
+    projectId: "moba-6a561",
+    storageBucket: "moba-6a561.appspot.com",
+    messagingSenderId: "987446224980",
+    appId: "1:987446224980:web:78e9fdaf75d653f7eee5c1",
+    measurementId: "G-WTWYRDYJC3"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+  const messaging = firebase.messaging();
+  messaging
+    .requestPermission()
+    .then(function () {
+      console.log("Notification permission granted.");
+
+      // get the token in the form of promise
+      return messaging.getToken()
+    })
+    .then(function(token) {
+      document.getElementById("firebase_token").value = token;
+    })
+    .catch(function (err) {
+      console.log("Unable to get permission to notify.", err);
+    });
+
+  messaging.onMessage(function(payload) {
+    console.log("Message received. ", payload);
+  });
+  
 function onSignIn(googleUser) {
   var profile = googleUser.getBasicProfile();
   var name = profile.getName();
@@ -378,7 +428,17 @@ var sprytextfield5 = new Spry.Widget.ValidationTextField("sprytextfield5", "emai
 var sprytextfield6 = new Spry.Widget.ValidationTextField("sprytextfield6");
 $(document).ready(function() {
   $('#user_type').change(function() {
-    if ($(this).val() == 1) {
+    require();
+  })
+
+  require();
+
+  $('#photo_file, #id_file').change(function() {
+    checkSize();
+  });
+
+  function require() {
+    if ($('#user_type').val() == 1) {
       $('#show_mobile_number,#show_street,#show_city,#show_state,#show_country,#show_photo_file,#show_category_select,#show_id_type,#show_id_expiry_mm,#show_id_number,#show_id_file,#show_kin_name,#show_kin_email,#show_kin_phone,#show_kin_relationship').show();
 
       $('#category_select').select2({
@@ -388,13 +448,10 @@ $(document).ready(function() {
       $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').attr("required")      
     } else {
       $('#show_mobile_number,#show_street,#show_city,#show_state,#show_country,#show_photo_file,#show_category_select,#show_id_type,#show_id_expiry_mm,#show_id_number,#show_id_file,#show_kin_name,#show_kin_email,#show_kin_phone,#show_kin_relationship').hide();
+
       $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').removeAttr("required")
     }
-  })
-
-  $('#photo_file, #id_file').change(function() {
-    checkSize();
-  });
+  }
   
   function checkSize() {
     //this.files[0].size gets the size of your file.
