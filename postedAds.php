@@ -8,7 +8,14 @@
     } else {
         $view = "active";
     }
-    if (isset($_REQUEST['remove'])) {
+    if (isset($_REQUEST['report'])) {
+        $rem = $request->updateOneRow("status", "PAUSED", $_REQUEST['id']);
+        if ($rem) {
+            header("location: ".URL.$redirect."/".$view."?done=".urlencode("This request has been reported and all activities has been paused"));
+        } else {
+            header("location: ".URL.$redirect."/".$view."?error=".urlencode("there was an error reporting this request"));
+        }
+    } else if (isset($_REQUEST['remove'])) {
         $rem = $request->removeDraft($_REQUEST['id']);
 
         if ($rem) {

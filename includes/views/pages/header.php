@@ -27,10 +27,12 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
                         <ul class="navbar-nav ml-auto">
+                            <?php if ($_SESSION['users']['user_type'] != "1") { ?>
                             <li class="nav-item">
                                 <a class="<?php echo $nav; ?>" href="<?php echo URL."allCategories"; ?>">ALL SERVICES</a>
                             </li>
-                            <?php if (isset($_SESSION['users'])) { ?>
+                            <?php }
+                            if (isset($_SESSION['users'])) { ?>
                                 <li class="nav-item dropdown">
                                     <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo strtoupper($_SESSION['users']['screen_name']); ?></a>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
@@ -50,7 +52,9 @@
                                 </li>
                                 <?php if ($_SESSION['users']['user_type'] == "2") {
                                     global $users;
-                                    $list = $users->getSortedList("1", "verified", "status", "ACTIVE", "user_type", 1, "ref", "DESC", "AND", false, false, "count");?>
+                                    global $request;
+                                    $list = $users->getSortedList("1", "verified", "status", "ACTIVE", "user_type", 1, "ref", "DESC", "AND", false, false, "count");
+                                    $listStale = $request->getSortedList("PAUSED", "status", false, false, false, false, "ref", "DESC", "AND", false, false, "count");?>
                                     <li class="nav-item dropdown">
                                         <a class="<?php echo $nav; ?> dropdown-toggle" href="#" id="dropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ADMINISTRATOR</a>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
@@ -69,6 +73,7 @@
                                             <a class="dropdown-item" href="<?php echo URL; ?>admin/users">Users</a>
                                             <a class="dropdown-item" href="<?php echo URL; ?>admin/users/providers">Service Providers</a>
                                             <a class="dropdown-item" href="<?php echo URL; ?>admin/users/admin">System Administrators</a>
+                                            <a class="dropdown-item" href="<?php echo URL; ?>admin/dispute">Dispute Resolution Request<?php if ($listStale > 0){ ?>  <span id="badge5"><?php echo $listStale; ?></span><?php } ?></a>
                                             <a class="dropdown-item" href="<?php echo URL; ?>admin/accuntVerification">Account Verification Request<?php if ($list > 0){ ?>  <span id="badge2"><?php echo $list; ?></span><?php } ?></a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="<?php echo URL; ?>admin/options">System Settings</a>
@@ -149,7 +154,8 @@
             </div>
         <?php }
 
-        function footer() { ?>
+        function footer() {
+            global $options; ?>
             <section class="moba-footer">	
             <div class="container">
                 <div class="row">
@@ -182,8 +188,8 @@
                     <div class="col-lg-3">
                         <h6>CONTACT</h6>
                         <p>
-                            +234 (0) 706 210 5551<br>
-                            Info@moba.com.ng
+                            <?php echo $options->get("phone"); ?><br>
+                            <?php echo $options->get("email"); ?>
                         </p>
                     </div>
                 </div>
@@ -321,6 +327,16 @@
               success: function(html){
                   $('#badge2').html('');
                   $(html).appendTo("#badge2");
+              }
+            });
+            $.ajax({
+              type: "POST",
+              url: "<?php echo URL; ?>includes/views/scripts/adminDispute",
+              data: dataString,
+              cache: false,
+              success: function(html){
+                  $('#badge5').html('');
+                  $(html).appendTo("#badge5");
               }
             });
         }, 2000);

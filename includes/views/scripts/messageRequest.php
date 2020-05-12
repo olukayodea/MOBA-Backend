@@ -31,7 +31,7 @@
                                 <small><i class="fas fa-road"></i>&nbsp;<?php echo $mapData['distance']['text'] ?></small><br>
                                 <small><i class="fas fa-clock"></i>&nbsp;<?php echo $mapData['duration']['text'] ?></small><br>
                                 <?php echo $rating->drawRate(intval($rating->getRate($result[$i]['ref']))); ?><br>
-                                <a href="<?php echo $common->seo($result[$i]['ref'], "profile")."/".$id."/view"; ?>" title="View Profile" class="btn purple-bn-small pd"><i class="fas fa-eye"></i></a>&nbsp;<a href="<?php echo $common->seo($result[$i]['ref'], "profile")."/".$id."/message"; ?>" title="Message" class="btn purple-bn-small pd"><i class="fas fa-comments"></i></a>
+                                <a href="<?php echo $common->seo($result[$i]['ref'], "profile")."/".$_POST['request']."/view"; ?>" title="View Profile" class="btn purple-bn-small pd"><i class="fas fa-eye"></i></a>&nbsp;<a href="<?php echo $common->seo($result[$i]['ref'], "profile")."/".$_POST['request']."/message"; ?>" title="Message" class="btn purple-bn-small pd"><i class="fas fa-comments"></i></a>
                                 </div>
                             </div>
                         </div>

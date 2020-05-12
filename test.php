@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
     $product_key = rand();
-    // $u = "http://127.0.0.1/MOBA-Backend/";
-    // $token = "111HEVQ38JEOKVNB1EJ";
-    $u = "https://moba.com.ng/";
-    $token = "440XVMA5TFBXJ16VN06";
+    $u = "http://127.0.0.1/MOBA-Backend/";
+    $token = "111HEVQ38JEOKVNWYQH";
+    // $u = "https://moba.com.ng/";
+    // $token = "440XVMA5TFBXJ16VN06";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -194,9 +194,19 @@
 /*    
     $url = $u."api/request/get/active";
     echo get($header, $url);*/
+/*
+    $url = $u."api/request/get/waiting/85";
+    echo get($header, $url);*/
 
+    //respond to negotiate request
+    $array['reponse'] = "y"; //y for yes, n for no
+    $array['request_id'] = "1";
+    $url = $u."api/request/respond";
+    $json_data = json_encode($array);
+    echo put($header, $url, $json_data);
+/*
     $url = $u."api/request/get/61";
-    echo get($header, $url);
+    echo get($header, $url);*/
 /*
     $url = $u."api/request/delete/1";
     echo delete($header, $url);*/

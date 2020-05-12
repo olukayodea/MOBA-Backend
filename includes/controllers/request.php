@@ -72,8 +72,8 @@ class request extends database {
         global $notifications;
         global $users;
         $data = $category->totalUsers($category_id, $location);
+
         $requestData = $this->listOne($request);
-        print_r($request);
 
         for ($i = 0; $i < count($data); $i++) {
             $array['event'] = "request";
@@ -160,6 +160,28 @@ class request extends database {
         return $return;
     }
 
+    public function listAllAdminData($view, $start, $limit) {
+        if ($view == "open") {
+            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'OPEN'");
+            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'OPEN'", "count"));
+            $return['tag'] = "All Open Request";
+        } else if ($view == "running") {
+            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'ACTIVE'");
+            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'ACTIVE'", "count"));
+            $return['tag'] = "All Active Request";
+        } else if ($view == "past") {
+            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'COMPLETED'");
+            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'COMPLETED'", "count"));
+            $return['tag'] = "All Completed Request";
+        } else {
+            $return['list'] = $this->getList($start, $limit, "ref", "DESC", " `status` != 'DELETED'");
+            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", " `status` != 'DELETED'", "count"));
+            $return['tag'] = "All Requests";
+        }
+
+        return $return;
+    }
+
     public function getActiveRequest($ref, $longitude, $latitude, $country, $start, $limit) {        
         $sql = "SELECT `ref`, `user_id`, `client_id`, `category_id`, `fee`, `address`, `card`, `region`, `tx_id`, `latitude`, `longitude`, `data`, `status`, `start_date`, `end_date`, `review_status`, `client_rate`, `review_status_time`, `user_rate`, `create_time`, `modify_time`, SQRT(((`latitude` - ".$latitude.")*(`latitude` - ".$latitude.")) + ((`longitude` - ".$longitude.")*(`longitude` - ".$longitude."))) AS `total` FROM `request` WHERE `status` = 'OPEN' AND (`user_id` != ".$ref." OR `client_id` != ".$ref.") AND `category_id` IN (SELECT `category_id` FROM `usersCategory` WHERE `user_id` = ".$ref.") AND (`address` LIKE '%".$country."%' OR `address` = '') ORDER BY `total` ASC";
 
@@ -170,9 +192,15 @@ class request extends database {
     }
 
     public function removeDraft($id) {
+        global $request_accept;
+        global $notifications;
         $rem = $this->remove($id);
 
         if ($rem) {
+            //remove notifications
+            $notifications->removeRequest($id);
+            //remove request
+            $request_accept->remove($id, "post_id");
             //reverse transaction
             return true;
         } else {
@@ -773,7 +801,7 @@ class request extends database {
             $this->updateOne("request", "client_id", $array['user_r_id'], $data['ref'], "ref");
 
 
-            $user_data = $users->listOne($data['user_id']);
+            $user_data = $users->listOne($data['user_r_id']);
             $tag = $user_data['screen_name']." has approve your task wit them at ".$data['address']." <a href='".URL."ads/on-going'>Sign in</a> to your MOBA Account to learn more";;
 
             $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -798,8 +826,8 @@ class request extends database {
 
             $msg = "You have been assigned a task";
             $msgArray['message']  = $msg;
-            $msgArray['user_r_id']  = $array['user_r_id'];
-            $msgArray['user_id']  = $array['user_id'];
+            $msgArray['user_r_id']  = $array['user_id'];
+            $msgArray['user_id']  = $array['user_r_id'];
             $msgArray['post_id']  = $data['ref'];
             $msgArray['m_type']  = "system";
             $messages->add($msgArray);
@@ -873,7 +901,7 @@ class request extends database {
             $get_data = $request_negotiate->listOne($array['neg_id']);
             if ($get_data) {
                 if ($get_data['user_id'] != $array['user_id']) {
-                    if ($array['reponse'] == "y") {
+                    if ($array['response'] == "y") {
                         $data['status'] = 2;
                         $msg = "Approved";
                     } else{
@@ -901,6 +929,46 @@ class request extends database {
                 $return['message'] = "Not Found";
                 $return['additional_message'] = "Negotiation request with data with 'neg_id' ".$array['neg_id']." not found";
             }
+        }
+
+        return $return;
+    }
+
+    public function apiRespond($array) {
+        global $request_accept;
+        
+        $get_data = $this->listOne($array['request']);
+
+        if (($get_data) && ($get_data['status'] == "OPEN")) {
+            if ($get_data['user_id'] != $array['user_r_id']) {
+                $add['user_r_id'] = $array['user_r_id'];
+                $add['request'] = $array['request'];
+                
+                if ($array['response'] == "y") {
+                    $msg = "accepted";
+                    $request_accept->requestResponse($add);
+                } else{
+                    $msg = "rejected";
+                    $request_accept->reject($add);
+                }
+                
+                if ($add) {
+                    $return['status'] = 200;
+                    $return['message'] = "OK";
+                    $return['additional_message'] = "The request was ".$msg;
+                } else {
+                    $return['status'] = 500;
+                    $return['message'] = "Internal Server Error";
+                }
+            } else {
+                $return['status'] = 501;
+                $return['message'] = "Not Implemented";
+                $return['additional_message'] = "You cannot approve your own request";
+            }
+        } else {
+            $return['status'] = 404;
+            $return['message'] = "Not Found";
+            $return['additional_message'] = "request with id ".$array['neg_id']." not open";
         }
 
         return $return;
@@ -1034,6 +1102,7 @@ class request extends database {
     
     public function apiGetList($type, $page=1, $user=false, $ref=false, $location) {
         global $options;
+        global $request_accept;
         if (intval($page) == 0) {
             $page = 1;
         }
@@ -1044,8 +1113,16 @@ class request extends database {
             $limit = $options->get("result_per_page_mobile");
         }
         $start = $current*$limit;
+        if ($type == "waiting") {
+            $result = $request_accept->getResponse($ref);
 
-        if (($type == "all") || ($type == "open") || ($type == "running") || ($type == "past") || ($type == "running") || ($type == "past") || ($type == "current") || ($type == "available")) {
+            $data['counts']['current_page'] = 1;
+            $data['counts']['total_page'] = 1;
+            $data['counts']['rows_on_current_page'] = count($result);
+            $data['counts']['max_rows_per_page'] = 20;
+            $data['counts']['total_rows'] = count($result);
+            $data['data'] = $result;
+        } else if (($type == "all") || ($type == "open") || ($type == "running") || ($type == "past") || ($type == "running") || ($type == "past") || ($type == "current") || ($type == "available")) {
             $result = $this->listAllData($user, $type, $start, $limit, $location);
 
             $data['counts']['current_page'] = ($result['listCount'] > 0 ? $page : 0);

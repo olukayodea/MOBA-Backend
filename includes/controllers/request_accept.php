@@ -20,6 +20,7 @@ class request_accept extends database {
 
             if ($check == 0) {
                 $this->create($add);
+                $this->reject($array);
 
                 $msg = $users->listOnValue( $array['user_r_id'], "screen_name" )." accepted your request";
                 $data["to"] = $requestData['user_id'];
@@ -103,6 +104,10 @@ class request_accept extends database {
         
         // global $alerts;
         // $alerts->sendEmail($mail);
+    }
+
+    public function reject($array) {
+        $this->query("DELETE FROM `notifications` WHERE `event` = 'request' AND `event_id` = ".$array['request']." AND `user_id` = ".$array['user_r_id']);
 
         return true;
     }
@@ -116,8 +121,8 @@ class request_accept extends database {
         }
     }
 
-    public function remove($id) {
-        return $this->delete("request_accept", $id);
+    public function remove($id, $ref="ref") {
+        return $this->delete("request_accept", $id, $ref);
     }
 
     public function getResponse($request) {

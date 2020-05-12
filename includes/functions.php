@@ -4,9 +4,8 @@
 	//error_reporting(E_ALL);
   //error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
   
-  ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+  // ini_set('display_errors', 1);
+  // error_reporting(E_ALL);
 	
 	$pageUR1      = $_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
@@ -75,12 +74,16 @@ error_reporting(E_ALL);
 
   //google APIs
   define("GoogleAPI", "AIzaSyAgGXpfWv4Be3Mwc7MwRQt9ULs73A77ryw");
-  define("GoogleClientId", "81126587091-oo8egmh31gasnrq7jeof9oou8829iq3b.apps.googleusercontent.com");
+  define("GoogleClientId", "987446224980-d6c7vclcutdt2dof153e6vq93iar9mue.apps.googleusercontent.com");
 
   //payment gateway
   define("fl_public_key",  "FLWPUBK-c8af924e4d4f09fbd9bb6e710e95513a-X");
   define("fl_secret_key", "FLWSECK-2304d08aba0dfacd1dd55505495d6796-X");
   define("fl_encryption_key", "2304d08aba0d5fcf6044aadc");
+  
+  // define("fl_public_key",  "FLWPUBK_TEST-ffbf9b7c7fe3fcc61926f90c91f4fab9-X");
+  // define("fl_secret_key", "FLWSECK_TEST-1cb22d96acf6436408173a882d4b1942-X");
+  // define("fl_encryption_key", "FLWSECK_TEST53b6175abd98");
 
   define("FL_charge", "https://api.ravepay.co/flwv3-pug/getpaidx/api/tokenized/charge");
   define("FL_validatecharge", "https://api.ravepay.co/flwv3-pug/getpaidx/api/validatecharge");

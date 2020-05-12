@@ -200,6 +200,8 @@
                 return "<a href='".URL."requestDetails?id=".$id."' title='Review'><i class='fas fa-eye'></i></a>". ($review_status == 1 ? '<i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>' : '');
             } else if ($status == "COMPLETED") {
                 return "<a href='".URL."requestDetails?id=".$id."' title='Review'><i class='fas fa-eye'></i></a>". ($review_status == 1 ? '<i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>' : '');
+            } else if ($status == "PAUSED") {
+                return '<i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>';
             }
         }
 
@@ -231,7 +233,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -297,7 +299,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -369,7 +371,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -450,7 +452,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -575,7 +577,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
+                    <?php $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -869,12 +871,18 @@
             global $users;
             global $messages;
             global $media;
+            global $options;
             $data = $request->listOne($id);
             $getAlbum = $media->getAlbum($data['ref']);
             $categoryData = $category->listOne($data['category_id']);
             $countryData = $country->listOne($data['region'], "ref");
 
-            if ($_SESSION['users']['ref'] == $data['user_id']) {
+            if (isset($_REQUEST['admin'])) {
+                $tagline = "all";
+                $user_id = $data['user_id'];
+                $user_r_id = $data['client_id'];
+                $rateType = "all";
+            } else if ($_SESSION['users']['ref'] == $data['user_id']) {
                 $tagline = "client_id";
                 $user_r_id = $data['client_id'];
                 $user_id = $data['user_id'];
@@ -892,7 +900,12 @@
                 $checkRate = $rating->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $data['ref']);
                 $checkComment = $rating_comment->getSortedList($user_r_id, "reviewed_by", "user_id", $user_id, "post_id", $data['ref'], "ref", "ASC", "AND", false, false, "getRow");
 
-                $rateQuestion = $rating_question->getSortedList($rateType, "question_type");
+                if ($rateType != "all") {
+                    $checkRateUser = $rating->getSortedList($user_id, "reviewed_by", "user_id", $user_r_id, "post_id", $data['ref']);
+                    $checkCommentUser = $rating_comment->getSortedList($user_id, "reviewed_by", "user_id", $user_r_id, "post_id", $data['ref'], "ref", "ASC", "AND", false, false, "getRow");
+                    $rateQuestion = $rating_question->getSortedList($rateType, "question_type");
+                }
+                $totalRate = count($checkRate)+count($checkRateUser);
             }
             ?>
             <div class="container my-5">
@@ -914,7 +927,7 @@
                         <p><b>Service Provider:</b> <?php echo $users->listOnValue($data['client_id'], "screen_name"); ?></p>
                         <p><b>Address:</b> <?php echo $data['address']; ?></p>
                         <p><b>Amount Charged:</b> <?php echo $countryData['currency_symbol']." ".number_format($data['fee'], 2); ?></p>
-                        <?php if ($data['status'] != "COMPLETED") { ?>
+                        <?php if (($data['status'] != "COMPLETED") && ($data['status'] != "PAUSED")) { ?>
                             <?php if ($data['client_id'] == $_SESSION['users']['ref']) {
                                 if ($data['review_status'] == 1) { ?>
                                     <p>You requested a review <?php echo $this->get_time_stamp($data['review_status_time']); ?></p>
@@ -925,10 +938,15 @@
                             <?php if ($data['review_status'] == 1) { ?>
                                 <p><i class="fas fa-exclamation-triangle" style="color:#ffa500"></i>&nbsp;Your attention is needed, please check your messages</p>
                             <?php } ?>
-                            <?php if ($data['user_id'] == $_SESSION['users']['ref']) { ?>
+                            <?php if ((isset($_REQUEST['admin'])) || ($data['user_id'] == $_SESSION['users']['ref'])) { ?>
                                 <p><a href="<?php echo URL."requestDetails?id=".$data['ref']."&approve"; ?>" id="approve_ad" class="btn purple-bn pd" title='Mark as Completed'><i class="fas fa-clipboard-check"></i>&nbsp;&nbsp;Mark as Completed</a></p>
                             <?php } ?>
-                            <p><a href="<?php echo URL."ads/all?remove&id=".$data['ref']; ?>" class="btn red-bn pd" onClick='return confirm("this task will be flagged, do you want to continue ?")' title='Report'><i class="fas fa-bell"></i>&nbsp;&nbsp;Report</a></p>
+                            <?php if (!isset($_REQUEST['admin'])) { ?>
+                                <p><a href="<?php echo URL."ads/all?report&id=".$data['ref']; ?>" class="btn red-bn pd" onClick='return confirm("this task will be flagged, do you want to continue ?")' title='Report'><i class="fas fa-bell"></i>&nbsp;&nbsp;Report</a></p>
+                            <?php } ?>
+                        <?php } ?>
+                        <?php if ((!isset($_REQUEST['admin'])) && ($data['status'] == "COMPLETED") && ($data['status'] != "PAUSED") && (strtotime($data['modify_time']) <= (time()+(60*60*24*3)))) { ?>
+                            <p><a href="mailto:<?php echo $options->get("report_email"); ?>?subject=Request Dispute&body=Request URL <?php echo URL."requestDetails?admin&id=".$id; ?>" class="btn red-bn pd" onClick='return confirm("this task will be flagged, do you want to continue ?")' title='Report'><i class="fas fa-bell"></i>&nbsp;&nbsp;Report</a></p>
                         <?php } ?>
                     </div>
                     <div class="col-lg-8">			
@@ -936,40 +954,56 @@
                         <div class="moba-line mb-3"></div>
                         <?php if ($data['status'] == "COMPLETED") { ?>
                             <h2>Review And Comment</h2>
-                            <?php if (count($checkRate) > 0) { ?>
+                            <?php if ($totalRate > 0) { ?>
+                                <?php if (isset($_REQUEST['admin'])) { ?>
+                                <h3><?php echo $users->listOnValue($user_r_id, "screen_name"); ?></h3>
+                                <?php } ?>
                                 <?php for ($i = 0; $i < count($checkRate); $i++) { ?>
                                     <strong><?php echo $rating_question->getSingle( $checkRate[$i]['question_id'] ); ?></strong><br>
                                     <?php echo $rating->drawRate($checkRate[$i]['review']); ?><br><br>
                                 <?php } ?>
                                 <p><strong>Comments</strong><br>
                                 <?php echo $checkComment['comment']; ?><p>
+                                <?php if (isset($_REQUEST['admin'])) { ?>
+                                <h3><?php echo $users->listOnValue($user_id, "screen_name"); ?></h3>
+                                <?php } ?>
+                                <?php for ($i = 0; $i < count($checkRateUser); $i++) { ?>
+                                    <strong><?php echo $rating_question->getSingle( $checkRateUser[$i]['question_id'] ); ?></strong><br>
+                                    <?php echo $rating->drawRate($checkRateUser[$i]['review']); ?><br><br>
+                                <?php } ?>
+                                <p><strong>Comments</strong><br>
+                                <?php echo $checkCommentUser['comment']; ?><p>
                             <?php } else { ?>
                                 <p>Kindly rate <?php echo $users->listOnValue($user_r_id, "screen_name"); ?> performance on the following headings:</p>
-                                <form method="post" action="<?php echo URL."requestDetails?id=".$data['ref']; ?>">
-                                    <input name="user_id" type="hidden" value="<?php echo $user_id; ?>">
-                                    <input name="reviewed_by" type="hidden" value="<?php echo $user_r_id; ?>">
-                                    <input name="post_id" type="hidden" value="<?php echo $data['ref']; ?>">
-                                    <?php for ($i = 0; $i < count($rateQuestion); $i++) { ?>
-                                    <p>
-                                    <strong><?php echo $rateQuestion[$i]['question']; ?></strong><br>
-                                    <fieldset class="rating form-group">
-                                    <input type="radio" id="star5<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="5" /><label for="star5<?php echo $rateQuestion[$i]['ref']; ?>" title="Rocks!">5 stars</label>
-                                    <input type="radio" id="star4<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="4" /><label for="star4<?php echo $rateQuestion[$i]['ref']; ?>" title="Pretty good">4 stars</label>
-                                    <input type="radio" id="star3<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="3" /><label for="star3<?php echo $rateQuestion[$i]['ref']; ?>" title="Meh">3 stars</label>
-                                    <input type="radio" id="star2<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="2" /><label for="star2<?php echo $rateQuestion[$i]['ref']; ?>" title="Kinda bad">2 stars</label>
-                                    <input type="radio" id="star1<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="1" /><label for="star1<?php echo $rateQuestion[$i]['ref']; ?>" title="Sucks big time">1 star</label>
-                                    </fieldset>
-                                    <br><br>
-                                    </p>
-                                    <?php } ?>
-                                    <div class="form-group">
-                                    <label for="comment">Comments</label>
-                                    <small>Optional</small>
-                                    <textarea name="comment" id="comment" class="form-control" placeholder="Optional comment"></textarea>
-                                    </div>
-                                    <input type="hidden" name="type" value="<?php echo $tagline; ?>">
-                                    <button type="submit" name="saveRate" class="purple-bn">Rate</button>
-                                </form>
+                                <?php if (!isset($_REQUEST['admin'])) { ?>
+                                    <form method="post" action="<?php echo URL."requestDetails?id=".$data['ref']; ?>">
+                                        <input name="user_id" type="hidden" value="<?php echo $user_id; ?>">
+                                        <input name="reviewed_by" type="hidden" value="<?php echo $user_r_id; ?>">
+                                        <input name="post_id" type="hidden" value="<?php echo $data['ref']; ?>">
+                                        <?php for ($i = 0; $i < count($rateQuestion); $i++) { ?>
+                                        <p>
+                                        <strong><?php echo $rateQuestion[$i]['question']; ?></strong><br>
+                                        <fieldset class="rating form-group">
+                                        <input type="radio" id="star5<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="5" /><label for="star5<?php echo $rateQuestion[$i]['ref']; ?>" title="Rocks!">5 stars</label>
+                                        <input type="radio" id="star4<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="4" /><label for="star4<?php echo $rateQuestion[$i]['ref']; ?>" title="Pretty good">4 stars</label>
+                                        <input type="radio" id="star3<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="3" /><label for="star3<?php echo $rateQuestion[$i]['ref']; ?>" title="Meh">3 stars</label>
+                                        <input type="radio" id="star2<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="2" /><label for="star2<?php echo $rateQuestion[$i]['ref']; ?>" title="Kinda bad">2 stars</label>
+                                        <input type="radio" id="star1<?php echo $rateQuestion[$i]['ref']; ?>" name="rating[<?php echo $rateQuestion[$i]['ref']; ?>]" value="1" /><label for="star1<?php echo $rateQuestion[$i]['ref']; ?>" title="Sucks big time">1 star</label>
+                                        </fieldset>
+                                        <br><br>
+                                        </p>
+                                        <?php } ?>
+                                        <div class="form-group">
+                                        <label for="comment">Comments</label>
+                                        <small>Optional</small>
+                                        <textarea name="comment" id="comment" class="form-control" placeholder="Optional comment"></textarea>
+                                        </div>
+                                        <input type="hidden" name="type" value="<?php echo $tagline; ?>">
+                                        <button type="submit" name="saveRate" class="purple-bn">Rate</button>
+                                    </form>
+                                <?php } else {?>
+                                    <p>Reviews are deactivated in admin view</p>
+                                <?php } ?>
                             <?php } ?>
                         <?php } ?>
 
@@ -1008,26 +1042,28 @@
                             </ol>
                             <div id="flash"></div>
                         </div>
-                        <?php if ($data['status'] != "COMPLETED") { ?>
-                            <div class="row with-margin">
-                                <div class="col-lg-12">
-                                <form  method="post" name="form" action="">
-                                    <div class="input-group input-group-lg">
-                                    <?php $users->getProfileImage($user_id, "", false); ?> 
-                                    <input type='text' name="content" id="content" class="form-control input-lg" placeholder="Enter your message here..." />
-                                    <input type='hidden' name="user_r_id" id="user_r_id" value="<?php echo $user_r_id; ?>" />
-                                    <input type='hidden' name="user_id" id="user_id" value="<?php echo $user_id; ?>" />
-                                    <input type='hidden' name="post_id" id="post_id" value="<?php echo $data['ref']; ?>" />
-                                    <input type='hidden' name="m_type" id="m_type" value="text" />
-                                    <span class="input-group-btn">
+                        <?php if (!isset($_REQUEST['admin'])) {
+                            if (($data['status'] != "COMPLETED") && ($data['status'] != "PAUSED")) { ?>
+                                <div class="row with-margin">
+                                    <div class="col-lg-12">
+                                    <form  method="post" name="form" action="">
+                                        <div class="input-group input-group-lg">
+                                        <?php $users->getProfileImage($user_id, "", false); ?> 
+                                        <input type='text' name="content" id="content" class="form-control input-lg" placeholder="Enter your message here..." />
+                                        <input type='hidden' name="user_r_id" id="user_r_id" value="<?php echo $user_r_id; ?>" />
+                                        <input type='hidden' name="user_id" id="user_id" value="<?php echo $user_id; ?>" />
+                                        <input type='hidden' name="post_id" id="post_id" value="<?php echo $data['ref']; ?>" />
+                                        <input type='hidden' name="m_type" id="m_type" value="text" />
+                                        <span class="input-group-btn">
 
-                                    <input type="button" value="Post"  id="post" class="btn purple-bn pd btn-lg" name="post"/>
-                                    </span>
-                                    </div><!-- /input-group -->
-                                </form>
-                                </div><!-- /.col-lg-6 -->
-                            </div><!-- /.row -->
-                        <?php } ?>
+                                        <input type="button" value="Post"  id="post" class="btn purple-bn pd btn-lg" name="post"/>
+                                        </span>
+                                        </div><!-- /input-group -->
+                                    </form>
+                                    </div><!-- /.col-lg-6 -->
+                                </div><!-- /.row -->
+                            <?php }
+                        } ?>
 
                         <script type="text/javascript">
                             var ref='<?php echo $data['ref'];?>';
@@ -1150,7 +1186,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <img class="card-img-top my-3" src="<?php echo $category->getIcon( $data['ref'] ); ?>" alt="">
+                    <img class="card-img-top my-3" src="<?php echo $category->getIcon( $data['ref'] ); ?>" alt=""><br>
                     <i class="fa fa-clock-o"></i> <?php echo $this->numberPrintFormat(count($usersData)); ?>  
                     <span class="float-right"><i class="fa fa-map-marker"></i> <?php echo $_SESSION['location']['city'].", ".$_SESSION['location']['country']; ?></span>
                     
@@ -1168,16 +1204,16 @@
                         </div>
                     <?php } else { ?>
                         <?php if ($type === false) { ?>
-                        <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" novalidate>
-                            <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
-                            <div class="control-group form-group my-5">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <button type="submit" class="btn purple-bn pd" id="sendMessageButton">Request Service </button>
+                            <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" novalidate>
+                                <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
+                                <div class="control-group form-group my-5">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <button type="submit" class="btn purple-bn pd" id="sendMessageButton">Request Service </button>
+                                    </div>
                                 </div>
-                            </div>
-                            </div>
-                        </form>
+                                </div>
+                            </form>
                         <?php } else {
                             
                             $check = true;
@@ -1312,7 +1348,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <img class="card-img-top my-3" src="<?php echo $category->getIcon( $categoryData['ref'] ); ?>" alt="">
+                    <img class="card-img-top my-3" src="<?php echo $category->getIcon( $categoryData['ref'] ); ?>" alt=""><br>
                     <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?>
                     <div class="moba-line my-3"></div>
                     <p><b>Job Category:</b> <?php echo $categoryData['category_title']; ?></p>	
@@ -1417,8 +1453,8 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php echo $users->getProfileImage($usersData['ref'], "card-img-top my-3", 250, false); ?>
-                    <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?>
+                    <?php echo $users->getProfileImage($usersData['ref'], "card-img-top my-3", 250, false); ?><br>
+                    <i class="fa fa-map-marker"></i> <?php echo $data['address']; ?><br>
                     <div class="moba-line my-3"></div>
                     <?php if (count($getAlbum) > 0) {
                         for ($i = 0; $i < count($getAlbum); $i++) { ?>
@@ -1491,11 +1527,11 @@
                         <h5><?php echo $usersData['screen_name']; ?></h5>
                         <div class="moba-line mb-3"></div>
                         <p><?php echo $usersData['about_me']; ?></p>
-                        <?php echo $rating->drawRate(intval($rating->getRate($usersData['ref']))); ?>
+                        <?php echo $rating->drawRate(intval($rating->getRate($usersData['ref']))); ?><br>
                         <p><small>Number of Tasks Completed</small><br>
-                        <strong><?php echo $request->taskCompleted($data['ref'], "user_id"); ?></strong>
+                        <strong><?php echo $request->taskCompleted($data['ref'], "user_id"); ?></strong><br>
                         <small> Average Response Time</small><br>
-                        <strong><?php echo $usersData['ref']; ?></strong><br>
+                        <strong><?php echo $usersData['average_response_time']; ?></strong><br>
                         <small> Rating<small<br>
                         <strong><?php echo $rating->textRate(intval($rating->getRate($usersData['ref']))); ?></strong></p>
 
@@ -1722,11 +1758,12 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php echo $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?>
+                    <?php echo $users->getProfileImage($ref, "card-img-top my-3", 25, false); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
-                    <p><b>Rating:</b> <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
+                    <p><b>Rating:</b><br>
+                    <?php echo $rating->textRate(intval($rating->getRate($data['ref']))); ?></p>
                     <?php if ($data['user_type'] == 1) { ?>
                     <p><b>Number of Tasks Completed:</b> <?php echo $request->taskCompleted($data['ref'], "client_id"); ?></p>
                     <?php } else if ($data['user_type'] != 1) { ?>
@@ -1794,7 +1831,7 @@
             <div class="container my-5">
             <div class="row py-5">	
                 <div class="col-lg-4">
-                    <?php $users->getProfileImage($data['ref'], "card-img-top my-3", "25"); ?>
+                    <?php $users->getProfileImage($data['ref'], "card-img-top my-3", "25"); ?><br>
                     <?php echo $rating->drawRate(intval($rating->getRate($data['ref']))); ?>
                     <div class="moba-line my-3"></div>
                     <p><?php echo $data['about_me']; ?></p>
@@ -1926,7 +1963,7 @@
                     $notifications->markReadOne($notificationList[$i]['ref']); ?>
                 <tr <?php if ($notificationList[$i]['status'] == 0) { ?>class="table-active"<?php } ?>>
                 <th scope="row"><?php echo $start+$i+1; ?></th>
-                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id'], $notificationList[$i]['message'], $notificationList[$i]['user_r_id']); ?></td>
+                <td><?php echo $this->url( $notificationList[$i]['event'], $notificationList[$i]['event_id'], $notificationList[$i]['message'], $notificationList[$i]['user_r_id'], $notificationList[$i]['user_id']); ?></td>
                 <td><?php echo $notificationList[$i]['create_time']; ?></td>
                 <td><?php echo $notificationList[$i]['modify_time']; ?></td>
               </tr>
@@ -1936,13 +1973,15 @@
           <?php $this->pagination($page, $notificationListCounut);
         }
 
-        private function url($text, $id, $Label, $user_id=0) {
+        private function url($text, $id, $Label, $user_id=0, $userid=0) {
             if ($text == "system") {
                 return '<a href="'.$this->seo($user_id, "profile")."/".$id."/message".'">System Notification: '.$Label.'</a>';
             } else if ($text == "post_messages") {
                 return '<a href="'.$this->seo($user_id, "profile").$id."/message".'">'.$Label.'</a>';
             } else if ($text == "negotiate_charges") {
                 return '<a href="'.$this->seo($user_id, "profile").$id."/message".'">Negotiation Request</a>';
+            } else if ($text == "request") {
+                return '<a href="'.$this->seo($id, "request", $userid).'">'.$Label.'</a>';
             }
         }
 

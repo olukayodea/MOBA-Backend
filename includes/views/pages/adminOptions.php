@@ -13,6 +13,9 @@
             $search_per_page_mobile = $this->get("search_per_page_mobile");
             $text_filter = $this->get("text_filter");
             $product_ver = $this->get("product_ver");
+            $phone = $this->get("phone");
+            $email = $this->get("email");
+            $report_email = $this->get("report_email");
             $tag = "Modify Settings"; ?>
   <main class="col-12" role="main">
   <form method="post" action="" enctype="multipart/form-data">
@@ -56,6 +59,18 @@
   <div class="form-group">
       <label for="search_per_page_mobile">Search Result Per Page on API </label>
       <input type="number" class="form-control" name="search_per_page_mobile" id="search_per_page_mobile" placeholder="number of search result to be returned per page on API" required value="<?php echo $search_per_page_mobile; ?>">
+  </div>
+  <div class="form-group">
+      <label for="phone">Contact Number </label>
+      <input type="text" class="form-control" name="phone" id="phone" placeholder="Website Phone number" required value="<?php echo $phone; ?>">
+  </div>
+  <div class="form-group">
+      <label for="email">Contact E-Mail </label>
+      <input type="email" class="form-control" name="email" id="email" placeholder="Website contact E-mail" required value="<?php echo $email; ?>">
+  </div>
+  <div class="form-group">
+      <label for="report_email">Report E-Mail </label>
+      <input type="email" class="form-control" name="report_email" id="report_email" placeholder="Contact E-MAil to report requests" required value="<?php echo $report_email; ?>">
   </div>
   <div class="form-group">
       <label for="product_ver">API Version  </label>

@@ -42,7 +42,11 @@ if (isset($_POST['accept_req'])) {
         header("location: ".URL."ads?error=".urlencode("An error occured, this request has expired"));
     }
 } elseif(isset($_POST['reject_req'])) {
-    header("location: ".URL."ads?done=".urlencode("Job request rejected"));
+    if ($request_accept->reject($_POST)) {
+        header("location: ".URL."ads?done=".urlencode("Job request rejected"));
+    } else {
+        header("location: ".URL."ads?error=".urlencode("An error occured, this request has expired"));
+    }
 } elseif (isset($_POST['negotiate'])) {
     $add = $request_negotiate->negotiatePrize($_POST);
 

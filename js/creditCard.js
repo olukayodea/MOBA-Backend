@@ -82,6 +82,10 @@ function yearCheck() {
 
 	if (lenght < 1) {
 		document.getElementById('mm').focus();
+    }
+    
+	if (lenght >= 2) {
+		document.getElementById('cvv').focus();
 	}
 }
 

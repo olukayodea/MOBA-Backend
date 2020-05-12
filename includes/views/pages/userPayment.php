@@ -125,7 +125,6 @@
                 }
             }
 
-            print_r($return);
             return $return;
         }
 
@@ -334,9 +333,9 @@
             <script type="text/javascript" src="<?php echo URL; ?>js/wallet.js"></script>
         <?php }
 
-        function createNew() {
-                $tag = "Create New Payment Card";
-                $tag2 = "Create Payment Card";
+        function createNew($mobile = false) {
+                $tag = "Add Payment Card";
+                $tag2 = "Add Card";
                 if (isset($_REQUEST['warning'])) {
                     $tag2 = "Verify Payment Card";
                 }
@@ -344,62 +343,66 @@
                 if (isset($_REQUEST['fields'])) {
                     $fields = explode(',', urldecode($_REQUEST['fields']));
                 }
+                $class = "form-control";
             ?>
-<main class="col-12" role="main">
-    <form method="post" action="" enctype="multipart/form-data" autocomplete="off">
-    <h2><?php echo $tag; ?></h2>
-    
-    <?php if (isset($_REQUEST['warning'])) { ?>
-        <p><strong><?php echo $_REQUEST['warning']; ?></strong></p>
-        <?php foreach ($fields AS $field) { ?>
-            <div class="form-group">
-                <input type="text" class="form-control" name="<?php echo $field; ?>" id="<?php echo $field; ?>" placeholder="<?php echo $this->fieldString[$field]; ?>">
-            </div>
-        <?php } ?>
-        <input type="hidden" name="card_id" value="<?php echo $_REQUEST['id']; ?>">
-        <button type="submit" name="getPaymentVerify" class="btn purple-bn1"><?php echo $tag2; ?></button>
-    <?php } else { ?>
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="cc_last_name">Last Name</label>
-            <input type="text" class="form-control" name="cc_last_name" id="cc_last_name" placeholder="Last Name" required value="<?php echo $_SESSION['users']['last_name'];?>">
-        </div>
-        <div class="form-group col-md-6">
-            <label for="cc_first_name">First Name</label>
-            <input type="text" class="form-control" name="cc_first_name" id="cc_first_name" placeholder="First Name" required value="<?php echo $_SESSION['users']['other_names'];?>">
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="tag">Card Number</label>
-        <div class="form-row">
-            <div class="col-md-11">
-                <input type="text" name="cardno" id="cardno" class="form-control" placeholder="XXXX XXXX XXXX XXXX" onKeyUp="displayCardType(this.value)">
-            </div>
-            <div class="col-md-1">
-                <span id="cardLogo"></span>
-            </div>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="tag">Expiry Month</label>
-            <input type="number" class="form-control" maxlength="2" size="2" name="mm" id="mm" placeholder="MM" pattern="[0-9.]+" onKeyUp="monthCheck()" max="12">
-        </div>
-        <div class="form-group col-md-6">
-            <label for="tag">Expiry Year</label>
-            <input type="number" class="form-control" maxlength="2" size="2" name="yy" id="yy" placeholder="YY" pattern="[0-9.]+" onKeyUp="yearCheck()" max="99">
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="cvv">CVV</label>
-        <input type="text" class="form-control" name="cvv" id="cvv" placeholder="CVV">
-    </div>
-    <button type="submit" name="getPayment" class="btn purple-bn1"><?php echo $tag2; ?></button>
-    <?php } ?>
-    <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
-    </form>
-</main>
-<script type="text/javascript" src="<?php echo URL; ?>js/creditCard.js"></script>
+            <main class="col-12" role="main">
+                <form method="post" action="" enctype="multipart/form-data" autocomplete="off">
+                <?php if ($mobile == false) {
+                    $class = ""; ?>
+                <h2><?php echo $tag; ?></h2>
+                <?php } ?>
+                
+                <?php if (isset($_REQUEST['warning'])) { ?>
+                    <p><strong><?php echo $_REQUEST['warning']; ?></strong></p>
+                    <?php foreach ($fields AS $field) { ?>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="<?php echo $field; ?>" id="<?php echo $field; ?>" placeholder="<?php echo $this->fieldString[$field]; ?>">
+                        </div>
+                    <?php } ?>
+                    <input type="hidden" name="card_id" value="<?php echo $_REQUEST['id']; ?>">
+                    <button type="submit" name="getPaymentVerify" class="btn purple-bn1 <?php echo $class; ?>"><?php echo $tag2; ?></button>
+                <?php } else { ?>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="cc_last_name">Last Name</label>
+                        <input type="text" class="form-control" name="cc_last_name" id="cc_last_name" placeholder="Last Name" required value="<?php echo $_SESSION['users']['last_name'];?>">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="cc_first_name">First Name</label>
+                        <input type="text" class="form-control" name="cc_first_name" id="cc_first_name" placeholder="First Name" required value="<?php echo $_SESSION['users']['other_names'];?>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tag">Card Number</label>
+                    <div class="form-row">
+                        <div class="col-md-11">
+                            <input type="text" name="cardno" id="cardno" class="form-control" placeholder="XXXX XXXX XXXX XXXX" onKeyUp="displayCardType(this.value)">
+                        </div>
+                        <div class="col-md-1">
+                            <span id="cardLogo"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="tag">Expiry Month</label>
+                        <input type="number" class="form-control" maxlength="2" size="2" name="mm" id="mm" placeholder="MM" pattern="[0-9.]+" onKeyUp="monthCheck()" max="12">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="tag">Expiry Year</label>
+                        <input type="number" class="form-control" maxlength="2" size="2" name="yy" id="yy" placeholder="YY" pattern="[0-9.]+" onKeyUp="yearCheck()" max="99">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cvv">CVV</label>
+                    <input type="text" class="form-control" name="cvv" id="cvv" placeholder="CVV">
+                </div>
+                <button type="submit" name="getPayment" class="btn purple-bn1 <?php echo $class; ?>"><?php echo $tag2; ?></button>
+                <?php } ?>
+                <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
+                </form>
+            </main>
+            <script type="text/javascript" src="<?php echo URL; ?>js/creditCard.js"></script>
         <?php }
 
         public function listAll($redirect) {
@@ -421,49 +424,49 @@
             ?>
             <h2>List All Payment Cards</h2>
             <small>You must have atleast one card active and can not remove a default card. To remove a default card, you must activate another card as default</small>
-<form method="post" action="" enctype="multipart/form-data">
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Default</th>
-      <th scope="col">PAN</th>
-      <th scope="col">Expiry Date</th>
-      <th scope="col">Status</th>
-      <th scope="col">Created</th>
-      <th scope="col">Last Modified</th>
-      <th scope="col">&nbsp;</th>
-    </tr>
-  </thead>
-  <tbody>
-      <?php for ($i = 0; $i < count($list); $i++) {
-        if ($list[$i]['status'] == "ACTIVE") {
-          $statusTag = "De-activate";
-        } else if ($list[$i]['status'] == "INACTIVE") {
-          $statusTag = "Activate";
-        } ?>
-    <tr>
-      <th scope="row"><?php echo $start+$i+1; ?></th>
-      <td><input class="form-check-input" type="radio" name="is_default" value="<?php echo $list[$i]['ref']; ?>"<?php if ($list[$i]['is_default'] == 1) { ?> checked<?php } ?>></td>
-      <td><?php echo "**** **** **** ".$list[$i]['pan']; ?></td>
-      <td><?php echo $list[$i]['expiry_month']."/".$list[$i]['expiry_year']; ?></td>
-      <td><?php echo $list[$i]['status']; ?></td>
-      <td><?php echo $list[$i]['create_time']; ?></td>
-      <td><?php echo $list[$i]['modify_time']; ?></td>
-      <td><a href="<?php echo URL.$redirect."?statusChange=".$list[$i]['ref']; ?>" onClick="return confirm('this action will <?php echo strtolower($statusTag); ?> this card. are you sure you want to continue ?')"><?php echo strtolower($statusTag); ?></a><?php if ((count($list) > 1) && ($list[$i]['is_default'] != 1)) { ?> | <a href="<?php echo URL.$redirect."?delete=".$list[$i]['ref']; ?>" onClick="return confirm('this action will remove this card. are you sure you want to continue ?')">Delete</a><?php } ?></td>
-    </tr>
-      <?php } ?>
-  </tbody>
-</table>
-<?php $this->pagination($page, $listCount);
-if (count($list) > 1) { ?>
-<button type="submit" name="set_is_default" class="btn purple-bn1">Set Default Card</button>
-<?php } ?>
-</form>
+            <form method="post" action="" enctype="multipart/form-data">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Default</th>
+                        <th scope="col">PAN</th>
+                        <th scope="col">Expiry Date</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Last Modified</th>
+                        <th scope="col">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php for ($i = 0; $i < count($list); $i++) {
+                            if ($list[$i]['status'] == "ACTIVE") {
+                            $statusTag = "De-activate";
+                            } else if ($list[$i]['status'] == "INACTIVE") {
+                            $statusTag = "Activate";
+                            } ?>
+                        <tr>
+                        <th scope="row"><?php echo $start+$i+1; ?></th>
+                        <td><input class="form-check-input" type="radio" name="is_default" value="<?php echo $list[$i]['ref']; ?>"<?php if ($list[$i]['is_default'] == 1) { ?> checked<?php } ?>></td>
+                        <td><?php echo "**** **** **** ".$list[$i]['pan']; ?></td>
+                        <td><?php echo $list[$i]['expiry_month']."/".$list[$i]['expiry_year']; ?></td>
+                        <td><?php echo $list[$i]['status']; ?></td>
+                        <td><?php echo $list[$i]['create_time']; ?></td>
+                        <td><?php echo $list[$i]['modify_time']; ?></td>
+                        <td><a href="<?php echo URL.$redirect."?statusChange=".$list[$i]['ref']; ?>" onClick="return confirm('this action will <?php echo strtolower($statusTag); ?> this card. are you sure you want to continue ?')"><?php echo strtolower($statusTag); ?></a><?php if ((count($list) > 1) && ($list[$i]['is_default'] != 1)) { ?> | <a href="<?php echo URL.$redirect."?delete=".$list[$i]['ref']; ?>" onClick="return confirm('this action will remove this card. are you sure you want to continue ?')">Delete</a><?php } ?></td>
+                        </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+                <?php $this->pagination($page, $listCount);
+                if (count($list) > 1) { ?>
+                <button type="submit" name="set_is_default" class="btn purple-bn1">Set Default Card</button>
+                <?php } ?>
+            </form>
         <?php }
 
-        function postMew($array) {
-            $add = $this->create($array);
+        function postMew($array, $mobile=false) {
+            $add = $this->create($array, $mobile);
             if ($add) {
                 return $add;
             } else {

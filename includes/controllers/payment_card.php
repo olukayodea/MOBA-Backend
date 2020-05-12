@@ -2,9 +2,8 @@
     class payment_card extends database {
         /*  create users
         */
-        public function create($array) {
-            $add_card = $this->gateway_create_profile($array);
-
+        public function create($array,$mobile=false) {
+            $add_card = $this->gateway_create_profile($array, false, $mobile);
             if ($add_card['suuccess'] === true) {
                 $get_count = count($this->getSortedList($array['user_id'], 'user_id'));
                 $data['user_id'] = $array['user_id'];
@@ -32,7 +31,11 @@
 
                         $return = array('status' => 'OK', 'message' => 'complete');
                     } else {
-                        if ($data['status'] == "PENDING-BILLING") {
+                        $_SESSION['c_r_m_0_b_a'] = $create;
+                        if ($data['status'] == "PENDING-URL") {
+                            $fields = "url_excape";
+                            header("location: ".$add_card['authurl']); 
+                        } else if ($data['status'] == "PENDING-BILLING") {
                             $fields = "billingzip, billingcity, billingaddress, billingstate, billingcountry";
                         } else if ($data['status'] == "PENDING-PIN") {
                             $fields = "pin";
@@ -101,7 +104,7 @@
         }
 
         function setDefault($id) {
-            $getFormer = $this->getSingle("1", "ref", "is_default");
+            $getFormer = $this->getSingle($id, "ref", "is_default");
             $this->updateOne("payment_card", "is_default", 0, $getFormer, "ref");
             $this->updateOne("payment_card", "is_default", 1, $id, "ref");
             return true;
@@ -145,7 +148,7 @@
             return $this->sortAll("payment_card", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit, $type, $extraConditions);
         }
 
-        private function gateway_create_profile($array, $saved=false) {
+        private function gateway_create_profile($array, $saved=false, $mobile=false) {
             global $users;
 
             $card_id = $array['card_id'];
@@ -159,6 +162,11 @@
                 $data['country'] = 'NG';
                 $data['amount'] = '300';
                 $data['txRef'] = "TP".rand(1, 999).time();
+                $redirect_url = URL."paymentReturn";
+                if ($mobile == true) {
+                    $redirect_url .= "/mobile";
+                }
+                $data['redirect_url'] = $redirect_url;
 
                 $data["email"] = $userdata['email'];
                 $data["firstname"] = $array['cc_first_name'];
@@ -169,9 +177,12 @@
 
                 unset($array['card_id']);
                 unset($array['user_id']);
+                unset($array['getPaymentVerify']);
+
 
                 $data = array_merge($data, $array);
                 $data['txRef'] = "TP".rand(1, 999).time();
+
             }
             
             $key = $this->getKey(); 
@@ -199,15 +210,16 @@
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             
             $request = curl_exec($ch);
-            
+
             if ($request) {
                 $result = json_decode($request, true);
+                
                 if ($result['status'] == "success") {
                     $return['suuccess'] = true;
                     if ($result['status'] == "success") {
                         if ($result['message'] == "AUTH_SUGGESTION") {
                             $return['suggested_auth'] = $result['data']['suggested_auth'];
-                            if ($result['data']['suggested_auth'] == "NOAUTH_INTERNATIONAL") {
+                            if (($result['data']['suggested_auth'] == "NOAUTH_INTERNATIONAL") || ($result['data']['suggested_auth'] == "AVS_VBVSECURECODE")) {
                                 $return['additional_message'] = "Enter the billing address for **** **** **** ".substr( $data['cardno'], -4);;
                                 $return['status'] = "PENDING-BILLING";
                             } else if ($result['data']['suggested_auth'] == "PIN") {
@@ -219,21 +231,31 @@
                             $return['data'] = serialize($data);
                         } else {
                             if ($result['data']['chargeResponseCode'] == "02") {
-                                $fields = "otp_code";
-                                $return = array('status' => 'OK', 'fields' => $fields );
-
-                                $return['additional_message'] = $result['data']['chargeResponseMessage'];
                                 $token = @$result['data']['flwRef'];
-                                $status = "PENDING";
                                 $return['message'] = "incomplete";
-
+                                
+                                $return['status'] = 'OK';
+                                if (($result['data']['authModelUsed'] == "ACCESS_OTP")) {
+                                    $status = "PENDING-URL";
+                                    $return['authurl'] = $result['data']['authurl'];
+                                } else if (($result['data']['authModelUsed'] == "VBVSECURECODE")) {
+                                    $status = "PENDING-URL";
+                                    $return['authurl'] = $result['data']['authurl'];
+                                } else {
+                                    $status = "PENDING-OTP";
+                                    $fields = "otp_code";
+                                    $return['fields'] = $fields;
+                                    $return['additional_message'] = $result['data']['chargeResponseMessage'];
+                                }
+                                $return['status'] = $status;
+                                $return['token'] = $token;
                                 $this->updateOne("payment_card", "gateway_token", $token, $card_id, "ref");
                                 $this->updateOne("payment_card", "status", $status, $card_id, "ref");
                             } else if ($result['data']['chargeResponseCode'] == "00") {
                                 $token = @$result['data']['tx']['chargeToken']['embed_token'];
                                 $flwRef = @$result['data']['tx']['flwRef'];
 
-                                $return = array('status' => 'OK', 'message' => strtolower('Complete'));
+                                $return['status'] = 'OK';
                                 $return['response'] = $token;
 
                                 $return['additional_message'] = "New Card Saved";
@@ -259,14 +281,13 @@
                 }
             }
             
-            curl_close($ch);
             $return['card_id'] = $card_id;
-
             return $return;
         }
 
-		function verifyPayment($array) {
+		function verifyPayment($array, $mobile=false) {
             $data = $this->listOne($array['card_id']);
+            echo "<pre>";
 
             if (isset($array['otp_code'])) {
                 $postdata 	= array(
@@ -326,9 +347,38 @@
                     return false;
                 }
             } else {
-                return $this->gateway_create_profile($array, true);
+                return $this->gateway_create_profile($array, true, $mobile);
             }
-		}
+        }
+        
+        function validate3DSecure($data) {
+            $card_id = $_SESSION['c_r_m_0_b_a'];
+            if (($data['status'] == "successful") && ($data['chargeResponseCode'] == "00")) {
+                $token = $data['chargeToken']['embed_token'];
+                $flwRef = $data['flwRef'];
+
+                $return = array('status' => 'OK', 'message' => strtolower('Complete'));
+                $return['response'] = $token;
+
+                $return['additional_message'] = "New Card Saved";
+                $return['message'] = strtolower("complete");
+
+                $status = "ACTIVE";
+                $this->refund($flwRef);
+
+                $this->updateOne("payment_card", "gateway_token", $token, $card_id, "ref");
+                $this->updateOne("payment_card", "status", $status, $card_id, "ref");
+                $this->updateOne("payment_card", "temp_data", NULL, $card_id, "ref");
+                $response['status'] = "OK";
+                $response['message'] = strtolower( "complete" );
+            } else {
+                $response['error'] = true;
+                $response['message'] = "Validation Failed";
+                $response['additional_message'] = $data['chargemessage']." ".$data['chargemessage'];
+            }
+
+            return $response;
+        }
 
 		function refund($trans_id) {
 			$postdata 	= array(

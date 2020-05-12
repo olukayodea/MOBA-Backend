@@ -1,24 +1,18 @@
 <?php
-    $redirect = "ads";
+    $redirect = "admin\dispute";
     include_once("../includes/functions.php");
-    include_once("../includes/sessionUser.php");
+    include_once("../includes/sessions.php");
 
-    if (isset($_REQUEST['view'])) {
-        $view = trim($_REQUEST['view'], "/");
-    } else {
-        $view = "active";
-    }
-    if (isset($_REQUEST['remove'])) {
-        $rem = $userPostedAds->removeDraft($_REQUEST['remove']);
-
-        if ($rem) {
-            header("location: ".URL.$redirect."/".$view."?done=".urlencode("Draft ad removed successfully"));
+    if (isset($_REQUEST['delete'])) {
+        $add = $userPayment->removeCard($_REQUEST['delete']);
+  
+        if ($add) {
+            header("location: ".URL.$redirect."?done=".urlencode("Payment Card removed"));
         } else {
-            header("location: ".URL.$redirect."/".$view."?error=".urlencode("Draft ad not removed successfully"));
+            header("location: ".URL.$redirect."?error=".urlencode("Payment card not removed"));
         }
     }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,7 +24,7 @@
     <meta name="author" content="">
 
     <?php $pageHeader->headerFiles(); ?>
-    <title>Moba - Find the best artisans</title>
+    <title>Administrator | Account Verification</title>
 	</head>
 
   <body>
@@ -43,7 +37,7 @@
 			<div class="row">
 			
 				<div class="col-lg-6 py-5">
-						<h6><a href="<?php echo URL; ?>">Moba</a> / Administrator  /  Requests</h6>
+						<h6><a href="<?php echo URL; ?>">Moba</a>  /  Administrator / Dispute Resolution</h6>
 				</div>
 				<div class="col-lg-6"></div>
 				
@@ -56,10 +50,10 @@
 		<div class="container my-5">
             <div class="row py-5">
                 <div class="col-lg-3">
-                    <?php $adminAdvert->navigationBar($redirect); ?>
+                    <?php $adminUsers->navigationBar($redirect); ?>
                 </div>
                 <div class="col-lg-9">
-                    <?php $adminAdvert->pageContent($ref, $view, $redirect); ?>
+                    <?php $adminUsers->pageContent($redirect, "dispute"); ?>
                 </div>
             </div>
 		</div>

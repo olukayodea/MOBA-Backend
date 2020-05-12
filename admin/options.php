@@ -16,6 +16,9 @@
         $adminOptions->postMew("ad_per_page_mobile", $_POST['ad_per_page_mobile']);
         $adminOptions->postMew("search_per_page_mobile", $_POST['search_per_page_mobile']);
         $adminOptions->postMew("product_ver", $_POST['product_ver']);
+        $adminOptions->postMew("phone", $_POST['phone']);
+        $adminOptions->postMew("email", $_POST['email']);
+        $adminOptions->postMew("report_email", $_POST['report_email']);
         $tag = json_decode($_POST['text_filter'], true);
         $newTag = array();
         foreach($tag as $value) {

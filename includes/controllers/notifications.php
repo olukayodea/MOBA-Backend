@@ -3,14 +3,17 @@
         /*  create users
         */
         public function create($array) {
-            $count = $this->getSortedList($array['user_id'], "user_id", "event", $array['event'], "event_id", $array['event_id']);
-            if (count($count) > 0) {
+            $count = $this->getSortedList($array['user_id'], "user_id", "event", $array['event'], "event_id", $array['event_id'], "ref", "DESC","AND",false,false,"count");
+            if ($count > 0) {
                 $array['status'] = 0;
+                $array['count'] = $count;
+                $where['count'] = $array['count'];
                 $where['user_id'] = $array['user_id'];
                 $where['event'] = $array['event'];
                 $where['event_id'] = $array['event_id'];
                 $create = $this->update("notifications", $array, $where, "AND");
             } else {
+                $array['count'] = 1;
                 $create = $this->insert("notifications", $array);
             }
             if ($create) {
@@ -34,6 +37,10 @@
             $array['sent_mail'] = 1;
             $where['ref'] = $ref;
             return $this->update("notifications", $array, $where);
+        }
+
+        public function removeRequest($ref) {
+            return $this->query("DELETE FROM `notifications` WHERE `event` = 'request' AND `event_id` = ".$ref);
         }
 
 		function getSingle($name, $tag="message", $ref="ref") {
@@ -79,7 +86,7 @@
                     '&email='.urlencode($user_data['email']).
                     '&tag='.urlencode(htmlentities($list[$i]['email']));
                 $mailUrl = URL."includes/views/emails/notification.php?".$fields;
-                $messageToClient = $this->curl_file_get_contents($mailUrl);
+                echo $messageToClient = $this->curl_file_get_contents($mailUrl);
                 
                 $mail['from'] = $contact;
                 $mail['to'] = $client." <".$user_data['email'].">";

@@ -115,7 +115,6 @@ class users extends database {
         }
     }
 
-
     function saveProfilePicture($id, $file, $api=false, $data=false, $type="profile") {
         global $media;
         if ($api === false) {
@@ -480,11 +479,11 @@ class users extends database {
 
     function toggleAdmin($id) {
         $data = $this->listOne($id);
-        if ($data['user_type'] == 1) {
+        if ($data['user_type'] == 2) {
             $updateData = 0;
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Administrator Status Revoked</strong>";
         } else {
-            $updateData = 1;
+            $updateData = 2;
             $tag = "There is a new modification on your account.<br>The following action was performed on your account: <strong>Administrator Status Authorized</strong><br><br>Please logout of your account and log back in to notice this update on your account";
         }
         $tag = ". <a href='".URL."'>Sign in</a> to your MOBA Account to learn more";

@@ -46,7 +46,7 @@
         
         //send emails
 		function send_mail($from,$to,$subject,$body) {
-			/*$headers = '';
+			$headers = '';
 			$headers .= "From: $from\r\n";
 			$headers .= "Reply-to: ".replyMail."\r\n";
 			$headers .= "Return-Path: ".replyMail."\r\n";
@@ -60,40 +60,39 @@
 			} else {
 				return false;
 			}
+
+			// $from_data = explode("<", trim($from, ">"));
+			// $to_data = explode("<", trim($to, ">"));
+			// $to_email = $to_data[1];
+			// $to_name = $to_data[0];
+			// $mail = new PHPMailer();
+			// $mail->IsSMTP();
+			// //$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
+			// $mail->SMTPAuth = true; // authentication enabled
+			// $mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
+			// $mail->Host = "email-smtp.us-east-1.amazonaws.com";
+			// //$mail->Host = "mail.skrinad.com";
+			// $mail->Port = 465; // or 587
 			
-			*/
+			// $mail->Username = "AKIAUZQU4YDJ5SA2TSEM";  // SMTP username
+			// $mail->Password = "BBVcl0OZwxoW58M7ZZMngtzApBZ/326/AlOcyqbv5NGo"; // SMTP password
+			// //$mail->Username = "do-not-reply@skrinad.com";  // SMTP username
+			// //$mail->Password = "P@%%W)RD"; // SMTP password
 			
-			$from_data = explode("<", trim($from, ">"));
-			$to_data = explode("<", trim($to, ">"));
-			$to_email = $to_data[1];
-			$to_name = $to_data[0];
-			$mail = new PHPMailer();
-			$mail->IsSMTP();
-			//$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
-			$mail->SMTPAuth = true; // authentication enabled
-			$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
-			$mail->Host = "email-smtp.us-east-1.amazonaws.com";
-			//$mail->Host = "mail.skrinad.com";
-			$mail->Port = 465; // or 587
+			// $mail->From = $from_data[1];
+			// $mail->FromName = $from_data[0];
+			// $mail->AddAddress($to_email,$to_name);                  // name is optional
+			// $mail->AddReplyTo($from_data[1], $from_data[0]);  
 			
-			$mail->Username = "AKIAUZQU4YDJ7QOUCEQQ";  // SMTP username
-			$mail->Password = "BAgOjq9UHoKdP/E3QMe5O3XzsUcRK4g20VvmfSNV5ntx"; // SMTP password
-			//$mail->Username = "do-not-reply@skrinad.com";  // SMTP username
-			//$mail->Password = "P@%%W)RD"; // SMTP password
+			// $mail->WordWrap = 50;                                 // set word wrap to 50 characters
+			// $mail->IsHTML(true);                                  // set email format to HTML
 			
-			$mail->From = $from_data[1];
-			$mail->FromName = $from_data[0];
-			$mail->AddAddress($to_email,$to_name);                  // name is optional
-			$mail->AddReplyTo($from_data[1], $from_data[0]);  
-			
-			$mail->WordWrap = 50;                                 // set word wrap to 50 characters
-			$mail->IsHTML(true);                                  // set email format to HTML
-			
-			$mail->Subject = $subject;
-			$mail->Body    = $body;
-			$mail->AltBody = "This is email is readable only in an HTML enabled browser or reader";
+			// $mail->Subject = $subject;
+			// $mail->Body    = $body;
+			// $mail->AltBody = "This is email is readable only in an HTML enabled browser or reader";
 			
 			// if(!$mail->Send()) {
+			// 	echo "error";
 			// 	error_log("could not send");
 			// 	return false;
 			// } else {
