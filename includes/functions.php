@@ -3,10 +3,8 @@
 	date_default_timezone_set("Africa/Lagos");
 	//error_reporting(E_ALL);
   //error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-  
   // ini_set('display_errors', 1);
   // error_reporting(E_ALL);
-	
 	$pageUR1      = $_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
 

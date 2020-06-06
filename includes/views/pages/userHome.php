@@ -1770,7 +1770,7 @@
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
                     <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
-                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">jjjjjjjj Modify Display Picture</a></p>
                     <?php if ($data['screen_name_cam_change'] == 0) { ?>
                         <p><a href="<?php echo URL."edit/ScreenName"; ?>" class="btn purple-bn pd">Edit Username</a></p>
                     <?php } ?>
@@ -1980,7 +1980,7 @@
                 return '<a href="'.$this->seo($user_id, "profile").$id."/message".'">'.$Label.'</a>';
             } else if ($text == "negotiate_charges") {
                 return '<a href="'.$this->seo($user_id, "profile").$id."/message".'">Negotiation Request</a>';
-            } else if ($text == "request") {
+            } else if (($text == "request") || ($text == "handle_request")) {
                 return '<a href="'.$this->seo($id, "request", $userid).'">'.$Label.'</a>';
             }
         }

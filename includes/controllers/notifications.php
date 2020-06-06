@@ -3,6 +3,7 @@
         /*  create users
         */
         public function create($array) {
+            error_log(json_decode($array, JSON_PRETTY_PRINT));
             $count = $this->getSortedList($array['user_id'], "user_id", "event", $array['event'], "event_id", $array['event_id'], "ref", "DESC","AND",false,false,"count");
             if ($count > 0) {
                 $array['status'] = 0;
@@ -110,7 +111,7 @@
 
         public function sendPush($array) {
             global $usersToken;
-
+            
             $userData = $usersToken->getSortedList($array['to'], "user_id");
 
             $token = array();
@@ -129,11 +130,10 @@
             }
             
             if (count($input) > 0) {
-                $sendExpo = [$input];
                 $url = "https://exp.host/--/api/v2/push/send";
                 $header[] = "Content-Type: application/json";
     
-                $post_data = json_encode($sendExpo);
+                $post_data = json_encode($input);
     
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_VERBOSE, true );
@@ -229,8 +229,15 @@
             unset($data['count']);
             unset($data['user_id']);
             unset($data['email']);
-            unset($data['timestamp']);            
+            unset($data['timestamp']); 
             
+            if ($data['event'] == 0) {
+                $data['status'] = "New";
+            } else if ($data['status'] == 1) {
+                $data['status'] = "Read";
+            }
+
+
             if ($data['status'] == 0) {
                 $data['status'] = "New";
             } else if ($data['status'] == 1) {

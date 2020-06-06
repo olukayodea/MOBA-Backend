@@ -22,9 +22,11 @@ class request extends database {
         $location['latitude'] = $array['latitude'];
         $location['longitude'] = $array['longitude'];
         
+        unset($array['state_code']);
         unset($array['state']);
         unset($array['country']);
         unset($array['country_code']);
+
 
         $create = $this->insert("request", $array);
         if ($create) {
@@ -71,22 +73,61 @@ class request extends database {
         global $category;
         global $notifications;
         global $users;
-        $data = $category->totalUsers($category_id, $location);
+        $dataUser = $category->totalUsers($category_id, $location);
 
         $requestData = $this->listOne($request);
 
-        for ($i = 0; $i < count($data); $i++) {
-            $array['event'] = "request";
+        for ($i = 0; $i < count($dataUser); $i++) {
+            $array['event'] = "handle_request";
             $array['event_id'] = $request;
-            $array['user_id'] = $data[$i]['user_id'];
+            $array['user_id'] = $dataUser[$i]['user_id'];
             $array['message'] = $request;
 
             $name = $users->listOnValue($requestData['user_id'], "screen_name");
 
-            $array['message'] = "Job Request from ".$name;
+            $array['message'] = "New work Request from ".$name;
             $array['email'] = $name." needs a ".$category->getSingle($category_id)." at ".$requestData['address'].". Click <a href='".$this->seo($request, "request", $requestData['user_id'])."'>here</a> to notify ".$name." of your interest";
 
-            $notifications->create($array);
+            if ($notifications->create($array) ) {
+                $requestDataField['ref'] = $requestData['ref'];
+                $requestDataField['charge'] = $requestData['fee'];
+                $requestDataField['duration'] = "";
+                $requestDataField['categoryName'] = $category->getSingle( $requestData['category_id'] );
+                $requestDataField['location'] = $requestData['address'];
+
+                $msg = $array['message'];
+                $data["to"] = $dataUser[$i]['user_id'];
+                $data["title"] = "Request Notification";
+                $data["body"] = $msg;
+                $data['data']['page_name'] = "handle_request";
+                $data['data']['request'] = $requestDataField;
+                $notifications->sendPush($data);
+
+                //send email after
+                $msg .= ". <a href='".URL."?page_name=handle_request&ID=".$requestData['post_id']."&request=".json_encode($requestDataField)."&main_request'>Click here</a> to continue review this request";
+
+                $dataEmail = $users->listOne($dataUser[$i]['user_id'], "ref");
+                
+                $client = $dataEmail['last_name']." ".$dataEmail['other_names'];
+                $subjectToClient = "Request Notification";
+                $contact = "MOBA <".replyMail.">";
+                
+                $fields = 'subject='.urlencode($subjectToClient).
+                    '&last_name='.urlencode($dataEmail['last_name']).
+                    '&other_names='.urlencode($dataEmail['other_names']).
+                    '&email='.urlencode($dataEmail['email']).
+                    '&tag='.urlencode($msg);
+                $mailUrl = URL."includes/views/emails/notification.php?".$fields;
+                $messageToClient = $this->curl_file_get_contents($mailUrl);
+                
+                $mail['from'] = $contact;
+                $mail['to'] = $client." <".$dataEmail['email'].">";
+                $mail['subject'] = $subjectToClient;
+                $mail['body'] = $messageToClient;
+                
+                // global $alerts;
+                // $alerts->sendEmail($mail);
+            }
         }
     }
 
@@ -848,8 +889,9 @@ class request extends database {
     public function apiMegotiate($array, $action="post") {
         global $category;
         global $request_negotiate;
-        $array['fee'] = $array['negotiated_fee'];
+        $array['fee'] = $array['amount'] =  $array['negotiated_fee'];
         if ($action == "post") {
+            unset($array['fee']);
             if ($array['user_id'] == $array['user_r_id']) {
                 $return['status'] = "501";
                 $return['message'] = "Not Implemented";
@@ -1192,6 +1234,7 @@ class request extends database {
         global $post;
         global $users;
         //check if card is valid
+
         $array['region'] = $location['ref'];
         if (isset($array['address']) && ($array['address'] != "")) {
             $addressData = $this->googleGeoLocation(false, false, $array['address']);

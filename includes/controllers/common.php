@@ -46,59 +46,56 @@
         
         //send emails
 		function send_mail($from,$to,$subject,$body) {
-			$headers = '';
-			$headers .= "From: $from\r\n";
-			$headers .= "Reply-to: ".replyMail."\r\n";
-			$headers .= "Return-Path: ".replyMail."\r\n";
-			$headers .= "Organization: SkrinAd\r\n";
-			$headers .= "MIME-Version: 1.0\r\n";
-			$headers .= 'Content-Type: text/html; charset=utf-8' . "\r\n";
-			$headers .= "Date: " . date('r', time()) . "\r\n";
+			// $headers = '';
+			// $headers .= "From: $from\r\n";
+			// $headers .= "Reply-to: ".replyMail."\r\n";
+			// $headers .= "Return-Path: ".replyMail."\r\n";
+			// $headers .= "Organization: SkrinAd\r\n";
+			// $headers .= "MIME-Version: 1.0\r\n";
+			// $headers .= 'Content-Type: text/html; charset=utf-8' . "\r\n";
+			// $headers .= "Date: " . date('r', time()) . "\r\n";
 		
-			if (mail($to,$subject,$body,$headers)) {
-				return true;
-			} else {
-				return false;
-			}
-
-			// $from_data = explode("<", trim($from, ">"));
-			// $to_data = explode("<", trim($to, ">"));
-			// $to_email = $to_data[1];
-			// $to_name = $to_data[0];
-			// $mail = new PHPMailer();
-			// $mail->IsSMTP();
-			// //$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
-			// $mail->SMTPAuth = true; // authentication enabled
-			// $mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
-			// $mail->Host = "email-smtp.us-east-1.amazonaws.com";
-			// //$mail->Host = "mail.skrinad.com";
-			// $mail->Port = 465; // or 587
-			
-			// $mail->Username = "AKIAUZQU4YDJ5SA2TSEM";  // SMTP username
-			// $mail->Password = "BBVcl0OZwxoW58M7ZZMngtzApBZ/326/AlOcyqbv5NGo"; // SMTP password
-			// //$mail->Username = "do-not-reply@skrinad.com";  // SMTP username
-			// //$mail->Password = "P@%%W)RD"; // SMTP password
-			
-			// $mail->From = $from_data[1];
-			// $mail->FromName = $from_data[0];
-			// $mail->AddAddress($to_email,$to_name);                  // name is optional
-			// $mail->AddReplyTo($from_data[1], $from_data[0]);  
-			
-			// $mail->WordWrap = 50;                                 // set word wrap to 50 characters
-			// $mail->IsHTML(true);                                  // set email format to HTML
-			
-			// $mail->Subject = $subject;
-			// $mail->Body    = $body;
-			// $mail->AltBody = "This is email is readable only in an HTML enabled browser or reader";
-			
-			// if(!$mail->Send()) {
-			// 	echo "error";
-			// 	error_log("could not send");
-			// 	return false;
-			// } else {
-			// 	//echo "Mailer Error: " . $mail->ErrorInfo;
+			// if (mail($to,$subject,$body,$headers)) {
 			// 	return true;
+			// } else {
+			// 	return false;
 			// }
+			$from_data = explode("<", trim($from, ">"));
+			$to_data = explode("<", trim($to, ">"));
+			$to_email = $to_data[1];
+			$to_name = $to_data[0];
+			$mail = new PHPMailer();
+			$mail->IsSMTP();
+			//$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
+			$mail->SMTPAuth = true; // authentication enabled
+			$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
+			$mail->Host = "email-smtp.us-west-2.amazonaws.com";
+			$mail->Port = 465; // or 587
+			
+			$mail->Username = "AKIAUZQU4YDJ4ABWOF6A";  // SMTP username
+			$mail->Password = "BPlEZ5OILe5tWNR88d0k3//HQrFAqusYV3aZi+/ct56p"; // SMTP password
+			
+			$mail->From = $from_data[1];
+			$mail->FromName = $from_data[0];
+			$mail->AddAddress($to_email,$to_name);                  // name is optional
+			$mail->AddReplyTo($from_data[1], $from_data[0]);  
+			
+			$mail->WordWrap = 50;                                 // set word wrap to 50 characters
+			$mail->IsHTML(true);                                  // set email format to HTML
+			
+			$mail->Subject = $subject;
+			$mail->Body    = $body;
+			$mail->AltBody = "This is email is readable only in an HTML enabled browser or reader";
+			
+			if(!$mail->Send()) {
+				echo "Mailer Error: " . $mail->ErrorInfo;
+				echo "error";
+				error_log("could not send");
+				return false;
+			} else {
+				//echo "Mailer Error: " . $mail->ErrorInfo;
+				return true;
+			}
 		}
 		
 		function checkSize($file, $array=false) {
@@ -351,7 +348,6 @@
 			$data['country'] = $response['geoplugin_countryName'];
 			$_SESSION['location'] = $data;
 			$cookie = serialize($data);
-
 			setcookie("l_d", $cookie, time()+(60*60*24), "/");
 		}
 

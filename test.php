@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
-    $product_key = rand();
-    $u = "http://127.0.0.1/MOBA-Backend/";
-    $token = "111HEVQ38JEOKVNWYQH";
-    // $u = "https://moba.com.ng/";
-    // $token = "440XVMA5TFBXJ16VN06";
+    // $product_key = rand();
+    // $u = "http://127.0.0.1/MOBA-Backend/";
+    // $token = "111HEVQ38JEOKVNWYQH";
+    $u = "https://moba.com.ng/";
+    $token = "182003592911583850304EF7XZKNVLJ2";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -122,9 +122,7 @@
     // // Request
     // // request::create
     // $array['fee']  = "250.00";
-    // $array['time']  = "60";
     // $array['address']  = "147 isuti road, Igando Lagos";
-    // $array['description']  = "this is just a description text";
     // $array['category_id']  = 1;
 	// $array['longitude'] = 3.349149;
     // $array ['latitude'] = 6.605874;
@@ -138,7 +136,7 @@
     // $array['media'][2]  = base64_encode(file_get_contents($img[$sImg]));
 
     // $url = $u."api/request/create";
-    // echo $json_data = json_encode($array);
+    // $json_data = json_encode($array);
     // echo post($header, $url, $json_data);
 
 /*
@@ -198,12 +196,12 @@
     $url = $u."api/request/get/waiting/85";
     echo get($header, $url);*/
 
-    //respond to negotiate request
-    $array['reponse'] = "y"; //y for yes, n for no
-    $array['request_id'] = "1";
-    $url = $u."api/request/respond";
-    $json_data = json_encode($array);
-    echo put($header, $url, $json_data);
+    // //respond to negotiate request
+    // $array['reponse'] = "y"; //y for yes, n for no
+    // $array['request_id'] = "1";
+    // $url = $u."api/request/respond";
+    // $json_data = json_encode($array);
+    // echo put($header, $url, $json_data);
 /*
     $url = $u."api/request/get/61";
     echo get($header, $url);*/
@@ -518,7 +516,12 @@
     $json_data = json_encode($array);
     echo get($header, $url);*/
 
-    print_r($header);
+    //read
+    $url = $u."api/request/get/waiting/136";
+    $json_data = json_encode($array);
+    echo get($header, $url);
+
+    //print_r($header);
     @print_r($json_data);
     echo "<br>";
     echo $url;

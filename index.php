@@ -1,6 +1,17 @@
 <?php
     $redirect = "index";
 	include_once("includes/functions.php");
+
+	if (isset($_REQUEST['page_name'])) {
+		if ($_REQUEST['page_name'] == "handle_request") {
+			if (isset($_REQUEST['main_request'])) {
+				$requestData = $this->listOne($_REQUEST['ID']);
+				header("location: ".$common->seo($_REQUEST['ID'], "request", $requestData['user_id']));
+			} else {
+				header("location: ".URL."newRequestDetails?id=".$_REQUEST['ID']);
+			}
+		}
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">

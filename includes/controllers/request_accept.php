@@ -7,6 +7,7 @@ class request_accept extends database {
         global $request;
         global $users;
         global $notifications;
+        global $category;
 
         $requestData = array();
         $requestData = $request->listOne( $array['request'] );
@@ -22,20 +23,22 @@ class request_accept extends database {
                 $this->create($add);
                 $this->reject($array);
 
+                $requestDataField['ref'] = $requestData['ref'];
+                $requestDataField['charge'] = $requestData['fee'];
+                $requestDataField['duration'] = "";
+                $requestDataField['categoryName'] = $category->getSingle( $requestData['category_id'] );
+                $requestDataField['location'] = $requestData['address'];
+
                 $msg = $users->listOnValue( $array['user_r_id'], "screen_name" )." accepted your request";
                 $data["to"] = $requestData['user_id'];
                 $data["title"] = "Request Notification";
                 $data["body"] = $msg;
-                $data['data']['page_name'] = "messages";
-                $data['data']['provider']['ref'] = $requestData['user_id'];
-                $data['data']['provider']['screen_name'] = $users->listOnValue( $requestData['user_id'], "screen_name" );
-                $data['data']['postId'] = $requestData['ref'];
+                $data['data']['page_name'] = "handle_request";
+                $data['data']['request'] = $requestDataField;
                 $notifications->sendPush($data);
 
                  //send email after
-
-                $msg .= ". <a href='".URL."newRequestDetails?id=".$requestData['post_id']."'>Click here</a> to continue review this request";
-
+                 $msg .= ". <a href='".URL."?page_name=handle_request&ID=".$requestData['post_id']."&request=".json_encode($requestDataField)."'>Click here</a> to continue review this request";
                 $data = $users->listOne($requestData['user_id'], "ref");
                 
                 $client = $data['last_name']." ".$data['other_names'];

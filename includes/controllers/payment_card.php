@@ -287,7 +287,6 @@
 
 		function verifyPayment($array, $mobile=false) {
             $data = $this->listOne($array['card_id']);
-            echo "<pre>";
 
             if (isset($array['otp_code'])) {
                 $postdata 	= array(

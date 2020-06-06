@@ -2,8 +2,8 @@
 	include_once("../../functions.php");
 	$last_name = $common->get_prep($_REQUEST['last_name']);		
 	$email = $common->get_prep($_REQUEST['email']);
-	$tag = (html_entity_decode($common->get_prep($_REQUEST['tag'])));
-  $other_names = $common->get_prep($_REQUEST['other_names']);
+	$tag = (html_entity_decode(($_REQUEST['tag'])));
+	$other_names = $common->get_prep($_REQUEST['other_names']);
     
 	$getname = explode(" ", $other_names);
 	$token = base64_encode($other_names."+".$email)

@@ -1,7 +1,11 @@
 <?php
     $nofollow = true;
     include_once("../includes/functions.php");
-    $uth = explode(" ", apache_request_headers()['Authorization']);
+    if (apache_request_headers()['Authorization']) {
+        $uth = explode(" ", apache_request_headers()['Authorization']);
+    } else {
+        $uth = explode(" ", apache_request_headers()['authorization']);
+    }
 
     $data = file_get_contents('php://input');
     $header['key'] = $_SERVER['HTTP_KEY'];
@@ -10,6 +14,7 @@
     $header['latitude'] = $_SERVER['HTTP_LATITUDE'];
     $header['method'] = $_SERVER['REQUEST_METHOD'];
     $header['auth'] = trim($uth[1]);
+    $header['authorization'] = apache_request_headers()['authorization'];
     header("Access-Control-Allow-Headers: Authorization, Content-Type, longitude, latitude, ver, key, HTTP_KEY, HTTP_VER, HTTP_LONGITUDE, HTTP_LATITUDE");
     header('content-type: application/json; charset=utf-8');
     echo $api->prep($header, $_REQUEST['request'], $data);

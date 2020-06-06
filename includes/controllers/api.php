@@ -2,20 +2,9 @@
     class api extends database {
         protected $user_id;
         protected $user_type;
-		function dumpData($data, $output) {
-            // error_log(json_encode($data));
-            // error_log(json_encode($output));
-			/*global $db;
-			try {
-				$sql = $db->prepare("INSERT INTO `dump` (`url`, `data`, `output`) VALUES (:url, :data, :output)");
-				$sql->execute(
-					array(	':url' => $_SERVER['REQUEST_URI'],
-							':data' => $data,
-							':output' => $output)
-						);
-			} catch(PDOException $ex) {
-				echo "An Error occured! ".$ex->getMessage(); 
-			}*/
+
+        function dumpData($header, $requestLink, $data) {
+            //$this->insert("dump", array('url' => $_SERVER['REQUEST_URI'],'data' => $data,'header' => json_encode($header), "requestLink"=>$requestLink));
         }
         
         public function prep($header, $postPequest, $data) {
@@ -34,6 +23,8 @@
             global $options;
             global $currentLocation;
 
+            $this->dumpData($header, $postPequest, $data);
+            
             $requestData = explode("/", $postPequest);
             $mode = @strtolower($requestData[0]);
 			$action = @strtolower($requestData[1]);
@@ -53,8 +44,6 @@
             $location['state_code'] = $loc['province_code'];
             $location['country'] = $loc['country'];
             $location['address'] = $loc['address'];
-
-			$this->dumpData($header, json_encode($requestData));
 
             $returnedData = json_decode($data, true);
             if ($this->methodCheck($header['method'], $mode.":".$action)) {
