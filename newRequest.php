@@ -11,7 +11,7 @@
     }
 
     if (isset($_POST['sendMessageButton'])) {
-        $_POST['address'] = $_POST['city']." ".$_POST['state']." ".$_POST['postal_code']." ".$_POST['country'];
+        $_POST['address'] = $_POST['autocomplete'];
         unset($_POST['city']);
         unset($_POST['postal_code']);
         unset($_POST['autocomplete']);

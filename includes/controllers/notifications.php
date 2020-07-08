@@ -128,6 +128,7 @@
                     $token[] = $userData[$i]['token'];
                 }
             }
+            $post_data = json_encode($input);
             
             if (count($input) > 0) {
                 $url = "https://exp.host/--/api/v2/push/send";
@@ -226,10 +227,12 @@
         }
 
         private function clean($data) {
+            global $request;
+            global $category;
             unset($data['count']);
             unset($data['user_id']);
             unset($data['email']);
-            unset($data['timestamp']); 
+            unset($data['timestamp']);
             
             if ($data['event'] == 0) {
                 $data['status'] = "New";
@@ -243,6 +246,17 @@
             } else if ($data['status'] == 1) {
                 $data['status'] = "Read";
             }
+
+            if ($data['event'] == "handle_request") {
+                $requestData = $request->listOne($data['event_id']);
+                $requestDataField['ref'] = $requestData['ref'];
+                $requestDataField['charge'] = $requestData['fee'];
+                $requestDataField['duration'] = "";
+                $requestDataField['categoryName'] = $category->getSingle( $requestData['category_id'] );
+                $requestDataField['location'] = trim($requestData['address'], ",");
+                $data['request'] = $requestDataField;
+            }
+
             return $data;
         }
 

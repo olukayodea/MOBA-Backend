@@ -27,7 +27,6 @@ class request extends database {
         unset($array['country']);
         unset($array['country_code']);
 
-
         $create = $this->insert("request", $array);
         if ($create) {
             if ($web === true) {
@@ -125,8 +124,8 @@ class request extends database {
                 $mail['subject'] = $subjectToClient;
                 $mail['body'] = $messageToClient;
                 
-                // global $alerts;
-                // $alerts->sendEmail($mail);
+                global $alerts;
+                $alerts->sendEmail($mail);
             }
         }
     }
@@ -135,11 +134,22 @@ class request extends database {
         global $media;
         $this->delete("request", $id);
         $this->delete("transactions", $tx_id);
+
         $media->remove($id);
     }
 
     function remove($id) {
+        global $media;
+        global $transactions;
+
+        $tx = $transactions->getSortedListTrans($id, "tx_type_id", "tx_type", "Request", false, false, "ref", "DESC", "AND", false, false, "getRow");
+
+        $this->delete("transactions", $tx['ref']);
+        $this->delete("wallet", $tx['ref'], "tx_id");
+
         $this->updateOne("request", "status", "DELETED", $id, "ref");
+        $media->remove($id);
+
         return true;
     }
 
@@ -169,28 +179,28 @@ class request extends database {
     }
 
     public function taskCompleted($id, $type="client_id") {
-        return $this->getSortedList($id, $type, "status", "COMPLETED", false, false, "ref", "ASC", "AND", false, false, "count");
+        return $this->getSortedList($id, $type, "status", "COMPLETED", false, false, "modify_time", "DESC", "AND", false, false, "count");
     }
 
     public function listAllData($ref, $view, $start, $limit, $location) {
         if ($view == "open") {
-            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'OPEN' AND `user_id` = ".$ref);
-            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'OPEN' AND `user_id` = ".$ref, "count"));
+            $return['list'] = $this->getList($start, $limit, "modify_time", "DESC", "`status` = 'OPEN' AND `user_id` = ".$ref);
+            $return['listCount'] = intval($this->getList(false, false, "modify_time", "DESC", "`status` = 'OPEN' AND `user_id` = ".$ref, "count"));
             $return['tag'] = "All Open Request";
         } else if ($view == "running") {
-            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'ACTIVE' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
-            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'ACTIVE' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
+            $return['list'] = $this->getList($start, $limit, "modify_time", "DESC", "`status` = 'ACTIVE' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
+            $return['listCount'] = intval($this->getList(false, false, "modify_time", "DESC", "`status` = 'ACTIVE' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
             $return['tag'] = "All Active Request";
         } else if ($view == "current") {
-            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )");
-            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )", "count"));
+            $return['list'] = $this->getList($start, $limit, "modify_time", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )");
+            $return['listCount'] = intval($this->getList(false, false, "modify_time", "DESC", "`status` = 'OPEN' AND `user_id` != ".$ref." AND `ref` IN (SELECT `post_id` FROM `messages` WHERE `user_id` = ".$ref." OR `user_r_id` = ".$ref." )", "count"));
             $return['tag'] = "Current Interests.";
         } else if ($view == "available") {
             $return = $this->getActiveRequest($ref, $location['longitude'], $location['latitude'], $location['country'], $start, $limit);
             $return['tag'] = "All Currently Available Jobs";
         } else if ($view == "past") {
-            $return['list'] = $this->getList($start, $limit, "ref", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
-            $return['listCount'] = intval($this->getList(false, false, "ref", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
+            $return['list'] = $this->getList($start, $limit, "modify_time", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")");
+            $return['listCount'] = intval($this->getList(false, false, "modify_time", "DESC", "`status` = 'COMPLETED' AND (`user_id` = ".$ref." OR `client_id` = ".$ref.")", "count"));
             $return['tag'] = "All Completed Request";
         } else {
             $return['list'] = $this->getList($start, $limit, "ref", "DESC", " (`user_id` = ".$ref." OR `client_id` = ".$ref.") AND `status` != 'DELETED'");
@@ -224,7 +234,7 @@ class request extends database {
     }
 
     public function getActiveRequest($ref, $longitude, $latitude, $country, $start, $limit) {        
-        $sql = "SELECT `ref`, `user_id`, `client_id`, `category_id`, `fee`, `address`, `card`, `region`, `tx_id`, `latitude`, `longitude`, `data`, `status`, `start_date`, `end_date`, `review_status`, `client_rate`, `review_status_time`, `user_rate`, `create_time`, `modify_time`, SQRT(((`latitude` - ".$latitude.")*(`latitude` - ".$latitude.")) + ((`longitude` - ".$longitude.")*(`longitude` - ".$longitude."))) AS `total` FROM `request` WHERE `status` = 'OPEN' AND (`user_id` != ".$ref." OR `client_id` != ".$ref.") AND `category_id` IN (SELECT `category_id` FROM `usersCategory` WHERE `user_id` = ".$ref.") AND (`address` LIKE '%".$country."%' OR `address` = '') ORDER BY `total` ASC";
+        $sql = "SELECT `request`.`ref`,`request`.`user_id`,`request`.`client_id`,`request`.`category_id`,`request`.`fee`,`request`.`address`,`request`.`region`,`request`.`card`,`request`.`tx_id`,`request`.`latitude`,`request`.`longitude`,`request`.`data`,`request`.`status`,`request`.`start_date`,`request`.`end_date`,`request`.`review_status`,`request`.`client_rate`,`request`.`review_status_time`,`request`.`user_rate`,`notifications`.`create_time`,`notifications`.`modify_time`, SQRT(((`request`.`latitude` - ".$latitude.")*(`request`.`latitude` - ".$latitude.")) + ((`request`.`longitude` - ".$longitude.")*(`request`.`longitude` - ".$longitude."))) AS `total` FROM `request` INNER JOIN `notifications` ON request.ref = `notifications`.event_id AND request.`status` = 'OPEN' AND notifications.`event` = 'handle_request' AND `notifications`.`user_id` = ".$ref." ORDER BY `total` ASC";
 
         $return['list'] = $this->query($sql." LIMIT ".$start.",".$limit, false, "list");
         $return['listCount'] = $this->query($sql, false, "count");
@@ -266,6 +276,7 @@ class request extends database {
         $fee = $data['fee'];
         $remainder = ($fee+$tax)-$wallet_balance;
         $complete = false;
+
         if ($wallet_balance < $fee) {
             $check = $wallet->getDefault($data['user_id']);
             if ($check) {
@@ -308,7 +319,7 @@ class request extends database {
                     }
                 }
             } else {
-                return array("status" => "FAILED", "tx_id" => $tx_id, "type" => "card");
+                return array("status" => "FAILED", "tx_id" => 0, "type" => "card");
             }
         } else {
             //post transaction to wallet and credit the 
@@ -335,7 +346,7 @@ class request extends database {
             $tx_wallet['tx_desc'] = "Work Payment";
             $tx_wallet['tx_dir'] = "DR";
             $tx_wallet['region'] = $data['region'];
-            $tx_wallet['amount'] = 0-($remainder-$tax);
+            $tx_wallet['amount'] = 0-($fee+$tax);
             $tx_wallet['status'] = 0;
             $wallet->createWallet($tx_wallet);
 
@@ -353,6 +364,16 @@ class request extends database {
             $tx_pay['gateway_status'] = "Approved";
             $tx_pay['status'] = 2;
             $transactions->createTx($tx_pay);
+
+            $tx_wallet['user_id'] = $data['user_id'];
+            $tx_wallet['tx_id'] = $tx_id;
+            $tx_wallet['ref_id'] = 0;
+            $tx_wallet['tx_desc'] = "Work Payment Service Charge";
+            $tx_wallet['tx_dir'] = "DR";
+            $tx_wallet['region'] = $data['region'];
+            $tx_wallet['amount'] = 0-($serviceCharge);
+            $tx_wallet['status'] = 1;
+            $wallet->createWallet($tx_wallet);
 
             $user_data = $users->listOne($data['user_id']);
             $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -506,7 +527,6 @@ class request extends database {
                     $messages->add($msgArray);
 
                     $tag = "This task has been approve and the payment is now available in your wallet. <a href='".URL."ads\past'>Sign in</a> to your MOBA Account to learn more";
-
 
                     $user_data = $users->listOne($data['client_id']);
                     $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -750,7 +770,14 @@ class request extends database {
         $trans = $wallet->getSortedListWallet($data['tx_id'], "tx_id", "tx_desc", "Work Payment", false, false, "ref", "DESC", "AND", false, false, "getRow");
 
         $complete = false;
-        if ($fee != abs($trans['amount'])) {
+
+        // get tax
+        $regionData = $country->getLoc($data['region'], "ref");
+        $tax = $fee*($regionData['tax']/100);
+
+        $totalFee = $fee+$tax;
+
+        if ($totalFee != abs($trans['amount'])) {
             $remainder = $fee - abs($trans['amount']);
 
             if ($remainder > 0) {
@@ -799,6 +826,7 @@ class request extends database {
 
                     $wallet->updateOneRow("amount", $newAmt, $trans['ref']);
                     $wallet->updateOneRow("ref_id", $data['ref'], $trans['ref']);
+                    $wallet->updateOneRow("ref_id", $data['ref'], $trans['ref']);
                 }
 
             } else if ($remainder < 0) {
@@ -826,13 +854,14 @@ class request extends database {
                 $tx_wallet['tx_dir'] = "CR";
                 $tx_wallet['region'] = $data['region'];
                 $tx_wallet['amount'] = abs( $remainder );
-                $tx_wallet['status'] = 2;
+                $tx_wallet['status'] = 1;
                 $wallet->createWallet($tx_wallet);
 
                 $complete = true;
             }
         } else {
             $wallet->updateOneRow("ref_id", $data['ref'], $trans['ref']);
+            $complete = true;
         }
 
         if ($complete === true) {
@@ -1021,7 +1050,7 @@ class request extends database {
         if ($data) {
             if ($type == "list") {
                 for ($i = 0; $i < count($data); $i++) {
-                    $data[$i] = $this->clear($data[$i], false, false, $location);
+                    $data[$i] = $this->clear($data[$i], false, $view, $location);
                 }
             } else {
                 if ((($data['user_id'] == $user) || ($data['client_id'] == $user)) || ($data['status'] == "ACTIVE")) {
@@ -1046,6 +1075,10 @@ class request extends database {
         global $post;
         //get individual property
         $show = false;
+
+        $data['review_status'] = intval($data['review_status']);
+        $data['client_rate'] = intval($data['client_rate']);
+        $data['user_rate'] = intval($data['user_rate']);
 
         if ($owner == $data['user_id']) {
             if ($owner != false) {
@@ -1094,7 +1127,7 @@ class request extends database {
         $f_data['currency'] = $regionData['currency'];
         $f_data['currency_symbol'] = $regionData['currency_symbol'];
 
-        if ($data['status'] == "OPEN") {
+        if (($view === false) && ($data['status'] == "OPEN")) {
             $addressData['latitude'] = $data['latitude'];
             $addressData['longitude'] = $data['longitude'];
             $addressData['state_code'] = $location['state_code'];
@@ -1163,16 +1196,21 @@ class request extends database {
             $data['counts']['rows_on_current_page'] = count($result);
             $data['counts']['max_rows_per_page'] = 20;
             $data['counts']['total_rows'] = count($result);
-            $data['data'] = $result;
+            $data['data'] = $request_accept->formatResult($result);
         } else if (($type == "all") || ($type == "open") || ($type == "running") || ($type == "past") || ($type == "running") || ($type == "past") || ($type == "current") || ($type == "available")) {
             $result = $this->listAllData($user, $type, $start, $limit, $location);
+
+            $view = false;
+            if ($type == "available") {
+                $view = "available";
+            }
 
             $data['counts']['current_page'] = ($result['listCount'] > 0 ? $page : 0);
             $data['counts']['total_page'] = ceil($result['listCount']/$limit);
             $data['counts']['rows_on_current_page'] = count($result['list']);
             $data['counts']['max_rows_per_page'] = $limit;
             $data['counts']['total_rows'] = $result['listCount'];
-            $data['data'] = $this->formatResult( $result['list'], false, "list", false, $location );
+            $data['data'] = $this->formatResult( $result['list'], false, "list", $view, $location );
         } else {
             $data = $this->formatResult( $this->listOne($type), $user, "single", $ref, $location );
 
@@ -1236,6 +1274,8 @@ class request extends database {
         //check if card is valid
 
         $array['region'] = $location['ref'];
+
+        $array['data'] = serialize($array['data']);
         if (isset($array['address']) && ($array['address'] != "")) {
             $addressData = $this->googleGeoLocation(false, false, $array['address']);
             $array['latitude'] = $addressData['latitude'];

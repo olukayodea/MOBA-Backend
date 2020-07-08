@@ -139,8 +139,6 @@
         $view = "users";
         $tag = "Make Admin";
       } ?>
-      http://127.0.0.1/MOBA-Backend/admin/users.view/providers
-      http://127.0.0.1/MOBA-Backend/admin/users/providers
       <a href="javascript:history.go(-1);">Back</a>
       <div class="row">
         <div class="card col-xs-12 col-sm-12 col-md-4 col-lg-4">

@@ -4,7 +4,7 @@
     // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNWYQH";
     $u = "https://moba.com.ng/";
-    $token = "182003592911583850304EF7XZKNVLJ2";
+    $token = "1713988525161583791490M6YV1CCP7M";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -180,21 +180,25 @@
 /*    
     $url = $u."api/request/get/running";
     echo get($header, $url);*/
-/*    
-    $url = $u."api/request/get/current";
-    echo get($header, $url);*/
+    
+    // $url = $u."api/request/get/available";
+    // echo get($header, $url);
+
+    // //read
+    // $url = $u."api/request/get/waiting/136";
+    // echo get($header, $url);
 /*    
     $url = $u."api/request/get/past";
     echo get($header, $url);*/
 /*
     $url = $u."api/request/get/available";
     echo get($header, $url);*/
-/*    
-    $url = $u."api/request/get/active";
-    echo get($header, $url);*/
-/*
-    $url = $u."api/request/get/waiting/85";
-    echo get($header, $url);*/
+
+    // $url = $u."api/request/get/running";
+    // echo get($header, $url);
+
+    // $url = $u."api/request/get/waiting/178";
+    // echo get($header, $url);
 
     // //respond to negotiate request
     // $array['reponse'] = "y"; //y for yes, n for no
@@ -499,12 +503,12 @@
     $url = $u."api/messages/get/15";
     $json_data = json_encode($array);
     echo get($header, $url);*/
-/*
+
     //notification
-    //sent
-    $url = $u."api/notifications/get/all";
-    $json_data = json_encode($array);
-    echo get($header, $url);*/
+    // //sent
+    // $url = $u."api/notifications/get/all";
+    // $json_data = json_encode($array);
+    // echo get($header, $url);
 /*
     //lst
     $url = $u."api/notifications/get/project";
@@ -515,11 +519,6 @@
     $url = $u."api/notifications/get/29";
     $json_data = json_encode($array);
     echo get($header, $url);*/
-
-    //read
-    $url = $u."api/request/get/waiting/136";
-    $json_data = json_encode($array);
-    echo get($header, $url);
 
     //print_r($header);
     @print_r($json_data);

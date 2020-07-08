@@ -15,6 +15,8 @@ if (isset($_POST['getPaymentVerify'])) {
             } else {
                 header("location: ".URL."webView/cards/".$_REQUEST['token']."?error=".urldecode($add['additional_message']));
             }
+        } else if ($add['status'] == "PENDING-URL") {
+            header("location: ".$add['authurl']);
         } else {
             header("location: ".URL."webView/cards/".$_REQUEST['token']."?error=".urldecode($add['message']));
         }
@@ -31,6 +33,8 @@ if (isset($_POST['getPaymentVerify'])) {
                 }
                 header("location: ".URL."webView/cards/".$_REQUEST['token']."?id=".$add['card_id']."&fields=".urldecode($add['fields'])."&warning=".urldecode($add['additional_message']));
             }
+        } else if ($add['status'] == "PENDING-URL") {
+            header("location: ".$add['authurl']);
         } else {
             header("location: ".URL."webView/cards/".$_REQUEST['token']."?error=".urldecode($add['message']));
         }

@@ -110,7 +110,7 @@ class request_accept extends database {
     }
 
     public function reject($array) {
-        $this->query("DELETE FROM `notifications` WHERE `event` = 'request' AND `event_id` = ".$array['request']." AND `user_id` = ".$array['user_r_id']);
+        $this->query("DELETE FROM `notifications` WHERE `event` = 'handle_request' AND `event_id` = ".$array['request']." AND `user_id` = ".$array['user_r_id']);
 
         return true;
     }
@@ -146,6 +146,31 @@ class request_accept extends database {
 
     function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'post_id', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return $this->sortAll("request_accept", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
+    }
+
+    public function formatResult($data, $single=false) {
+        if ($data) {
+            if ($single === false) {
+                for ($i = 0; $i < count($data); $i++) {
+                    $data[$i] = $this->clean($data[$i]);
+                }
+            } else {
+                $data = $this->clean($data);
+            }
+        }
+        return $data;
+    }
+
+    private function clean($data) {
+        global $users;
+        global $rating;
+        $data['image_url'] = $users->picURL(@$data['ref'], "75");
+        $data['categories'] = $users->getCatList(@$data['ref']);
+
+        $data['rating']['score'] = round($rating->getRate(@$data['ref']), 2);
+        $data['rating']['total'] = 5;
+        unset($data['account_type']);
+        return $data;
     }
 
     public function initialize_table() {

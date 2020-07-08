@@ -100,7 +100,7 @@
 				<?php } ?>
 			</div>			
 			
-            <?php $common->pagination($page, $count); ?>
+            <?php $common->pagination($page, $count, "page", "result_per_page", 12); ?>
 			
 		</div>
 	</section>

@@ -139,7 +139,8 @@
 
             $list = $data['list'];
             $listCount = $data['listCount'];
-            $tag = $data['tag']; ?>
+            $tag = $data['tag'];
+            ?>
 
             <h2><?php echo $tag; ?></h2>
             <table class="table table-striped">
@@ -177,7 +178,7 @@
                             <?php if ($view == "running") { ?>
                             <td><?php echo date(' j-m-Y h:i A', $list[$i]['start_date']); ?></td>
                             <?php } else { ?>
-                            <td><?php echo date(' j-m-Y h:i A', $list[$i]['time']); ?></td>
+                            <td><?php echo $list[$i]['modify_time']; ?></td>
                             <?php } ?>
                             <?php if ($view == "past") { ?>
                             <td><?php echo date(' j-m-Y h:i A', $list[$i]['end_date']); ?></td>
@@ -1218,7 +1219,7 @@
                             
                             $check = true;
                             if ($check) { ?>
-                                <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" enctype="multipart/form-data">
+                                <form name="sentMessage" method="post" id="contactForm" action="<?php echo URL; ?>newRequest" enctype="multipart/form-data" onsubmit="return confirm('Please be notified that the pre-approved call out sum will be deducted from your default payment method and moved to your MOBA wallet.?');">
                                     <input type="hidden" name="id" value="<?php echo $data['ref']; ?>">
                                     <?php for ($i = 0; $i < count($question); $i++) { ?>
                                     <div class="form-group">
@@ -1389,6 +1390,7 @@
                     </div>
                     
                     <div class="moba-line m-3"></div>
+                    <small>You saved payment method will be pre-authorized the total amount for the call out charge, if you cancel this request, the funds will be returned back to your wallet</small>
                         
                 </div>
             </div>
@@ -1770,7 +1772,7 @@
                     <p><b>Number of Hires:</b> <?php echo $request->taskCompleted($data['ref'], "user_id"); ?></p>	
                     <?php } ?>
                     <p><b>Average Response Time:</b> <?php echo $data['average_response_time']; ?></p>
-                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">jjjjjjjj Modify Display Picture</a></p>
+                    <p><a href="<?php echo URL."edit/Image"; ?>" class="btn purple-bn pd">Modify Display Picture</a></p>
                     <?php if ($data['screen_name_cam_change'] == 0) { ?>
                         <p><a href="<?php echo URL."edit/ScreenName"; ?>" class="btn purple-bn pd">Edit Username</a></p>
                     <?php } ?>

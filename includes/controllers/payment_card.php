@@ -34,7 +34,7 @@
                         $_SESSION['c_r_m_0_b_a'] = $create;
                         if ($data['status'] == "PENDING-URL") {
                             $fields = "url_excape";
-                            header("location: ".$add_card['authurl']); 
+                            //header("location: ".$add_card['authurl']); 
                         } else if ($data['status'] == "PENDING-BILLING") {
                             $fields = "billingzip, billingcity, billingaddress, billingstate, billingcountry";
                         } else if ($data['status'] == "PENDING-PIN") {
@@ -160,7 +160,7 @@
                 $data['expiryyear'] = $array['yy'];
                 $data['currency'] = 'NGN';
                 $data['country'] = 'NG';
-                $data['amount'] = '300';
+                $data['amount'] = '10';
                 $data['txRef'] = "TP".rand(1, 999).time();
                 $redirect_url = URL."paymentReturn";
                 if ($mobile == true) {
@@ -210,9 +210,11 @@
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             
             $request = curl_exec($ch);
+            echo "<pre>";
 
             if ($request) {
                 $result = json_decode($request, true);
+                print_r($result);
                 
                 if ($result['status'] == "success") {
                     $return['suuccess'] = true;
@@ -371,6 +373,7 @@
                 $response['status'] = "OK";
                 $response['message'] = strtolower( "complete" );
             } else {
+                $this->query("DELETE FROM `payment_card` WHERE `ref` = ".$card_id);
                 $response['error'] = true;
                 $response['message'] = "Validation Failed";
                 $response['additional_message'] = $data['chargemessage']." ".$data['chargemessage'];

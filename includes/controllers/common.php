@@ -602,7 +602,7 @@
 			}
 		}
 
-        function pagination($page, $count, $pageTitle="page", $type="result_per_page") {
+        function pagination($page, $count, $pageTitle="page", $type="result_per_page", $limit=0) {
 			global $options;
 			$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 			$actual_link = trim(str_replace($pageTitle."=".$page, "", $actual_link), "&");
@@ -612,7 +612,10 @@
 			} else {
 				$actual_link .= "&";
 			}
-			$limit = $options->get($type);
+			if ($limit ==  0) {
+				$limit = $options->get($type);
+			}
+			
             $lenght = ceil($count/$limit);
             if ($page <= 3) {
                 if ($lenght < 5) {

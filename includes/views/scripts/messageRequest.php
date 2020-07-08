@@ -39,5 +39,7 @@
                 <?php } ?>
             <?php } ?>
         </div>
+        <div class="moba-line m-3"></div>
+        <small>You saved payment method will be pre-authorized the total amount for the call out charge, if you cancel this request, the funds will be returned back to your wallet</small>
     <?php }
 ?>

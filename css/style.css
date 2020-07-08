@@ -1,22 +1,22 @@
 @media only screen and (max-width: 600px) {
     .card-img-top {
-        height: 52vw;
-        width: 52vw;
+        height: 42vw;
+        width: 42vw;
         object-fit: cover;
     }
 }
 @media only screen and (min-width: 600px) {
     .card-img-top {
         height: 30vw;
-        width: 3vw;
+        width: 30vw;
         object-fit: cover;
     }
 }
 
 @media only screen and (min-width: 992px) {
     .card-img-top {
-        height: 17vw;
-        width: 17vw;
+        height: 15vw;
+        width: 15vw;
         object-fit: cover;
     }
 }

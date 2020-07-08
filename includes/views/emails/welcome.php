@@ -70,7 +70,7 @@ body,td,th {
     <td>
     <p class="text">Dear <?php echo ucwords(strtolower($getname[0])); ?>, </p>
     <p class="text">MOBA</p>
-    <p class="text">Thank you for sigining up.<?php if ($status != "ACTIVE") { ?> Please <a href='<?php echo URL."activate?token=".$token; ?>'>click on this link to activate your account</a> or copy and paste the following into your browser address bar<br><br>
+    <p class="text">Thank you for signing up.<?php if ($status != "ACTIVE") { ?> Please <a href='<?php echo URL."activate?token=".$token; ?>'>click on this link to activate your account</a> or copy and paste the following into your browser address bar<br><br>
 	<code><?php echo URL."activate?token=".$token; ?></code><?php } ?></p>
     <p class="text">Please save this email for future use. Your account enables you to login to the system. Your details are now saved as below:</p>
     <p class="text"><strong>Login Details</strong><hr>
