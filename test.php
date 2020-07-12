@@ -1,10 +1,10 @@
 <?php
     echo "<pre>";
-    // $product_key = rand();
+    $product_key = rand();
     // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNWYQH";
     $u = "https://moba.com.ng/";
-    $token = "1713988525161583791490M6YV1CCP7M";
+    $token = "182003592911583850304EF7XZKNVLJ2";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -119,7 +119,7 @@
     $url = $u."api/posts/aroundMe/1";
     echo get($header, $url);*/
  
-    // // Request
+    // Request
     // // request::create
     // $array['fee']  = "250.00";
     // $array['address']  = "147 isuti road, Igando Lagos";
@@ -139,14 +139,14 @@
     // $json_data = json_encode($array);
     // echo post($header, $url, $json_data);
 
-/*
+
     //request::hire
-    $array['user_r_id'] = "2";
-    $array['post_id'] = "2";
+    $array['user_r_id'] = 17;
+    $array['post_id'] = 3;
 
     $url = $u."api/request/hire";
     $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    echo post($header, $url, $json_data);
 /*
     //negotiate fees
     $array['negotiated_fee'] = "100";

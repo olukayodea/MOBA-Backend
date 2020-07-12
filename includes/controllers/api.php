@@ -4,7 +4,7 @@
         protected $user_type;
 
         function dumpData($header, $requestLink, $data) {
-            $this->insert("dump", array('url' => $_SERVER['REQUEST_URI'],'data' => $data,'header' => json_encode($header), "requestLink"=>$requestLink));
+            // $this->insert("dump", array('url' => $_SERVER['REQUEST_URI'],'data' => $data,'header' => json_encode($header), "requestLink"=>$requestLink));
         }
         
         public function prep($header, $postPequest, $data) {

@@ -445,11 +445,11 @@ $(document).ready(function() {
         placeholder: "Select a skill(s) or Area(s) of expertise",
         allowClear: true
       });
-      $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').attr("required")      
+      $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').attr("required");
     } else {
       $('#show_mobile_number,#show_street,#show_city,#show_state,#show_country,#show_photo_file,#show_category_select,#show_id_type,#show_id_expiry_mm,#show_id_number,#show_id_file,#show_kin_name,#show_kin_email,#show_kin_phone,#show_kin_relationship').hide();
 
-      $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').removeAttr("required")
+      $('#id_expiry_yy,#autocomplete,#mobile_number,#street,#city,#state,#country,#photo_file,#category_select,#id_type,#id_expiry_mm,#id_number,#id_file,#kin_name,#kin_email,#kin_phone,#kin_relationship').removeAttr("required");
     }
   }
   

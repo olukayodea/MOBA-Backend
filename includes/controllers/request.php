@@ -761,6 +761,7 @@ class request extends database {
         global $notifications;
         global $users;
         global $messages;
+        global $request_accept;
 
         $data = $this->listOne($array['post_id']);
         $fee = $this->getFee($array);
@@ -864,6 +865,8 @@ class request extends database {
             $complete = true;
         }
 
+        $complete = true;
+
         if ($complete === true) {
             $this->updateOne("request", "start_date", time(), $data['ref'], "ref");
             $this->updateOne("request", "status", "ACTIVE", $data['ref'], "ref");
@@ -871,7 +874,13 @@ class request extends database {
             $this->updateOne("request", "client_id", $array['user_r_id'], $data['ref'], "ref");
 
 
-            $user_data = $users->listOne($data['user_r_id']);
+            //remove notifications
+            $notifications->removeRequest($data['ref']);
+            //remove request
+            $request_accept->remove($data['ref'], "post_id");
+
+            $user_data = $users->listOne($data['client_id']);
+
             $tag = $user_data['screen_name']." has approve your task wit them at ".$data['address']." <a href='".URL."ads/on-going'>Sign in</a> to your MOBA Account to learn more";;
 
             $client = $user_data['last_name']." ".$user_data['other_names'];
