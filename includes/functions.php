@@ -4,53 +4,30 @@
 	//error_reporting(E_ALL);
   //error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
   // ini_set('display_errors', 1);
-  // error_reporting(E_ALL);
-	$pageUR1      = $_SERVER["SERVER_NAME"];
+  error_reporting(E_ALL);
+	$pageUR1      = @$_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
 
   $local = false;
-
-  if (($curdomain == "moba.oasmack.com/") || ($curdomain == "invapp.oasmack.com")) {
-    $URL        = "https://invapp.oasmack.com/moba/";
-    $servername = "192.185.189.29";
-    $dbusername = "mobacom_dev";
-    $dbpassword = "n%).*6CBlBBu";
-    $dbname     = "mobacom_dev";
-    $replyMail  = "donotreply@moba.com.ng";
-    $ip_address = $_SERVER['REMOTE_ADDR'];
-  } else if (($curdomain == "dev.moba.com.ng/") || ($curdomain == "dev.moba.com.ng")) {
-    $URL        = "https://dev.moba.com.ng/";
-    $servername = "localhost";
-    $dbusername = "mobacom_dev";
-    $dbpassword = "n%).*6CBlBBu";
-    $dbname     = "mobacom_dev";
-    $replyMail  = "donotreply@moba.com.ng";
-    $ip_address = $_SERVER['REMOTE_ADDR'];
-  } else if (($curdomain == "moba.com.ng/") || ($curdomain == "moba.com.ng")) {
-    $URL        = "https://moba.com.ng/";
-    $servername = "192.185.189.29";
-    $dbusername = "mobacom_dev";
-    $dbpassword = "n%).*6CBlBBu";
-    $dbname     = "mobacom_dev";
-    $replyMail  = "donotreply@moba.com.ng";
-    $ip_address = $_SERVER['REMOTE_ADDR'];
-  } else if (($curdomain == "127.0.0.1") || ($curdomain == "localhost")) {
+  
+  if (($curdomain == "127.0.0.1") || ($curdomain == "localhost")) {
     $URL        = "http://127.0.0.1/MOBA-Backend/";
-    $servername = "localhost";
-    $dbusername = "root";
-    $dbpassword = "root";
-    $dbname     = "MOBA_main";
+    $servername = "192.185.189.29";
+    $dbusername = "mobacom_dev";
+    $dbpassword = "n%).*6CBlBBu";
+    $dbname     = "mobacom_dev";
     $replyMail  = "donotreply@moba.com.ng";
     $ip_address = "207.35.181.162";
     $local      = true;
   } else {
     $URL        = "https://moba.com.ng/";
-    $servername = "192.185.189.29";
+    // $servername = "192.185.189.29";
+    $servername = "database-1.cwtqsdnhueor.us-east-1.rds.amazonaws.com";
     $dbusername = "mobacom_dev";
     $dbpassword = "n%).*6CBlBBu";
     $dbname     = "mobacom_dev";
     $replyMail  = "donotreply@moba.com.ng";
-    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $ip_address = @$_SERVER['REMOTE_ADDR'];
   }
 
   //get the current server URL
@@ -91,7 +68,7 @@
 	include_once("controllers/mailer/class.phpmailer.php");
   include_once("controllers/common.php");
   $common   = new common;
-  $common->getLocation($redirect);
+  $common->getLocation(@$redirect);
   //initiate the database connection and all models
   include_once("database/main.php");
   $database = new database;

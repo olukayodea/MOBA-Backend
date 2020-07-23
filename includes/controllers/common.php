@@ -337,15 +337,15 @@
 		}
 
 		private function loccationFallBack () {
-			$response = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.ip_address));
+			$response = json_decode(file_get_contents('https://json.geoiplookup.io'), true);
 
-			$data['latitude'] = $response['geoplugin_latitude'];
-			$data['longitude'] = $response['geoplugin_longitude'];
-			$data['code'] = $response['geoplugin_countryCode'];
-			$data['city'] = $response['geoplugin_city'];
-			$data['state'] = $response['geoplugin_region'];
-			$data['state_code'] = $response['geoplugin_regionCode'];
-			$data['country'] = $response['geoplugin_countryName'];
+			$data['latitude'] = $response['latitude'];
+			$data['longitude'] = $response['longitude'];
+			$data['code'] = $response['country_code'];
+			$data['city'] = $response['city'];
+			$data['state'] = $response['region'];
+			$data['state_code'] = $response['region'];
+			$data['country'] = $response['country_name'];
 			$_SESSION['location'] = $data;
 			$cookie = serialize($data);
 			setcookie("l_d", $cookie, time()+(60*60*24), "/");
