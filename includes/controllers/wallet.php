@@ -158,6 +158,8 @@
             $money['value'] = $data['amount'];
             $data['amount'] = $money;
             
+            $data['create_time'] = strtotime($data['create_time']);
+            $data['modify_time'] = strtotime($data['modify_time']);
             return $data;
         }
 

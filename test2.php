@@ -4,7 +4,7 @@
     // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNWYQH";
     $u = "https://moba.com.ng/";
-    $token = "182003592911583850304EF7XZKNVLJ2";
+    $token = "1713988525161583791490M6YV1CCP7M";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -210,15 +210,15 @@
     // $url = $u."api/request/get/13";
     // echo get($header, $url);
 
-    // $url = $u."api/notifications/get/project";
-    // echo get($header, $url);
+    $url = $u."api/notifications/get/project";
+    echo get($header, $url);
 /*
     $url = $u."api/request/delete/1";
     echo delete($header, $url);*/
-
+/*
     //request messages
-    $url = $u."api/request/messages/9/17"; //post ID
-    echo get($header, $url);
+    $url = $u."api/request/messages/87"; //post ID
+    echo get($header, $url);*/
 /*
     //request new messages
     $url = $u."api/request/newMessages/1/2";//post ID //user ID
@@ -507,7 +507,7 @@
     $json_data = json_encode($array);
     echo get($header, $url);*/
 
-    //notification
+    // //notification
     // //sent
     // $url = $u."api/notifications/get/all";
     // $json_data = json_encode($array);

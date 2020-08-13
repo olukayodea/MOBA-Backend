@@ -575,6 +575,8 @@ class users extends database {
             $data['image_url'] = URL.$data['image_url'];
         }
         unset($data['login_type']);
+        $data['create_time'] = strtotime($data['create_time']);
+        $data['modify_time'] = strtotime($data['modify_time']);
         return $data;
     }
 

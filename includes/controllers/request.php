@@ -1,5 +1,6 @@
 <?php
 class request extends database {
+    private $user_id;
     public function create($array) {
         global $media;
         if (isset($array['web'])) {
@@ -350,30 +351,6 @@ class request extends database {
             $tx_wallet['status'] = 0;
             $wallet->createWallet($tx_wallet);
 
-            $serviceCharge = $this->getCharges($fee);
-
-            $tx_pay['user_id'] = 0;
-            $tx_pay['tx_type_id'] = $tx_id;
-            $tx_pay['tx_type'] = "service_charge";
-            $tx_pay['tx_dir'] = "CR";
-            $tx_pay['card'] = 0;
-            $tx_pay['region'] = $data['region'];
-            $tx_pay['net_total'] = $serviceCharge;
-            $tx_pay['tax_total'] = 0;
-            $tx_pay['gross_total'] = $serviceCharge;
-            $tx_pay['gateway_status'] = "Approved";
-            $tx_pay['status'] = 2;
-            $transactions->createTx($tx_pay);
-
-            $tx_wallet['user_id'] = $data['user_id'];
-            $tx_wallet['tx_id'] = $tx_id;
-            $tx_wallet['ref_id'] = 0;
-            $tx_wallet['tx_desc'] = "Work Payment Service Charge";
-            $tx_wallet['tx_dir'] = "DR";
-            $tx_wallet['region'] = $data['region'];
-            $tx_wallet['amount'] = 0-($serviceCharge);
-            $tx_wallet['status'] = 1;
-            $wallet->createWallet($tx_wallet);
 
             $user_data = $users->listOne($data['user_id']);
             $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -450,7 +427,7 @@ class request extends database {
         global $wallet;
         $data = $this->listOne($id);
 
-        //get the wallet entry fot the post
+        //get the wallet entry for the post
         $user_transaction = $wallet->getSortedListWallet($data['ref'], "ref_id", "tx_desc", "Work Payment", "status", "0", "ref", "DESC", "AND", false, false, "getRow");
 
         if ($this->updateOne("wallet", "status", 1, $user_transaction['ref'], "ref")) {
@@ -461,6 +438,33 @@ class request extends database {
             $tx_wallet['tx_dir'] = "CR";
             $tx_wallet['region'] = $data['region'];
             $tx_wallet['amount'] = abs($user_transaction['amount']);
+            $tx_wallet['status'] = 1;
+            $wallet->createWallet($tx_wallet);
+
+            $fee = $this->getFee(array("post_id"=>$data['ref'], "user"=>$data['user_id'], "user_r"=>$data['client_id']));
+
+            $serviceCharge = $this->getCharges($fee);
+
+            $tx_pay['user_id'] = 0;
+            $tx_pay['tx_type_id'] = $data['tx_id'];
+            $tx_pay['tx_type'] = "service_charge";
+            $tx_pay['tx_dir'] = "CR";
+            $tx_pay['card'] = 0;
+            $tx_pay['region'] = $data['region'];
+            $tx_pay['net_total'] = $serviceCharge;
+            $tx_pay['tax_total'] = 0;
+            $tx_pay['gross_total'] = $serviceCharge;
+            $tx_pay['gateway_status'] = "Approved";
+            $tx_pay['status'] = 2;
+            $wallet->createTx($tx_pay);
+
+            $tx_wallet['user_id'] = $data['client_id'];
+            $tx_wallet['tx_id'] = $data['tx_id'];
+            $tx_wallet['ref_id'] = 0;
+            $tx_wallet['tx_desc'] = "Work Payment Service Charge";
+            $tx_wallet['tx_dir'] = "DR";
+            $tx_wallet['region'] = $data['region'];
+            $tx_wallet['amount'] = 0-($serviceCharge);
             $tx_wallet['status'] = 1;
             $wallet->createWallet($tx_wallet);
             return true;
@@ -905,8 +909,8 @@ class request extends database {
 
             $msg = "You have been assigned a task";
             $msgArray['message']  = $msg;
-            $msgArray['user_r_id']  = $array['user_id'];
-            $msgArray['user_id']  = $array['user_r_id'];
+            $msgArray['user_id']  = $array['user_id'];
+            $msgArray['user_r_id']  = $array['user_r_id'];
             $msgArray['post_id']  = $data['ref'];
             $msgArray['m_type']  = "system";
             $messages->add($msgArray);
@@ -1181,6 +1185,9 @@ class request extends database {
         $cat['id'] = $category_id;
         $cat['name'] = $category->getSingle($category_id);
         $data['category_id'] = $cat;
+
+        $data['create_time'] = strtotime($data['create_time']);
+        $data['modify_time'] = strtotime($data['modify_time']);
         return $data;
     }
     
@@ -1415,8 +1422,9 @@ class request extends database {
                 } else {
                     if ($action == "list") {
                         $initialComment = $messages->getPage($array['post_id'], $user_r, $user_id);
+
                         for ($i = 0; $i < count($initialComment); $i++) {
-                            $user['id'] = $initialComment[$i]['user_id'];
+                            $user['id'] = intval( $initialComment[$i]['user_id'] );
                             if ($array['user_id'] == $initialComment[$i]['user_id']) {
                                 $user['current_user'] = true;
                             } else {
@@ -1443,6 +1451,7 @@ class request extends database {
 
                             unset($user);
 
+                            $initialComment[$i]['create_time'] = strtotime($initialComment[$i]['create_time']);
                             unset($initialComment[$i]['post_id']);
                             unset($initialComment[$i]['status']);
                             unset($initialComment[$i]['modify_time']);
@@ -1530,18 +1539,25 @@ class request extends database {
         global $rating;
         
         //get user ID and name
-        $user['id'] = $data['user_id'];
-        $user['name'] = $users->listOnValue($data['user_id'], "screen_name");
-        $user['rating']['score'] = round($rating->getRate($data['user_id']), 2);
-        $user['rating']['remark'] = $rating->textRate(intval($rating->getRate($data['user_id'])));
+        if ($this->user_id == $data['user_id']) {
+            $user_id = $data['user_id'];
+            $user_r_id = $data['user_r_id'];
+        } else {
+            $user_id = $data['user_r_id'];
+            $user_r_id = $data['user_id'];
+        }
+        $user['id'] = intval( $user_id );
+        $user['name'] = $users->listOnValue($user_id, "screen_name");
+        $user['rating']['score'] = round($rating->getRate($user_id), 2);
+        $user['rating']['remark'] = $rating->textRate(intval($rating->getRate($user_id)));
         $user['rating']['total'] = 5;
         $data['user_id'] = $user;
 
         //get user ID and name
-        $user['id'] = $data['user_r_id'];
-        $user['name'] = $users->listOnValue($data['user_r_id'], "screen_name");
-        $user['rating']['score'] = round($rating->getRate($data['user_r_id']), 2);
-        $user['rating']['remark'] = $rating->textRate(intval($rating->getRate($data['user_r_id'])));
+        $user['id'] = $user_r_id;
+        $user['name'] = $users->listOnValue($user_r_id, "screen_name");
+        $user['rating']['score'] = round($rating->getRate($user_r_id), 2);
+        $user['rating']['remark'] = $rating->textRate(intval($rating->getRate($user_r_id)));
         $user['rating']['total'] = 5;
         $data['user_r_id'] = $user;
 
@@ -1557,6 +1573,7 @@ class request extends database {
         $current = intval($page)-1;
         $limit = $options->get("result_per_page_mobile");
         $start = $current*$limit;
+        $this->user_id = $user;
         $result = $this->listProjectMessage($user, $start, $limit);
             
         $return['status'] = "200";

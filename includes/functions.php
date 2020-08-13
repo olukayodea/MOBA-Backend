@@ -4,7 +4,7 @@
 	//error_reporting(E_ALL);
   //error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
   // ini_set('display_errors', 1);
-  error_reporting(E_ALL);
+  // error_reporting(E_ALL);
 	$pageUR1      = @$_SERVER["SERVER_NAME"];
   $curdomain    = str_replace("www.", "", $pageUR1);
 
@@ -12,10 +12,10 @@
   
   if (($curdomain == "127.0.0.1") || ($curdomain == "localhost")) {
     $URL        = "http://127.0.0.1/MOBA-Backend/";
-    $servername = "192.185.189.29";
-    $dbusername = "mobacom_dev";
-    $dbpassword = "n%).*6CBlBBu";
-    $dbname     = "mobacom_dev";
+    $servername = "localhost";
+    $dbusername = "root";
+    $dbpassword = "root";
+    $dbname     = "moba_main";
     $replyMail  = "donotreply@moba.com.ng";
     $ip_address = "207.35.181.162";
     $local      = true;

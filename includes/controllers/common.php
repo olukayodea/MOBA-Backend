@@ -2,12 +2,13 @@
     class common {
 		function curl_file_get_contents($url) {
 			if(strstr($url, "https") == 0) {
-				return self::curl_file_get_contents_https($url);
+				return $this->curl_file_get_contents_https($url);
 			}
 			else {
 				$ch = curl_init();
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 				$data = curl_exec($ch);
 				curl_close($ch);
 				return $data;
@@ -20,6 +21,7 @@
 			curl_setopt($res,CURLOPT_RETURNTRANSFER,true);
 			curl_setopt($res, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($res, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($res, CURLOPT_TIMEOUT, 30);
 			$out = curl_exec($res);
 			curl_close($res);
 			return $out;
@@ -339,13 +341,13 @@
 		private function loccationFallBack () {
 			$response = json_decode(file_get_contents('https://json.geoiplookup.io'), true);
 
-			$data['latitude'] = $response['latitude'];
-			$data['longitude'] = $response['longitude'];
-			$data['code'] = $response['country_code'];
-			$data['city'] = $response['city'];
-			$data['state'] = $response['region'];
-			$data['state_code'] = $response['region'];
-			$data['country'] = $response['country_name'];
+			$data['latitude'] = "6.465422";
+			$data['longitude'] = "3.406448";
+			$data['code'] = "NG";
+			$data['city'] = 'Lagos';
+			$data['state'] = 'Lagos';
+			$data['state_code'] = 'LA';
+			$data['country'] = 'Nigeria';
 			$_SESSION['location'] = $data;
 			$cookie = serialize($data);
 			setcookie("l_d", $cookie, time()+(60*60*24), "/");
@@ -358,7 +360,7 @@
 			$text = $text."...";
 			return $text;
 		}
-
+		
 		function googleGeoLocation($long, $lat, $address=false) {
 			if ($address === false) {
 				$url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$lat.",".$long."&sensor=false&key=".GoogleAPI;

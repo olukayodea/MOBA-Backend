@@ -170,6 +170,8 @@ class request_accept extends database {
         $data['rating']['score'] = round($rating->getRate(@$data['ref']), 2);
         $data['rating']['total'] = 5;
         unset($data['account_type']);
+        $data['create_time'] = strtotime($data['create_time']);
+        $data['modify_time'] = strtotime($data['modify_time']);
         return $data;
     }
 

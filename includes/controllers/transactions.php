@@ -133,6 +133,8 @@
             $data['gateway_data'] = unserialize($data['gateway_data']);
             
             unset($data['region']['ref']);
+            $data['create_time'] = strtotime($data['create_time']);
+            $data['modify_time'] = strtotime($data['modify_time']);
             return $data;
         }
 

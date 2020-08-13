@@ -247,7 +247,6 @@
                 $data['status'] = "Read";
             }
 
-            if ($data['event'] == "handle_request") {
                 $requestData = $request->listOne($data['event_id']);
                 $requestDataField['ref'] = $requestData['ref'];
                 $requestDataField['charge'] = $requestData['fee'];
@@ -255,8 +254,9 @@
                 $requestDataField['categoryName'] = $category->getSingle( $requestData['category_id'] );
                 $requestDataField['location'] = trim($requestData['address'], ",");
                 $data['request'] = $requestDataField;
-            }
 
+            $data['create_time'] = strtotime($data['create_time']);
+            $data['modify_time'] = strtotime($data['modify_time']);
             return $data;
         }
 
