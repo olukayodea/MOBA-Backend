@@ -666,6 +666,7 @@ class request extends database {
         global $rating;
         global $rating_question;
         global $rating_comment;
+        $array['post_id'] = $array['project_id'];
         $data = $this->listOne($array['post_id']);
 
         if ($data) {

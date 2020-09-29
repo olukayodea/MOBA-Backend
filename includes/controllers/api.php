@@ -226,10 +226,10 @@
                         //$returnedData['user_id'] = 2;
                         if ($string == "parameters") {
                             $act = "list";
-                            $returnedData['post_id'] = intval($page);
+                            $returnedData['post_id'] = $returnedData['project_id'] = intval($page);
                         } else if (intval($string) > 0) {
                             $act = "get";
-                            $returnedData['post_id'] = intval($string);
+                            $returnedData['post_id'] = $returnedData['project_id'] = intval($string);
                         } else {
                             $act = "post";
                         }

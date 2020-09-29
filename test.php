@@ -216,9 +216,9 @@
     $url = $u."api/request/delete/1";
     echo delete($header, $url);*/
 
-    //request messages
-    $url = $u."api/request/messages/9/17"; //post ID
-    echo get($header, $url);
+    // //request messages
+    // $url = $u."api/request/messages/9/17"; //post ID
+    // echo get($header, $url);
 /*
     //request new messages
     $url = $u."api/request/newMessages/1/2";//post ID //user ID
@@ -452,29 +452,29 @@
     //request ad as complete
     $url = $u."api/request/alert/25";
     echo get($header, $url);*/
-/*
+
     //review criteria
-    $url = $u."api/request/review/parameters/28";
-    echo get($header, $url);*/
-/*
-    //get review
-    $url = $u."api/request/review/28";
-    echo get($header, $url);*/
-/*
-    //post review
-    $array['project_id'] = 28;
-    $array['comment'] = "No Comment Via API";
-    $array['rating'][0]['question_id'] = 4;
-    $array['rating'][0]['score'] = 3;
-    $array['rating'][1]['question_id'] = 5;
-    $array['rating'][1]['score'] = 3;
-    $array['rating'][2]['question_id'] = 6;
-    $array['rating'][2]['score'] = 3;
-    $array['rating'][3]['question_id'] = 7;
-    $array['rating'][3]['score'] = 3;
-    $url = $u."api/advert/review";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    $url = $u."api/request/review/parameters/16";
+    echo get($header, $url);
+
+    // //get review
+    // $url = $u."api/request/review/15";
+    // echo get($header, $url);
+
+    // //post review
+    // $array['project_id'] = 15;
+    // $array['comment'] = "No Comment Via API";
+    // $array['rating'][0]['question_id'] = 2;
+    // $array['rating'][0]['score'] = 3;
+    // $array['rating'][1]['question_id'] = 3;
+    // $array['rating'][1]['score'] = 3;
+    // $array['rating'][2]['question_id'] = 4;
+    // $array['rating'][2]['score'] = 3;
+    // $array['rating'][3]['question_id'] = 6;
+    // $array['rating'][3]['score'] = 3;
+    // $url = $u."api/request/review";
+    // $json_data = json_encode($array);
+    // echo post($header, $url, $json_data);
 /*
     //messages
     //send

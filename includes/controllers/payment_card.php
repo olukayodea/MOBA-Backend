@@ -214,7 +214,6 @@
 
             if ($request) {
                 $result = json_decode($request, true);
-                print_r($result);
                 
                 if ($result['status'] == "success") {
                     $return['suuccess'] = true;
