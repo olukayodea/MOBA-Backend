@@ -1344,7 +1344,6 @@
             $addressData['country'] = $loc['country'];
 
             $result = $request_accept->getResponse($data['ref']);
-            //echo "<pre>";
             ?>
             <div class="container my-5">
             <div class="row py-5">	
@@ -1450,7 +1449,7 @@
             if (isset ($_REQUEST['respond'])) {
                 $requestData = $request_negotiate->listOne($_REQUEST['respond']);
             }
-            // echo "<pre>";
+            
             ?>
             <div class="container my-5">
             <div class="row py-5">	

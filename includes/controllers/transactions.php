@@ -104,7 +104,7 @@
             unset($data['card']['status']);
             unset($data['card']['create_time']);
             unset($data['card']['modify_time']);
-            $data['card']['pan'] = "**** **** **** ".$data['card']['pan'];
+            $data['card']['pan'] = "".$data['card']['pan'];
 
             //get account details
             $data['account'] = $bank_account->listOne($data['account']);

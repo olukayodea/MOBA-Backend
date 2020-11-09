@@ -1,59 +1,19 @@
 <?php
     class payment_card extends database {
-        /*  create users
-        */
-        public function create($array,$mobile=false) {
-            $add_card = $this->gateway_create_profile($array, false, $mobile);
-            if ($add_card['suuccess'] === true) {
-                $get_count = count($this->getSortedList($array['user_id'], 'user_id'));
-                $data['user_id'] = $array['user_id'];
-                $data['pan'] = substr( $array['cardno'], -4);
-                $data['expiry_year'] = $array['yy'];
-                $data['expiry_month'] = $array['mm'];
-                $data['card_name'] = $array['cc_first_name']." ".$array['cc_last_name'];
-                $data['gateway_token'] = $add_card['response'];
-                if (isset($add_card['data'])) {
-                    $data['temp_data'] = $add_card['data'];
-                } else {
-                    $data['status'] = "PENDING";
-                }
-                $data['status'] = $add_card['status'];
-                if ($get_count == 0) {
-                    $data['is_default'] = 1;
-                } else {
-                    $data['is_default'] = 0;
-                }
-                $create = $this->insert("payment_card", $data);
-                if ($create) {
-                    if ($add_card['message'] == "complete") {
-                        //send email
-                        $this->sendMail($create);
+        public function create($array) {
+            $get_count = count($this->getSortedList($array['user_id'], 'user_id'));
 
-                        $return = array('status' => 'OK', 'message' => 'complete');
-                    } else {
-                        $_SESSION['c_r_m_0_b_a'] = $create;
-                        if ($data['status'] == "PENDING-URL") {
-                            $fields = "url_excape";
-                            //header("location: ".$add_card['authurl']); 
-                        } else if ($data['status'] == "PENDING-BILLING") {
-                            $fields = "billingzip, billingcity, billingaddress, billingstate, billingcountry";
-                        } else if ($data['status'] == "PENDING-PIN") {
-                            $fields = "pin";
-                        } else {
-                            $fields = "otp_code";
-                        }
-                        $return = array('status' => 'OK', 'message' => strtolower( $add_card['message']), 'additional_message' => $add_card['additional_message'], 'fields' => $fields );
-                    }
-                    $return['card_id'] = $create;
-                } else {
-                    //$this->bambora_remove_profile($token);
-                    //$return = array('status' => 'Error', 'message' => 'An error occured');
-                }
+            if ($get_count == 0) {
+                $array['is_default'] = 1;
             } else {
-                $return = array('status' => 'Error', 'message' => strtolower( $add_card['message'] )." ".$add_card['details'][0]['message']);
+                $array['is_default'] = 0;
             }
 
-            return $return;
+            $create = $this->insert("payment_card", $array);
+            if ( $create ) {
+                $this->sendMail($create);
+                return $create;
+            }
         }
 
         function sendMail($id) {
@@ -62,7 +22,7 @@
             global $notifications;
 			$data = $this->listOne($id);
             //send email
-            $tag = "you have added card **** **** **** ".$data['pan']." expiring ".$data['expiry_month']."/".$data['expiry_year']." to your account. <a href='".URL."paymentCards'>Sign in</a> to your MOBA Account to learn more";
+            $tag = "you have added card ".$data['pan']." expiring ".$data['expiry_month']."/".$data['expiry_year']." to your account. <a href='".URL."paymentCards'>Sign in</a> to your MOBA Account to learn more";
 
             $user_data = $users->listOne($data['user_id']);
             $client = $user_data['last_name']." ".$user_data['other_names'];
@@ -118,12 +78,8 @@
             $data = $this->listOne($id);
             if (($user == false) || (($user == true) && ($user == $data['user_id']))) {
                 if ($data['is_default'] == 0) {
-                    if ($this->bambora_remove_profile($data['gateway_token'])) {
-                        $this->delete("payment_card", $id);
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    $this->delete("payment_card", $id);
+                    return true;
                 } else {
                     return false;
                 }
@@ -148,256 +104,56 @@
             return $this->sortAll("payment_card", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit, $type, $extraConditions);
         }
 
-        private function gateway_create_profile($array, $saved=false, $mobile=false) {
-            global $users;
+        function verifyTx($reference) {
 
-            $card_id = $array['card_id'];
-            if ($saved === false) {
-                $userdata = $users->listOne($array['user_id']);
-                $data['PBFPubKey'] = fl_public_key;
-                $data['cardno'] = str_replace(' ', '', $array['cardno']);
-                $data['expirymonth'] = $array['mm'];
-                $data['expiryyear'] = $array['yy'];
-                $data['currency'] = 'NGN';
-                $data['country'] = 'NG';
-                $data['amount'] = '10';
-                $data['txRef'] = "TP".rand(1, 999).time();
-                $redirect_url = URL."paymentReturn";
-                if ($mobile == true) {
-                    $redirect_url .= "/mobile";
-                }
-                $data['redirect_url'] = $redirect_url;
-
-                $data["email"] = $userdata['email'];
-                $data["firstname"] = $array['cc_first_name'];
-                $data["lastname"] = $array['cc_last_name'];
-
-            } else {
-                $data = unserialize( $this->listOne($array['card_id'])['temp_data'] );
-
-                unset($array['card_id']);
-                unset($array['user_id']);
-                unset($array['getPaymentVerify']);
-
-
-                $data = array_merge($data, $array);
-                $data['txRef'] = "TP".rand(1, 999).time();
-
-            }
-            
-            $key = $this->getKey(); 
-                
-            $dataReq = json_encode($data);
-            $post_enc = $this->encrypt3Des( $dataReq, $key );
-
-            $postdata = array(
-                'PBFPubKey' => fl_public_key,
-                'client' => $post_enc,
-                'alg' => '3DES-24');
-
-            $ch = curl_init();
-            
-            curl_setopt($ch, CURLOPT_URL, "https://api.ravepay.co/flwv3-pug/getpaidx/api/charge");
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata)); //Post Fields
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 200);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 200);
-            
-            
-            $headers = array('Content-Type: application/json');
-            
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            
-            $request = curl_exec($ch);
-            echo "<pre>";
-
-            if ($request) {
-                $result = json_decode($request, true);
-                
-                if ($result['status'] == "success") {
-                    $return['suuccess'] = true;
-                    if ($result['status'] == "success") {
-                        if ($result['message'] == "AUTH_SUGGESTION") {
-                            $return['suggested_auth'] = $result['data']['suggested_auth'];
-                            if (($result['data']['suggested_auth'] == "NOAUTH_INTERNATIONAL") || ($result['data']['suggested_auth'] == "AVS_VBVSECURECODE")) {
-                                $return['additional_message'] = "Enter the billing address for **** **** **** ".substr( $data['cardno'], -4);;
-                                $return['status'] = "PENDING-BILLING";
-                            } else if ($result['data']['suggested_auth'] == "PIN") {
-                                $return['additional_message'] = "Enter the card pin for **** **** **** ".substr( $data['cardno'], -4);;
-                                $return['status'] = "PENDING-PIN";
-                            }
-                            $return['message'] = strtolower( "incomplete" );
-                            $data['suggested_auth'] = $result['data']['suggested_auth'];
-                            $return['data'] = serialize($data);
-                        } else {
-                            if ($result['data']['chargeResponseCode'] == "02") {
-                                $token = @$result['data']['flwRef'];
-                                $return['message'] = "incomplete";
-                                
-                                $return['status'] = 'OK';
-                                if (($result['data']['authModelUsed'] == "ACCESS_OTP")) {
-                                    $status = "PENDING-URL";
-                                    $return['authurl'] = $result['data']['authurl'];
-                                } else if (($result['data']['authModelUsed'] == "VBVSECURECODE")) {
-                                    $status = "PENDING-URL";
-                                    $return['authurl'] = $result['data']['authurl'];
-                                } else {
-                                    $status = "PENDING-OTP";
-                                    $fields = "otp_code";
-                                    $return['fields'] = $fields;
-                                    $return['additional_message'] = $result['data']['chargeResponseMessage'];
-                                }
-                                $return['status'] = $status;
-                                $return['token'] = $token;
-                                $this->updateOne("payment_card", "gateway_token", $token, $card_id, "ref");
-                                $this->updateOne("payment_card", "status", $status, $card_id, "ref");
-                            } else if ($result['data']['chargeResponseCode'] == "00") {
-                                $token = @$result['data']['tx']['chargeToken']['embed_token'];
-                                $flwRef = @$result['data']['tx']['flwRef'];
-
-                                $return['status'] = 'OK';
-                                $return['response'] = $token;
-
-                                $return['additional_message'] = "New Card Saved";
-                                $return['message'] = strtolower("complete");
-
-                                $status = "ACTIVE";
-                                $this->refund($flwRef);
-
-                                $this->updateOne("payment_card", "gateway_token", $token, $card_id, "ref");
-                                $this->updateOne("payment_card", "status", $status, $card_id, "ref");
-                                $this->updateOne("payment_card", "temp_data", NULL, $card_id, "ref");
-                            }
-                        }
-                    }
-                } else {
-                    $return['error'] = true;
-                    $return['message'] = $result['message'];
-                }
-            }else{
-                if(curl_error($ch)) {
-                    $return['error'] = true;
-                    $return['message'] = $ch;
-                }
-            }
-            
-            $return['card_id'] = $card_id;
-            return $return;
-        }
-
-		function verifyPayment($array, $mobile=false) {
-            $data = $this->listOne($array['card_id']);
-
-            if (isset($array['otp_code'])) {
-                $postdata 	= array(
-                                'PBFPubKey' => fl_public_key,
-                                'transaction_reference' => $data['gateway_token'],
-                                'otp' => $array['otp_code']
-                            );
-                $ch = curl_init();
-
-                curl_setopt($ch, CURLOPT_URL, FL_validatecharge);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata)); //Post Fields
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 200);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 200);
-
-                $headers = array('Content-Type: application/json');
-                
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-                curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-                $request = curl_exec($ch);
-                
-                curl_close($ch);
-                if ($request) {
-                    $result = json_decode($request, true);
-
-                    $response['status'] = $result['status'];
-                    if ($result['status'] == "success") {
-                        $token = @$result['data']['tx']['chargeToken']['embed_token'];
-                        $flwRef = @$result['data']['tx']['flwRef'];
-                        $status = "ACTIVE";
-                        
-                        $this->updateOne("payment_card", "gateway_token", $token, $array['card_id'], "ref");
-                        $this->updateOne("payment_card", "status", $status, $array['card_id'], "ref");
-                        $this->updateOne("payment_card", "temp_data", NULL, $array['card_id'], "ref");
-
-                        $this->sendMail($array['card_id']);
-
-                        $return['suuccess'] = true;
-                        
-                        $response['status'] = "OK";
-                        $response['message'] = strtolower( "complete" );
-                        $this->refund($flwRef);
-                    } else {
-                        $response['error'] = true;
-                        $response['message'] = "Validation Failed";
-                        $response['additional_message'] = $result['message'];
-                        
-                        $this->remove($array['card_id']);
-                    }
-                    return $response;
-                }else{
-
-                    $this->remove($array['card_id']);
-                    return false;
-                }
-            } else {
-                return $this->gateway_create_profile($array, true, $mobile);
-            }
-        }
+            $curl = curl_init();
         
-        function validate3DSecure($data) {
-            $card_id = $_SESSION['c_r_m_0_b_a'];
-            if (($data['status'] == "successful") && ($data['chargeResponseCode'] == "00")) {
-                $token = $data['chargeToken']['embed_token'];
-                $flwRef = $data['flwRef'];
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.paystack.co/transaction/verify/".$reference,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer sk_test_d70cb7f340e9127daa8c77ef856d1642e76738bb",
+                "Cache-Control: no-cache",
+            ),
+            CURLOPT_SSL_VERIFYPEER => TRUE,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_CAINFO => dirname(__FILE__)."/cacert.pem"
+            ));
 
-                $return = array('status' => 'OK', 'message' => strtolower('Complete'));
-                $return['response'] = $token;
-
-                $return['additional_message'] = "New Card Saved";
-                $return['message'] = strtolower("complete");
-
-                $status = "ACTIVE";
-                $this->refund($flwRef);
-
-                $this->updateOne("payment_card", "gateway_token", $token, $card_id, "ref");
-                $this->updateOne("payment_card", "status", $status, $card_id, "ref");
-                $this->updateOne("payment_card", "temp_data", NULL, $card_id, "ref");
-                $response['status'] = "OK";
-                $response['message'] = strtolower( "complete" );
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            
+            if ($err) {
+                echo "cURL Error #:" . $err;
             } else {
-                $this->query("DELETE FROM `payment_card` WHERE `ref` = ".$card_id);
-                $response['error'] = true;
-                $response['message'] = "Validation Failed";
-                $response['additional_message'] = $data['chargemessage']." ".$data['chargemessage'];
+                return json_decode($response, true);
             }
-
-            return $response;
         }
 
-		function refund($trans_id) {
-			$postdata 	= array(
-							'seckey' => fl_secret_key,
-							'ref' => $trans_id
-						);
+		function refund($trans_id, $amount) {
+            $url = "https://api.paystack.co/refund";
+            $postdata = [
+              'transaction' => $trans_id,
+              'amount' => $amount,
+            ];
 			$ch = curl_init();
 
-			curl_setopt($ch, CURLOPT_URL, FL_refund);
+			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata)); //Post Fields
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 200);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 200);
-
-			$headers = array('Content-Type: application/json');
-			
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                "Authorization: Bearer SECRET_KEY",
+                "Cache-Control: no-cache",
+            ));
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 			curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
@@ -407,36 +163,15 @@
 			if ($request) {
 				$result = json_decode($request, true);
 
-				if ($result['status'] == "success") {
+				if ($result['data']['status'] == "success") {
 					return true;
 				} else {
 					return false;
 				}
 			}else{
 				return false;
-			}
+            }
 		}
-
-        function getKey() {
-            $hashedkey = md5(fl_secret_key);
-            $hashedkeylast12 = substr($hashedkey, -12);
-
-            $seckeyadjusted = str_replace("FLWSECK-", "", fl_secret_key);
-            $seckeyadjustedfirst12 = substr($seckeyadjusted, 0, 12);
-
-            $encryptionkey = $seckeyadjustedfirst12.$hashedkeylast12;
-            return $encryptionkey;
-
-        }
-          
-        function encrypt3Des($data, $key) {
-            $encData = openssl_encrypt($data, 'DES-EDE3', $key, OPENSSL_RAW_DATA);
-            return base64_encode($encData);
-        }
-
-        public function bambora_remove_profile($id) {
-            return true;
-        }
         
         public function listAllUserData($user, $start, $limit) {
             $extra = " AND `status` NOT LIKE '%PENDING%'";
@@ -498,46 +233,46 @@
             $data = $this->listOne($array['card']);
             $usserData = $users->listOne($data['user_id']);
 
-			$postdata 	= array(
-                'SECKEY' => fl_secret_key,
-                'token' => $data['gateway_token'],
-                'currency' => "NGN",
-                'country' => "NG",
-                'amount' => $array['gross_total'],
+            $url = "https://api.paystack.co/transaction/charge_authorization";
+            $fields = [
+                'authorization_code' => $data['gateway_token'],
                 'email' => $usserData['email'],
-                'firstname' => $usserData['other_names'],
-                'lastname' => $usserData['last_name'],
-                'narration' => "MOBA Professional Services",
-                'txRef' => rand(111111111, 999999999)."_".$array['tx_id']
-            );
-
+                'amount' => 100*$array['gross_total']
+            ];
+            $fields_string = http_build_query($fields);
+            //open connection
             $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, FL_charge);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postdata)); //Post Fields
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 200);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 200);
-
-            $headers = array('Content-Type: application/json');
-
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            
+            //set the url, number of POST vars, POST data
+            curl_setopt($ch,CURLOPT_URL, $url);
+            curl_setopt($ch,CURLOPT_POST, true);
+            curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                "Authorization: Bearer SECRET_KEY",
+                "Cache-Control: no-cache",
+            ));
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-            $request = curl_exec($ch);
+            
+            //So that curl_exec returns the contents of the cURL; rather than echoing it
+            curl_setopt($ch,CURLOPT_RETURNTRANSFER, true); 
+            
+            //execute post
+            $result = curl_exec($ch);
+            echo $result;
 
-            curl_close($ch);
-            if ($request) {
-                $result = json_decode($request, true);
 
-                if ($result['status'] == "success") {
+
+            if ($result) {
+                $result = json_decode($result, true);
+
+                if ($result['data']['status'] == "success") {
                     $data['approved'] = 1;
                     $data['message'] = "Approved";
                 } else {
                     $data['approved'] = 0;
-                    $data['message'] = $result['data']['code'];
+                    $data['message'] = $result['message'];
                 }
             }else{
                 return false;

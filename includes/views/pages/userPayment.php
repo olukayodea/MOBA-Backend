@@ -9,8 +9,6 @@
             } else if ($redirect == "wallet") {
                 $this->bank($edit, $view, $redirect);
                 $this->listAllWallet($_SESSION['users']['ref'], $view);
-            } else {
-                $this->createNew();
             }
         }
 
@@ -333,78 +331,6 @@
             <script type="text/javascript" src="<?php echo URL; ?>js/wallet.js"></script>
         <?php }
 
-        function createNew($mobile = false) {
-                $tag = "Add Payment Card";
-                $tag2 = "Add Card";
-                if (isset($_REQUEST['warning'])) {
-                    $tag2 = "Verify Payment Card";
-                }
-
-                if (isset($_REQUEST['fields'])) {
-                    $fields = explode(',', urldecode($_REQUEST['fields']));
-                }
-                $class = "form-control";
-            ?>
-            <main class="col-12" role="main">
-                <form method="post" action="" enctype="multipart/form-data" autocomplete="off">
-                <?php if ($mobile == false) {
-                    $class = ""; ?>
-                <h2><?php echo $tag; ?></h2>
-                <?php } ?>
-                
-                <?php if (isset($_REQUEST['warning'])) { ?>
-                    <p><strong><?php echo $_REQUEST['warning']; ?></strong></p>
-                    <?php foreach ($fields AS $field) { ?>
-                        <div class="form-group">
-                            <input type="text" class="form-control" name="<?php echo $field; ?>" id="<?php echo $field; ?>" placeholder="<?php echo $this->fieldString[$field]; ?>">
-                        </div>
-                    <?php } ?>
-                    <input type="hidden" name="card_id" value="<?php echo $_REQUEST['id']; ?>">
-                    <button type="submit" name="getPaymentVerify" class="btn purple-bn1 <?php echo $class; ?>"><?php echo $tag2; ?></button>
-                <?php } else { ?>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="cc_last_name">Last Name</label>
-                        <input type="text" class="form-control" name="cc_last_name" id="cc_last_name" placeholder="Last Name" required value="<?php echo $_SESSION['users']['last_name'];?>">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="cc_first_name">First Name</label>
-                        <input type="text" class="form-control" name="cc_first_name" id="cc_first_name" placeholder="First Name" required value="<?php echo $_SESSION['users']['other_names'];?>">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="tag">Card Number</label>
-                    <div class="form-row">
-                        <div class="col-md-11">
-                            <input type="text" name="cardno" id="cardno" class="form-control" placeholder="XXXX XXXX XXXX XXXX" onKeyUp="displayCardType(this.value)">
-                        </div>
-                        <div class="col-md-1">
-                            <span id="cardLogo"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="tag">Expiry Month</label>
-                        <input type="number" class="form-control" maxlength="2" size="2" name="mm" id="mm" placeholder="MM" pattern="[0-9.]+" onKeyUp="monthCheck()" max="12">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="tag">Expiry Year</label>
-                        <input type="number" class="form-control" maxlength="2" size="2" name="yy" id="yy" placeholder="YY" pattern="[0-9.]+" onKeyUp="yearCheck()" max="99">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="cvv">CVV</label>
-                    <input type="text" class="form-control" name="cvv" id="cvv" placeholder="CVV">
-                </div>
-                <button type="submit" name="getPayment" class="btn purple-bn1 <?php echo $class; ?>"><?php echo $tag2; ?></button>
-                <?php } ?>
-                <input type="hidden" name="user_id" value="<?php echo $_SESSION['users']['ref']; ?>">
-                </form>
-            </main>
-            <script type="text/javascript" src="<?php echo URL; ?>js/creditCard.js"></script>
-        <?php }
-
         public function listAll($redirect) {
             global $options;
 
@@ -487,7 +413,7 @@
         public function navigationBar($redirect) { ?>
             <p><i class="fa fa-caret-right mr-3"></i><a href="<?php echo URL.$redirect; ?>"><b>List All</b></p>
             <div class="moba-line my-2"></div>
-            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL.$redirect."/create"; ?>"><b>Add New</b></a></p>	
+            <p><i class="fa fa-caret-right mr-3"></i> <a href="<?php echo URL."paystack/addCard"; ?>"><b>Add New</b></a></p>	
        <?php }
     }
 ?>

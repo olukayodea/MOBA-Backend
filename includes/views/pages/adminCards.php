@@ -47,7 +47,7 @@
           <tr>
             <th scope="row"><?php echo $start+$i+1; ?></th>
             <td><a href="<?php echo URL."admin/users.view?ref=".$list[$i]['user_id']; ?>"><?php echo $users->listOnValue( $list[$i]['user_id'], "last_name")." ".$users->listOnValue( $list[$i]['user_id'], "other_names"); ?></a></td>
-            <td><a href="<?php echo URL."admin/transactions.card?ref=".$list[$i]['ref']; ?>"><?php echo "**** **** **** ".$list[$i]['pan']; ?></a></td>
+            <td><a href="<?php echo URL."admin/transactions.card?ref=".$list[$i]['ref']; ?>"><?php echo "".$list[$i]['pan']; ?></a></td>
             <td><?php echo $list[$i]['expiry_month']."/".$list[$i]['expiry_year']; ?></td>
             <td><?php echo $list[$i]['card_name']; ?></td>
             <td><?php echo $list[$i]['is_default']; ?></td>
