@@ -117,7 +117,7 @@
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer sk_test_d70cb7f340e9127daa8c77ef856d1642e76738bb",
+                "Authorization: Bearer sk_live_a2ed6378f889da4c4e80b2ebd86509d28755751e",
                 "Cache-Control: no-cache",
             ),
             CURLOPT_SSL_VERIFYPEER => TRUE,
@@ -151,7 +151,7 @@
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 200);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 200);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                "Authorization: Bearer SECRET_KEY",
+                "Authorization: Bearer sk_live_a2ed6378f889da4c4e80b2ebd86509d28755751e",
                 "Cache-Control: no-cache",
             ));
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
@@ -248,7 +248,7 @@
             curl_setopt($ch,CURLOPT_POST, true);
             curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                "Authorization: Bearer SECRET_KEY",
+                "Authorization: Bearer sk_live_a2ed6378f889da4c4e80b2ebd86509d28755751e",
                 "Cache-Control: no-cache",
             ));
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
