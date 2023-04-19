@@ -4,7 +4,7 @@
     // $u = "http://127.0.0.1/MOBA-Backend/";
     // $token = "111HEVQ38JEOKVNWYQH";
     $u = "https://moba.com.ng/";
-    $token = "182003592911583850304EF7XZKNVLJ2";
+    $token = "919445025571608738016CAGVX6PNDFF";
     $gateway_passcode = base64_encode($product_key."_".$token);
 
     // //common factors
@@ -25,18 +25,18 @@
     //data
     $url = $u."api/data";
     echo get($header, $url);*/
-/*
-    //login
-    //type = "local", "social_media";
-    $array['email'] = "olukayode.adebiyi@hotmail.co.uk";
-    $array['password'] = "Password@1";
-    $array['type'] = "local";
-    $array['account_type_token'] = "";
-    $array['firebase_token'] = "12334456543456544";
 
-    $url = $u."api/users/login";
-    $json_data = json_encode($array);
-    echo post($header, $url, $json_data);*/
+    //login
+    // //type = "local", "social_media";
+    // $array['email'] = "olukayode.adebiyi@linnkstec.com";
+    // $array['password'] = "Lolade@123";
+    // $array['type'] = "local";
+    // $array['account_type_token'] = "";
+    // $array['firebase_token'] = "12334456543456544";
+
+    // $url = $u."api/users/login";
+    // $json_data = json_encode($array);
+    // echo post($header, $url, $json_data);
 
     // $img[] = "tmp/1.jpeg";
     // $img[] = "tmp/2.jpeg";
@@ -85,10 +85,10 @@
     //profile
     $url = $u."api/users/profile";
     echo get($header, $url);*/
-/*
+
     //category::listparent
     $url = $u."api/category/listParent";
-    echo get($header, $url);*/
+    echo get($header, $url);
 /*
     //category::listSub
     $url = $u."api/category/listSub/2";
@@ -453,9 +453,9 @@
     $url = $u."api/request/alert/25";
     echo get($header, $url);*/
 
-    //review criteria
-    $url = $u."api/request/review/parameters/16";
-    echo get($header, $url);
+    // //review criteria
+    // $url = $u."api/request/review/parameters/16";
+    // echo get($header, $url);
 
     // //get review
     // $url = $u."api/request/review/15";

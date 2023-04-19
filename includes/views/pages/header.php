@@ -159,11 +159,11 @@
             <section class="moba-footer">	
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <div class="float-left mr-3"><img src="<?php echo URL; ?>images/logo.png" width="80"></a></div>
                         <p>Efficient and effectively verified workers at your fingertips.</p>
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-2">
                         <h6>QUICK LINK</h6>
                         <p>
                             <a href="<?php echo URL; ?>">Home</a><br>
@@ -176,6 +176,13 @@
                                 <a href="<?php echo URL; ?>login?join">Sign Up</a><br>
                                 <a href="<?php echo URL; ?>login">Log In</a>
                             <?php } ?>
+                        </p>
+                    </div>
+                    <div class="col-lg-2">
+                        <h6>QUICK LINK</h6>
+                        <p>
+                            <a href="<?php echo URL; ?>privacy">Privacy Policy</a><br>
+                            <a href="<?php echo URL; ?>termsOfUse">Terms of Use</a><br>
                         </p>
                     </div>
                     <div class="col-lg-2">

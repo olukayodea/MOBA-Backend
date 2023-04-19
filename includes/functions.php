@@ -48,21 +48,7 @@
   define("search_radius_me", 200);
 
   //google APIs
-  define("GoogleAPI", "AIzaSyAgGXpfWv4Be3Mwc7MwRQt9ULs73A77ryw");
-  define("GoogleClientId", "987446224980-d6c7vclcutdt2dof153e6vq93iar9mue.apps.googleusercontent.com");
-
-  //payment gateway
-  define("fl_public_key",  "FLWPUBK-c8af924e4d4f09fbd9bb6e710e95513a-X");
-  define("fl_secret_key", "FLWSECK-2304d08aba0dfacd1dd55505495d6796-X");
-  define("fl_encryption_key", "2304d08aba0d5fcf6044aadc");
-  
-  // define("fl_public_key",  "FLWPUBK_TEST-ffbf9b7c7fe3fcc61926f90c91f4fab9-X");
-  // define("fl_secret_key", "FLWSECK_TEST-1cb22d96acf6436408173a882d4b1942-X");
-  // define("fl_encryption_key", "FLWSECK_TEST53b6175abd98");
-
-  define("FL_charge", "https://api.ravepay.co/flwv3-pug/getpaidx/api/tokenized/charge");
-  define("FL_validatecharge", "https://api.ravepay.co/flwv3-pug/getpaidx/api/validatecharge");
-	define("FL_refund", "https://api.ravepay.co/gpx/merchant/transactions/refund");
+include_once("../cre.php");
 
   //include all the common controller methods
 	include_once("controllers/mailer/class.phpmailer.php");
